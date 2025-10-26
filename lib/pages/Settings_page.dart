@@ -96,7 +96,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               children: [
                 const CircleAvatar(
                   radius: 60,
-                  backgroundImage: AssetImage('assets/images/baki.jpg'),
+                  backgroundImage: AssetImage('lib/assets/images/baki.jpg'),
                 ),
                 const SizedBox(height: 16),
                 Text(

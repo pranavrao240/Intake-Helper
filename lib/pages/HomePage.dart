@@ -172,52 +172,65 @@ class _HomepageState extends State<Homepage> with RouteAware {
                       const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                   child: Column(
                     children: [
+                      // ElevatedButton(
+                      //   onPressed: () async {
+                      //     // Request notification permission
+                      //     final status = await Permission.notification.status;
+                      //     if (status.isDenied) {
+                      //       final result = await showDialog<bool>(
+                      //         context: context,
+                      //         builder: (context) => AlertDialog(
+                      //           title: const Text('Notifications'),
+                      //           content: const Text(
+                      //               'This app would like to send you notifications. Would you like to enable them?'),
+                      //           actions: [
+                      //             TextButton(
+                      //               onPressed: () =>
+                      //                   Navigator.pop(context, false),
+                      //               child: const Text('Not Now'),
+                      //             ),
+                      //             TextButton(
+                      //               onPressed: () =>
+                      //                   Navigator.pop(context, true),
+                      //               child: const Text('Allow'),
+                      //             ),
+                      //           ],
+                      //         ),
+                      //       );
+
+                      //       if (result == true) {
+                      //         await Permission.notification.request();
+                      //       } else {
+                      //         if (context.mounted) {
+                      //           ScaffoldMessenger.of(context).showSnackBar(
+                      //             const SnackBar(
+                      //                 content:
+                      //                     Text('Notifications are disabled')),
+                      //           );
+                      //         }
+                      //         return;
+                      //       }
+                      //     }
+
+                      //     if (await Permission.notification.isGranted) {
+                      //       CustomNotification()
+                      //           .scheduleNotification("title", "body", 5);
+                      //     }
+                      //   },
+                      //   child: const Text('Show Notification'),
+                      // ),
+
                       ElevatedButton(
-                        onPressed: () async {
-                          // Request notification permission
-                          final status = await Permission.notification.status;
-                          if (status.isDenied) {
-                            final result = await showDialog<bool>(
-                              context: context,
-                              builder: (context) => AlertDialog(
-                                title: const Text('Notifications'),
-                                content: const Text(
-                                    'This app would like to send you notifications. Would you like to enable them?'),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () =>
-                                        Navigator.pop(context, false),
-                                    child: const Text('Not Now'),
-                                  ),
-                                  TextButton(
-                                    onPressed: () =>
-                                        Navigator.pop(context, true),
-                                    child: const Text('Allow'),
-                                  ),
-                                ],
-                              ),
-                            );
+                          onPressed: () async {
+                            await CustomNotification().showScheduleNotification(
+                                1, "Drink Water", "Stay hydrated 💧", 22, 31);
+                          },
+                          child: Text("Notify")),
 
-                            if (result == true) {
-                              await Permission.notification.request();
-                            } else {
-                              if (context.mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                      content:
-                                          Text('Notifications are disabled')),
-                                );
-                              }
-                              return;
-                            }
-                          }
-
-                          if (await Permission.notification.isGranted) {
-                            CustomNotification()
-                                .scheduleNotification("title", "body", 5);
-                          }
-                        },
-                        child: const Text('Show Notification'),
+                      CircleAvatar(
+                        radius: 60,
+                        backgroundImage:
+                            AssetImage('lib/assets/images/baki.jpg'),
                       ),
                       const SizedBox(height: 20),
                       Row(
