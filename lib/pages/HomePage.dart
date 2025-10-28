@@ -220,13 +220,6 @@ class _HomepageState extends State<Homepage> with RouteAware {
                       //   child: const Text('Show Notification'),
                       // ),
 
-                      ElevatedButton(
-                          onPressed: () async {
-                            await CustomNotification().showScheduleNotification(
-                                1, "Drink Water", "Stay hydrated 💧", 22, 31);
-                          },
-                          child: Text("Notify")),
-
                       CircleAvatar(
                         radius: 60,
                         backgroundImage:
