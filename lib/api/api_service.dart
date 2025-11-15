@@ -156,6 +156,27 @@ class ApiService {
     return null;
   }
 
+  Future<void> resetTodo() async {
+    var loginDetails = await SharedService.LoginDetails();
+    Map<String, String> requestHeaders = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ${loginDetails?.data.token ?? ''}'
+    };
+
+    var url = Uri.http(Config.baseUrl, Config.resetTodoAPI);
+    var response = await ApiService.client.get(
+      url,
+      headers: requestHeaders,
+    );
+    print("Response: ${response.body}");
+
+    if (response.statusCode == 200) {
+    } else if (response.statusCode == 401) {
+      navigatorKey.currentState
+          ?.pushNamedAndRemoveUntil("/login", (route) => false);
+    } else {}
+  }
+
   Future<bool?> deleteTodoItem(String mealId) async {
     var loginDetails = await SharedService.LoginDetails();
     Map<String, String> requestHeaders = {

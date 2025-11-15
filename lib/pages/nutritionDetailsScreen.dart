@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intake_helper/Providers/providers.dart';
 import 'package:intake_helper/api/api_service.dart';
 import 'package:intake_helper/models/nutrition_model.dart';
+import 'package:intake_helper/utility/notification.dart';
 import 'package:intl/intl.dart';
 import 'package:pie_chart/pie_chart.dart';
 
@@ -47,6 +48,9 @@ class _NutritionDetailScreenState extends ConsumerState<NutritionDetailScreen> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color(0xFF1F1F1F),
+        leading: IconButton(
+            onPressed: () {},
+            icon: Icon(Icons.arrow_back, color: Colors.white)),
         title: const Text("Nutrition Details",
             style: TextStyle(
               fontWeight: FontWeight.bold,
@@ -143,6 +147,26 @@ class _NutritionDetailScreenState extends ConsumerState<NutritionDetailScreen> {
               ),
             ),
             child: PieChart(
+              legendOptions: const LegendOptions(
+                legendTextStyle: TextStyle(
+                  color: Colors.white,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                ),
+                showLegends: true,
+                legendPosition: LegendPosition.right,
+              ),
+              chartValuesOptions: const ChartValuesOptions(
+                showChartValuesInPercentage: true,
+                showChartValues: true,
+                showChartValuesOutside: true,
+                decimalPlaces: 0,
+                chartValueStyle: TextStyle(
+                  color: Colors.black,
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
               dataMap: {
                 "Calories": model.calories ?? 0.0,
                 "Protein": model.protein ?? 0.0,
@@ -221,10 +245,23 @@ class _NutritionDetailScreenState extends ConsumerState<NutritionDetailScreen> {
                   await showDialog(
                     context: context,
                     builder: (context) {
+                      print("selectedType: $selectedType");
+                      print("selectedDays: $selectedDays");
                       return _TimeDayPickerDialog(
-                        onConfirm: (time, days) {
+                        onConfirm: (time, days) async {
                           selectedTime = time;
                           selectedDays = days;
+                          print("selectedTime: $selectedTime");
+                          print("selectedDays: $selectedDays");
+
+                          for (String day in selectedDays) {
+                            scheduleForMultipleDays(
+                              title: model.dishName!,
+                              body: "Time to eat your scheduled meal!",
+                              time: selectedTime,
+                              days: selectedDays,
+                            );
+                          }
                         },
                       );
                     },
@@ -471,6 +508,7 @@ class _TimeDayPickerDialogState extends State<_TimeDayPickerDialog> {
         TextButton(
           onPressed: () {
             widget.onConfirm(_selectedTime, _selectedDays.toList());
+
             Navigator.pop(context);
           },
           child: const Text("Add", style: TextStyle(color: Colors.greenAccent)),

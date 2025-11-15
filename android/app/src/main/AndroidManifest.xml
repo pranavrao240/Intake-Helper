@@ -7,6 +7,14 @@
         android:label="intake_helper"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
+        <uses-library
+    android:name="com.google.android.material"
+    android:required="false" />
+    <receiver android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver" />
+<receiver android:name="com.dexterous.flutterlocalnotifications.ActionBroadcastReceiver" />
+<receiver android:name="com.dexterous.flutterlocalnotifications.BigPictureStyleInformation" />
+
+
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -47,4 +55,5 @@
         </intent>
     </queries>
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+<uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
 </manifest>

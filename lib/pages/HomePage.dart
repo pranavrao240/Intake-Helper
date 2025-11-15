@@ -1,6 +1,4 @@
-import 'package:elegant_notification/elegant_notification.dart';
-import 'package:elegant_notification/resources/arrays.dart';
-import 'package:elegant_notification/resources/stacked_options.dart';
+import 'package:android_intent_plus/android_intent.dart';
 import 'package:flutter/material.dart';
 import 'package:intake_helper/api/api_service.dart';
 import 'package:intake_helper/models/nutrition_model.dart';
@@ -9,6 +7,7 @@ import 'package:intake_helper/pages/todoListScreen.dart';
 import 'package:intake_helper/utility/notification.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:pie_chart/pie_chart.dart';
+import 'package:timezone/timezone.dart' as tz;
 
 class Homepage extends StatefulWidget {
   const Homepage({super.key});
@@ -20,6 +19,24 @@ class Homepage extends StatefulWidget {
 class _HomepageState extends State<Homepage> with RouteAware {
   final api = ApiService();
   var gradienColors = [Colors.red, Colors.orange];
+
+  Future<void> requestAlarmPermission() async {
+    // Check current permission
+    final status = await Permission.scheduleExactAlarm.status;
+
+    if (status.isGranted) {
+      print("Alarm permission ALREADY GRANTED");
+      return;
+    }
+
+    print("Opening alarm permission settings...");
+
+    // Opens the system settings page — REQUIRED for Pixel phones
+    const intent = AndroidIntent(
+      action: 'android.settings.REQUEST_SCHEDULE_EXACT_ALARM',
+    );
+    await intent.launch();
+  }
 
   String _searchQuery = "";
   int total_meals = 0;
@@ -102,11 +119,14 @@ class _HomepageState extends State<Homepage> with RouteAware {
         [];
 
     final filtered = _filterData(allMeals);
+    final now = tz.TZDateTime.now(tz.local).add(Duration(seconds: 20));
 
     return Scaffold(
       backgroundColor: const Color(0xFF121212),
       appBar: AppBar(
         backgroundColor: Colors.black,
+        automaticallyImplyLeading: false,
+        leading: SizedBox(),
         title: const Text("Gym Intake Tracker",
             style: TextStyle(color: Colors.white)),
         actions: [
@@ -172,54 +192,6 @@ class _HomepageState extends State<Homepage> with RouteAware {
                       const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                   child: Column(
                     children: [
-                      // ElevatedButton(
-                      //   onPressed: () async {
-                      //     // Request notification permission
-                      //     final status = await Permission.notification.status;
-                      //     if (status.isDenied) {
-                      //       final result = await showDialog<bool>(
-                      //         context: context,
-                      //         builder: (context) => AlertDialog(
-                      //           title: const Text('Notifications'),
-                      //           content: const Text(
-                      //               'This app would like to send you notifications. Would you like to enable them?'),
-                      //           actions: [
-                      //             TextButton(
-                      //               onPressed: () =>
-                      //                   Navigator.pop(context, false),
-                      //               child: const Text('Not Now'),
-                      //             ),
-                      //             TextButton(
-                      //               onPressed: () =>
-                      //                   Navigator.pop(context, true),
-                      //               child: const Text('Allow'),
-                      //             ),
-                      //           ],
-                      //         ),
-                      //       );
-
-                      //       if (result == true) {
-                      //         await Permission.notification.request();
-                      //       } else {
-                      //         if (context.mounted) {
-                      //           ScaffoldMessenger.of(context).showSnackBar(
-                      //             const SnackBar(
-                      //                 content:
-                      //                     Text('Notifications are disabled')),
-                      //           );
-                      //         }
-                      //         return;
-                      //       }
-                      //     }
-
-                      //     if (await Permission.notification.isGranted) {
-                      //       CustomNotification()
-                      //           .scheduleNotification("title", "body", 5);
-                      //     }
-                      //   },
-                      //   child: const Text('Show Notification'),
-                      // ),
-
                       CircleAvatar(
                         radius: 60,
                         backgroundImage:

@@ -1,9 +1,12 @@
+import 'dart:math';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intake_helper/api/api_service.dart';
 import 'package:intake_helper/models/todo_model.dart';
 import 'package:intake_helper/models/nutrition_model.dart';
+import 'package:intake_helper/pages/HomePage.dart';
 import 'package:intake_helper/utility/notification.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -37,6 +40,34 @@ class SharedService {
   }
 }
 
+Future<void> resetTodo(WidgetRef ref) async {
+  final apiService = ref.watch(apiservice);
+  print("function enters");
+  await apiService.resetTodo();
+}
+
+void setNotification(var item, var index) async {
+  final rawTime = item.time?.toString().replaceAll(RegExp(r'[\[\]\s]'), '');
+  final randomId = Random().nextInt(100);
+  if (rawTime != null && rawTime.contains(":")) {
+    final parts = rawTime.split(":");
+    final hour = int.tryParse(parts[0]);
+    final minute = int.tryParse(parts[1]);
+    print(
+        "For Dish-${item.dishName} Notification time is  -> hour: $hour, minute: $minute");
+
+    if (hour != null && minute != null) {
+      await CustomNotification().showScheduleNotification(
+        randomId,
+        "🍽️ ${item.dishName}",
+        "Time to eat your scheduled meal!",
+        hour,
+        minute,
+      );
+    }
+  }
+}
+
 class TodolistScreen extends ConsumerStatefulWidget {
   const TodolistScreen({super.key});
 
@@ -49,6 +80,7 @@ class _TodolistScreenState extends ConsumerState<TodolistScreen> {
   List<bool> isCheckedList = [];
   List<String> completedIds = [];
   bool _isLoading = true;
+  bool _notificationsScheduled = false;
 
   @override
   void initState() {
@@ -73,25 +105,6 @@ class _TodolistScreenState extends ConsumerState<TodolistScreen> {
     }
   }
 
-  // Future<void> _sendReminderNotification() async {
-  //   try {
-  //     await _notificationService.createNotification(
-  //       id: DateTime.now().millisecondsSinceEpoch % 1000,
-  //       title: 'Task Reminder',
-  //       body: 'Complete your tasks for today!',
-  //     );
-  //   } catch (e) {
-  //     debugPrint('Error sending notification: $e');
-  //   }
-  // }
-
-  // Future<void> requestPermission() async {
-  //   bool isAllowed = await AwesomeNotifications().isNotificationAllowed();
-  //   if (!isAllowed) {
-  //     await AwesomeNotifications().requestPermissionToSendNotifications();
-  //   }
-  // }
-
   Future<void> _loadCompletedTasks() async {
     completedIds = await SharedService.getCompletedTasks();
     setState(() {});
@@ -106,31 +119,28 @@ class _TodolistScreenState extends ConsumerState<TodolistScreen> {
         .toList();
   }
 
-  // void setNotification(var item, var index) async {
-  //   final rawTime = item.time?.toString().replaceAll(RegExp(r'[\[\]\s]'), '');
-  //   if (rawTime != null && rawTime.contains(":")) {
-  //     final parts = rawTime.split(":");
-  //     final hour = int.tryParse(parts[0]);
-  //     final minute = int.tryParse(parts[1]);
-
-  //     if (hour != null && minute != null) {
-  //       await NotificationService.notifyAtTime(
-  //         id: index,
-  //         title: "🍽️ ${item.dishName}",
-  //         body: "Time to eat your scheduled meal!",
-  //         hour: hour,
-  //         minute: minute,
-  //       );
-  //     }
-  //   }
-  // }
+  Future<void> scheduleAllNotifications(List<Nutrition> data) async {
+    for (int i = 0; i < data.length; i++) {
+      setNotification(data[i], i);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final api = ref.read(apiservice);
 
     return Scaffold(
-      appBar: AppBar(title: const Text("Nutrition Todo List")),
+      appBar: AppBar(
+        title: const Text("Nutrition Todo List"),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.push(context, MaterialPageRoute(builder: (context) {
+              return Homepage();
+            }));
+          },
+        ),
+      ),
       body: Column(
         children: [
           Expanded(
@@ -165,7 +175,6 @@ class _TodolistScreenState extends ConsumerState<TodolistScreen> {
                     itemCount: filteredData.length,
                     itemBuilder: (context, index) {
                       final item = filteredData[index];
-                      // setNotification(item, index);
 
                       final isCompleted =
                           completedIds.contains(item.nutritionId);
@@ -267,6 +276,7 @@ class _TodolistScreenState extends ConsumerState<TodolistScreen> {
                         .toList();
 
                     final filteredData = _filterData(nutritions ?? []);
+
                     List<String> existingCompleted =
                         await SharedService.getCompletedTasks();
 
@@ -298,8 +308,10 @@ class _TodolistScreenState extends ConsumerState<TodolistScreen> {
               Padding(
                 padding: const EdgeInsets.only(bottom: 48.0),
                 child: CupertinoButton(
-                    onPressed: () {
+                    onPressed: () async {
                       SharedService.clearCompletedTasks();
+                      await resetTodo(ref);
+                      setState(() {});
                     },
                     child: Container(
                       width: 100,

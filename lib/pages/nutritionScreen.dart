@@ -31,6 +31,9 @@ class _NutritionScreenState extends ConsumerState<NutritionScreen> {
       backgroundColor: const Color(0xFF121212),
       appBar: AppBar(
         backgroundColor: const Color(0xFF1F1F1F),
+        leading: IconButton(
+            onPressed: () {},
+            icon: Icon(Icons.arrow_back, color: Colors.white)),
         title: const Text(
           "Nutrition Tracker",
           style: TextStyle(
