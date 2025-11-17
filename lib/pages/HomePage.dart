@@ -4,7 +4,6 @@ import 'package:intake_helper/api/api_service.dart';
 import 'package:intake_helper/models/nutrition_model.dart';
 import 'package:intake_helper/models/todo_model.dart';
 import 'package:intake_helper/pages/todoListScreen.dart';
-import 'package:intake_helper/utility/notification.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:pie_chart/pie_chart.dart';
 import 'package:timezone/timezone.dart' as tz;

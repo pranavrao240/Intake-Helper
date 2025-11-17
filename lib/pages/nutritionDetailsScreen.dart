@@ -49,7 +49,9 @@ class _NutritionDetailScreenState extends ConsumerState<NutritionDetailScreen> {
       appBar: AppBar(
         backgroundColor: const Color(0xFF1F1F1F),
         leading: IconButton(
-            onPressed: () {},
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
             icon: Icon(Icons.arrow_back, color: Colors.white)),
         title: const Text("Nutrition Details",
             style: TextStyle(
@@ -265,23 +267,6 @@ class _NutritionDetailScreenState extends ConsumerState<NutritionDetailScreen> {
                         },
                       );
                     },
-                  );
-                  showDialog(
-                    context: context,
-                    builder: (_) => AlertDialog(
-                      title: Text("Permission Required"),
-                      content: Text(
-                          "To schedule reminders, allow 'Exact Alarms' in settings."),
-                      actions: [
-                        TextButton(
-                          onPressed: () {
-                            openExactAlarmSettings();
-                            Navigator.of(context).pop();
-                          },
-                          child: Text("Open Settings"),
-                        ),
-                      ],
-                    ),
                   );
 
                   if (selectedDays.isEmpty) return;

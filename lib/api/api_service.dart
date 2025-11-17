@@ -1,7 +1,9 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
+import 'package:http/io_client.dart';
 import 'package:intake_helper/Config/Config.dart';
 import 'package:intake_helper/main.dart';
 import 'package:intake_helper/models/login_response_model.dart';
@@ -14,11 +16,18 @@ final apiservice = Provider((ref) => ApiService());
 
 class ApiService {
   var data;
-  static var client = http.Client();
+  static final client = _createHttpClient();
+
+  static http.Client _createHttpClient() {
+    final httpClient = HttpClient()
+      ..badCertificateCallback =
+          (X509Certificate cert, String host, int port) => true;
+    return IOClient(httpClient);
+  }
 
   Future<List<Nutrition>?> getNutritions() async {
     final headers = {'Content-Type': 'application/json'};
-    final url = Uri.http(Config.baseUrl, Config.nutritionAPI);
+    final url = Uri.parse('${Config.baseUrl}/${Config.nutritionAPI}');
 
     try {
       final response = await client.get(url, headers: headers);
@@ -46,7 +55,7 @@ class ApiService {
   static Future<bool> registerUser(
       String fullName, String email, String password) async {
     Map<String, String> requestHeaders = {'Content-Type': 'application/json'};
-    var url = Uri.http(Config.baseUrl, Config.registerAPI);
+    var url = Uri.parse('${Config.baseUrl}/${Config.registerAPI}');
 
     var response = await client.post(
       url,
@@ -70,7 +79,7 @@ class ApiService {
   static Future<bool> loginUser(
       BuildContext context, String email, String password) async {
     Map<String, String> requestHeaders = {'Content-Type': 'application/json'};
-    var url = Uri.http(Config.baseUrl, Config.loginAPI);
+    var url = Uri.parse('${Config.baseUrl}/${Config.loginAPI}');
 
     var response = await client.post(
       url,
@@ -100,7 +109,7 @@ class ApiService {
 
   Future<Nutrition?> getNutritionById(String id) async {
     Map<String, String> reqHeaders = {'Content-Type': 'application/json'};
-    var url = Uri.http(Config.baseUrl, "${Config.detailAPI}$id");
+    var url = Uri.parse('${Config.baseUrl}/${Config.detailAPI}$id');
 
     try {
       print("Fetching Nutrition by ID from: $url");
@@ -136,7 +145,7 @@ class ApiService {
       'Content-Type': 'application/json',
       'Authorization': 'Bearer ${loginDetails?.data.token ?? ''}',
     };
-    final url = Uri.http(Config.baseUrl, Config.TodoAPI);
+    final url = Uri.parse('${Config.baseUrl}/${Config.TodoAPI}');
 
     try {
       final response = await client.get(url, headers: headers);
@@ -163,7 +172,7 @@ class ApiService {
       'Authorization': 'Bearer ${loginDetails?.data.token ?? ''}'
     };
 
-    var url = Uri.http(Config.baseUrl, Config.resetTodoAPI);
+    var url = Uri.parse('${Config.baseUrl}/${Config.resetTodoAPI}');
     var response = await ApiService.client.get(
       url,
       headers: requestHeaders,
@@ -184,7 +193,7 @@ class ApiService {
       'Authorization': 'Basic ${loginDetails?.data.token ?? ''}'
     };
 
-    var url = Uri.http(Config.baseUrl, Config.TodoAPI);
+    var url = Uri.parse('${Config.baseUrl}/${Config.TodoAPI}');
     var response = await ApiService.client.delete(
       url,
       headers: requestHeaders,
@@ -215,7 +224,7 @@ class ApiService {
       'Authorization': 'Basic ${loginDetails?.data.token ?? ''}',
     };
 
-    var url = Uri.http(Config.baseUrl, Config.TodoAPI);
+    var url = Uri.parse('${Config.baseUrl}/${Config.TodoAPI}');
 
     final body = {
       "meals": [

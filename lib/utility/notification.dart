@@ -139,7 +139,7 @@ class CustomNotification {
       scheduleDate = scheduleDate.add(const Duration(days: 1));
     }
 
-    print("📌 Scheduled Time = ${scheduleDate.toString()}");
+    print(" Scheduled Time = ${scheduleDate.toString()}");
 
     // Create notification details
     const androidDetails = AndroidNotificationDetails(
@@ -149,6 +149,7 @@ class CustomNotification {
       importance: Importance.max,
       priority: Priority.high,
       enableVibration: true,
+      icon: 'ic_launcher_foreground',
     );
 
     final details = NotificationDetails(
