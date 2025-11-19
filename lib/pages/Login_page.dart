@@ -1,261 +1,310 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intake_helper/Config/Config.dart';
 import 'package:intake_helper/api/api_service.dart';
 import 'package:intake_helper/pages/register_page.dart';
+import 'package:intake_helper/components/custom_textfield.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:snippet_coder_utils/FormHelper.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class Loginpage extends StatefulWidget {
-  const Loginpage({super.key});
+class LoginPage extends HookConsumerWidget {
+  const LoginPage({super.key});
 
   @override
-  State<Loginpage> createState() => _LoginPageState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final GlobalKey<FormState> globalKey =
+        useMemoized(() => GlobalKey<FormState>());
 
-class _LoginPageState extends State<Loginpage> {
-  static final GlobalKey<FormState> globalKey = GlobalKey<FormState>();
-  bool isAsyncCallProcess = false;
-  var emailController = TextEditingController();
+    final isAsyncCallProcess = useState<bool>(false);
+    final emailController = useTextEditingController();
+    final passwordController = useTextEditingController();
+    final hidePassword = useState<bool>(true);
+    final email = useState<String?>(null);
+    final password = useState<String?>(null);
 
-  String? password;
-  String? cnfPassword;
-  String? email;
-  bool hidePassword = true;
-  bool hidePassword2 = true;
-  bool hideCnfPassword = true;
-  String textPwd = "";
-  @override
-  Widget build(BuildContext context) {
+    Future<bool> validateSave() async {
+      final form = globalKey.currentState;
+      if (form == null) {
+        if (kDebugMode) print('FormState is null');
+        return false;
+      }
+      if (form.validate()) {
+        form.save();
+        return true;
+      }
+      return false;
+    }
+
+    final screenWidth = MediaQuery.of(context).size.width;
+
     return SafeArea(
       child: Scaffold(
-        backgroundColor: const Color.fromARGB(255, 56, 107, 46),
-        body: ModalProgressHUD(
-          inAsyncCall: isAsyncCallProcess,
-          opacity: .3,
-          key: UniqueKey(),
-          child: Form(key: globalKey, child: _registerUI(context)),
-        ),
-      ),
-    );
-  }
+        backgroundColor: const Color.fromARGB(255, 32, 177, 109),
+        body: Padding(
+          padding: EdgeInsets.only(
+            top: MediaQuery.of(context).size.height * 0.1,
+          ),
+          child: ModalProgressHUD(
+            inAsyncCall: isAsyncCallProcess.value,
+            opacity: 0.3,
+            key: UniqueKey(),
+            child: Form(
+              key: globalKey,
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 18.0, vertical: 28),
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 18),
+                      // Top header: small icon + App title (centered)
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Image.asset(
+                            "lib/assets/images/intake_helper_logo.png",
+                            width: 58,
+                            height: 58,
+                          ),
+                          const Text(
+                            "Intake Helper",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 20,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          )
+                        ],
+                      ),
+                      const SizedBox(height: 24),
+                      // Center Card
+                      Center(
+                        child: Container(
+                          width: screenWidth > 420 ? 420 : double.infinity,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF0F0F10),
+                            borderRadius: BorderRadius.circular(18),
+                            border: Border.all(
+                                color: Colors.grey.shade800, width: 1),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.6),
+                                offset: const Offset(0, 8),
+                                blurRadius: 28,
+                              ),
+                              BoxShadow(
+                                color: Colors.white.withOpacity(0.01),
+                                offset: const Offset(0, -2),
+                                blurRadius: 6,
+                                spreadRadius: 0,
+                              ),
+                            ],
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 20, vertical: 22),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                "Welcome Back",
+                                style: TextStyle(
+                                  color: Colors.green,
+                                  fontSize: 26,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                              const SizedBox(height: 6),
+                              const Text(
+                                "Login to continue your fitness journey",
+                                style: TextStyle(
+                                  color: Colors.green,
+                                  fontSize: 13.5,
+                                ),
+                              ),
+                              const SizedBox(height: 18),
 
-  Future<void> saveDataToSharedPreferences() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    print("Saving email: ${emailController.text}");
-    await prefs.setString(emailController.text, email!);
-  }
+                              // Email
+                              CommonInputField(
+                                label: "E-mail",
+                                prefixIcon: Icons.email,
+                                controller: emailController,
+                                keyboardType: TextInputType.emailAddress,
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return 'Please enter your email';
+                                  } else if (!value.contains(RegExp(
+                                      r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"))) {
+                                    return 'Please enter a valid email';
+                                  }
+                                  return null;
+                                },
+                              ),
+                              const SizedBox(height: 12),
 
-  Widget _registerUI(BuildContext context) {
-    return SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.only(top: 250.0, left: 20, right: 20),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                SizedBox(
-                  height: 10,
-                ),
-                Center(
-                  child: Text(
-                    "Intake Helper",
-                    style: TextStyle(
-                        fontSize: 35,
-                        fontWeight: FontWeight.bold,
-                        color: const Color.fromARGB(255, 69, 248, 3)),
+                              // Password
+                              CommonInputField(
+                                label: "Password",
+                                prefixIcon: Icons.lock,
+                                controller: passwordController,
+                                obscureText: hidePassword.value,
+                                showVisibilityToggle: true,
+                                onToggleVisibility: () {
+                                  hidePassword.value = !hidePassword.value;
+                                },
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return 'Please enter your password';
+                                  } else if (value.length < 6) {
+                                    return 'Password must be at least 6 characters';
+                                  }
+                                  return null;
+                                },
+                              ),
+                              const SizedBox(height: 18),
+
+                              // Login button
+                              SizedBox(
+                                width: double.infinity,
+                                child: GestureDetector(
+                                  onTap: () async {
+                                    if (await validateSave()) {
+                                      isAsyncCallProcess.value = true;
+                                      try {
+                                        final response =
+                                            await ApiService.loginUser(
+                                          context,
+                                          emailController.text.trim(),
+                                          passwordController.text.trim(),
+                                        );
+                                        isAsyncCallProcess.value = false;
+
+                                        if (response) {
+                                          SharedPreferences prefs =
+                                              await SharedPreferences
+                                                  .getInstance();
+                                          await prefs.setString("user_email",
+                                              emailController.text.trim());
+
+                                          FormHelper.showSimpleAlertDialog(
+                                              context,
+                                              Config.appName,
+                                              "Logged in Successfully",
+                                              "OK", () {
+                                            Navigator.of(context).pop();
+                                            Navigator.pushNamedAndRemoveUntil(
+                                                context,
+                                                "/home",
+                                                (route) => false);
+                                          });
+                                        } else {
+                                          FormHelper.showSimpleAlertDialog(
+                                              context,
+                                              Config.appName,
+                                              "Invalid email/password",
+                                              "OK", () {
+                                            Navigator.of(context).pop();
+                                          });
+                                        }
+                                      } catch (e) {
+                                        isAsyncCallProcess.value = false;
+                                        FormHelper.showSimpleAlertDialog(
+                                            context,
+                                            Config.appName,
+                                            "Error occurred",
+                                            "OK", () {
+                                          Navigator.of(context).pop();
+                                        });
+                                      }
+                                    } else {
+                                      FormHelper.showSimpleAlertDialog(
+                                          context,
+                                          Config.appName,
+                                          "Please fill all the fields",
+                                          "OK", () {
+                                        Navigator.of(context).pop();
+                                      });
+                                    }
+                                  },
+                                  child: Container(
+                                    height: 52,
+                                    decoration: BoxDecoration(
+                                      gradient: const LinearGradient(
+                                        colors: [
+                                          Colors.greenAccent,
+                                          Colors.green
+                                        ],
+                                        begin: Alignment.centerLeft,
+                                        end: Alignment.centerRight,
+                                      ),
+                                      borderRadius: BorderRadius.circular(10),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black.withOpacity(0.45),
+                                          offset: const Offset(0, 8),
+                                          blurRadius: 20,
+                                        ),
+                                      ],
+                                    ),
+                                    child: const Center(
+                                      child: Text(
+                                        'Log In',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 16.5,
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+
+                              const SizedBox(height: 14),
+
+                              // Sign up row
+                              Center(
+                                child: RichText(
+                                  text: TextSpan(
+                                    style: const TextStyle(
+                                        color: Colors.white70, fontSize: 14),
+                                    children: <TextSpan>[
+                                      const TextSpan(
+                                          text: "Don't have an account? "),
+                                      TextSpan(
+                                        text: "Sign Up",
+                                        recognizer: TapGestureRecognizer()
+                                          ..onTap = () {
+                                            Navigator.pushReplacement(
+                                                context,
+                                                MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        const RegisterPage()));
+                                          },
+                                        style: const TextStyle(
+                                            color: Colors.green,
+                                            fontWeight: FontWeight.bold),
+                                      )
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                    ],
                   ),
                 ),
-                const SizedBox(
-                  height: 10,
-                )
-              ],
-            ),
-            Center(
-              child: Text(
-                "Login ",
-                style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 20,
-                    color: const Color.fromARGB(255, 69, 248, 3)),
               ),
             ),
-            SizedBox(
-              height: 10,
-            ),
-            FormHelper.inputFieldWidget(
-              context,
-              "email",
-              "E-mail",
-              (onValidate) {
-                if (onValidate.isEmpty) {
-                  return "* required";
-                }
-                bool emailValid =
-                    RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$')
-                        .hasMatch(onValidate);
-
-                if (!emailValid) {
-                  return "Invalid E-mail";
-                }
-
-                return null;
-              },
-              (onSaved) {
-                email = onSaved.toString().trim();
-              },
-              initialValue: emailController.text,
-              showPrefixIcon: true,
-              prefixIcon: Icon(Icons.email_outlined),
-              borderRadius: 10,
-              contentPadding: 15,
-              fontSize: 14,
-              prefixIconPaddingLeft: 10,
-              borderColor: Colors.grey.shade400,
-              textColor: Colors.black,
-              prefixIconColor: Colors.black,
-              hintColor: Colors.black.withOpacity(.6),
-              backgroundColor: Colors.grey.shade100,
-              borderFocusColor: Colors.grey.shade200,
-            ),
-            const SizedBox(
-              height: 10,
-            ),
-            FormHelper.inputFieldWidget(
-                context,
-                "password",
-                "Password",
-                (onValidate) {
-                  if (onValidate.isEmpty) {
-                    return "* required";
-                  }
-                },
-                (onSaved) {
-                  password = onSaved.toString();
-                },
-                showPrefixIcon: true,
-                prefixIcon: Icon(Icons.password),
-                borderRadius: 10,
-                contentPadding: 15,
-                fontSize: 14,
-                prefixIconPaddingLeft: 10,
-                borderColor: Colors.grey.shade400,
-                textColor: Colors.black,
-                prefixIconColor: Colors.black,
-                hintColor: Colors.black.withOpacity(.6),
-                backgroundColor: Colors.grey.shade100,
-                borderFocusColor: Colors.grey.shade200,
-                obscureText: hidePassword2,
-                suffixIcon: IconButton(
-                  onPressed: () {
-                    setState(() {
-                      hidePassword2 = !hidePassword2;
-                    });
-                  },
-                  color: Colors.red.withOpacity(.4),
-                  icon: Icon(
-                      hidePassword2 ? Icons.visibility_off : Icons.visibility),
-                ),
-                onChange: (val) {
-                  password = val;
-                }),
-            SizedBox(height: 10),
-            const SizedBox(
-              height: 10,
-            ),
-            Center(
-                child: FormHelper.submitButton("LogIn", () {
-              if (validateSave()) {
-                //API integration
-                setState(() {
-                  isAsyncCallProcess = true;
-                  saveDataToSharedPreferences(); // Save email to SharedPreferences
-                });
-                ApiService.loginUser(context, email!, password!).then((res) {
-                  setState(() {
-                    isAsyncCallProcess = false;
-                  });
-
-                  print("API Response: $res"); // Debugging line
-
-                  if (res) {
-                    FormHelper.showSimpleAlertDialog(
-                        context, Config.appName, "Logged IN Successfully", "OK",
-                        () {
-                      Navigator.of(context).pop();
-                      Navigator.pushNamedAndRemoveUntil(
-                          context, "/home", (routes) => false);
-                    });
-                  } else {
-                    FormHelper.showSimpleAlertDialog(
-                        context, Config.appName, "Invalid email/password", "OK",
-                        () {
-                      Navigator.of(context).pop();
-                    });
-                  }
-                });
-                // ApiService.loginUserDetails(email!, password!).then((res2) {
-                //   print("API Response login Detail: $res2"); // Debugging line)
-                // });
-              } else {
-                FormHelper.showSimpleAlertDialog(
-                    context, Config.appName, "Please fill all the fields", "OK",
-                    () {
-                  Navigator.of(context).pop();
-                });
-              }
-            },
-                    btnColor: const Color.fromARGB(255, 20, 139, 34),
-                    borderColor: Colors.white,
-                    txtColor: Colors.white,
-                    borderRadius: 20)),
-            const SizedBox(
-              height: 10,
-            ),
-            Center(
-              child: RichText(
-                  text: TextSpan(
-                      style: TextStyle(color: Colors.black, fontSize: 14),
-                      children: <TextSpan>[
-                    TextSpan(text: "Do Not Have an Account?"),
-                    TextSpan(
-                        text: "Sign Up",
-                        recognizer: TapGestureRecognizer()
-                          ..onTap = () {
-                            print("Tap on signup");
-                            Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => RegisterPage()));
-                          },
-                        style: TextStyle(
-                            color: const Color.fromARGB(255, 69, 248, 3),
-                            fontWeight: FontWeight.bold)),
-                  ])),
-            )
-          ],
+          ),
         ),
       ),
     );
-  }
-
-  bool validateSave() {
-    final form = globalKey.currentState;
-    if (form == null) {
-      print('FormState is null');
-      return false;
-    }
-
-    if (form.validate()) {
-      form.save();
-      return true;
-    } else {
-      return false;
-    }
   }
 }

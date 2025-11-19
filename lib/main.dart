@@ -8,6 +8,7 @@ import 'package:intake_helper/pages/nutritionDetailsScreen.dart';
 import 'package:intake_helper/pages/nutritionScreen.dart';
 import 'package:intake_helper/pages/register_page.dart';
 import 'package:intake_helper/pages/todoListScreen.dart';
+import 'package:intake_helper/theme/app_theme.dart';
 import 'package:intake_helper/utility/notification.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
@@ -55,20 +56,23 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       title: 'Intake Helper',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        primarySwatch: Colors.orange,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-        useMaterial3: true,
-        scaffoldBackgroundColor: const Color.fromARGB(255, 39, 38, 38),
-      ),
+      // theme: ThemeData(
+      //   primarySwatch: Colors.orange,
+      //   visualDensity: VisualDensity.adaptivePlatformDensity,
+      //   useMaterial3: true,
+      //   scaffoldBackgroundColor: const Color.fromARGB(255, 39, 38, 38),
+      // ),
+      theme: AppTheme.lightTheme, // 🌞 Light Green
+      darkTheme: AppTheme.darkTheme, // 🌚 Dark Green
+      themeMode: ThemeMode.system,
       navigatorKey: navigatorKey,
       initialRoute: '/',
       routes: {
         '/': (context) => _defaultHome,
-        '/home': (context) => const Homepage(),
+        '/home': (context) => Homepage(),
         '/meal-details': (context) => const NutritionDetailScreen(),
         '/register': (context) => const RegisterPage(),
-        '/login': (context) => const Loginpage(),
+        '/login': (context) => const LoginPage(),
         '/todo-page': (context) => const TodolistScreen(),
         '/nutrition': (context) => const NutritionScreen(),
         '/settings': (context) => const SettingsPage(),

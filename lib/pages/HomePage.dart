@@ -1,117 +1,99 @@
 import 'package:android_intent_plus/android_intent.dart';
 import 'package:flutter/material.dart';
 import 'package:intake_helper/api/api_service.dart';
+import 'package:intake_helper/components/appbar_widget.dart';
+import 'package:intake_helper/main.dart';
 import 'package:intake_helper/models/nutrition_model.dart';
 import 'package:intake_helper/models/todo_model.dart';
 import 'package:intake_helper/pages/todoListScreen.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:pie_chart/pie_chart.dart';
 import 'package:timezone/timezone.dart' as tz;
+// Added imports for hooks & riverpod
+import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-class Homepage extends StatefulWidget {
+class Homepage extends HookConsumerWidget {
   const Homepage({super.key});
 
   @override
-  State<Homepage> createState() => _HomepageState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final api = ApiService();
+    final gradienColors = [Colors.red, Colors.orange];
 
-class _HomepageState extends State<Homepage> with RouteAware {
-  final api = ApiService();
-  var gradienColors = [Colors.red, Colors.orange];
+    // hook states replacing StatefulWidget fields
+    final searchQuery = useState<String>("");
+    final totalMeals = useState<int>(0);
+    final todoData = useState<TodoModel?>(null);
+    final completedTasks = useState<List<String>>([]);
 
-  Future<void> requestAlarmPermission() async {
-    // Check current permission
-    final status = await Permission.scheduleExactAlarm.status;
+    Future<void> requestAlarmPermission() async {
+      // Check current permission
+      final status = await Permission.scheduleExactAlarm.status;
 
-    if (status.isGranted) {
-      print("Alarm permission ALREADY GRANTED");
-      return;
-    }
-
-    print("Opening alarm permission settings...");
-
-    // Opens the system settings page — REQUIRED for Pixel phones
-    const intent = AndroidIntent(
-      action: 'android.settings.REQUEST_SCHEDULE_EXACT_ALARM',
-    );
-    await intent.launch();
-  }
-
-  String _searchQuery = "";
-  int total_meals = 0;
-  TodoModel? todoData;
-  List<String> completedTasks = [];
-
-  List<Nutrition> _filterData(List<Nutrition> data) {
-    return data.where((item) {
-      final types = item.type ?? [];
-      return types.contains(_searchQuery);
-    }).toList();
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _loadTodosAndCompleted();
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    RouteObserver<ModalRoute<void>>().subscribe(this, ModalRoute.of(context)!);
-  }
-
-  @override
-  void dispose() {
-    RouteObserver<ModalRoute<void>>().unsubscribe(this);
-    super.dispose();
-  }
-
-  @override
-  void didPopNext() {
-    _loadTodosAndCompleted();
-  }
-
-  Future<void> _loadTodosAndCompleted() async {
-    final data = await api.getTodo();
-    final completed = await SharedService.getCompletedTasks();
-
-    setState(() {
-      todoData = data;
-      total_meals = data?.meals.length ?? 0;
-      completedTasks = completed;
-    });
-  }
-
-  Future<Map<String, double>> calculateCompletedMacros() async {
-    final data = await api.getTodo();
-    final completed = await SharedService.getCompletedTasks();
-
-    double totalProtein = 0;
-    double totalCarbs = 0;
-    double totalCalories = 0;
-
-    for (final meal in data?.meals ?? []) {
-      final nutrition = meal.nutrition;
-      if (nutrition != null && completed.contains(nutrition.id)) {
-        totalProtein += nutrition.protein ?? 0;
-        totalCarbs += nutrition.carbohydrates ?? 0;
-        totalCalories += nutrition.calories ?? 0;
+      if (status.isGranted) {
+        print("Alarm permission ALREADY GRANTED");
+        return;
       }
+
+      print("Opening alarm permission settings...");
+
+      // Opens the system settings page — REQUIRED for Pixel phones
+      const intent = AndroidIntent(
+        action: 'android.settings.REQUEST_SCHEDULE_EXACT_ALARM',
+      );
+      await intent.launch();
     }
 
-    return {
-      'protein': totalProtein,
-      'carbs': totalCarbs,
-      'calories': totalCalories,
-    };
-  }
+    List<Nutrition> _filterData(List<Nutrition> data) {
+      return data.where((item) {
+        final types = item.type ?? [];
+        return types.contains(searchQuery.value);
+      }).toList();
+    }
 
-  @override
-  Widget build(BuildContext context) {
+    Future<void> loadTodosAndCompleted() async {
+      final data = await api.getTodo();
+      final completed = await SharedService.getCompletedTasks();
+
+      todoData.value = data;
+      totalMeals.value = data?.meals.length ?? 0;
+      completedTasks.value = completed;
+    }
+
+    Future<Map<String, double>> calculateCompletedMacros() async {
+      final data = await api.getTodo();
+      final completed = await SharedService.getCompletedTasks();
+
+      double totalProtein = 0;
+      double totalCarbs = 0;
+      double totalCalories = 0;
+
+      for (final meal in data?.meals ?? []) {
+        final nutrition = meal.nutrition;
+        if (nutrition != null && completed.contains(nutrition.id)) {
+          totalProtein += nutrition.protein ?? 0;
+          totalCarbs += nutrition.carbohydrates ?? 0;
+          totalCalories += nutrition.calories ?? 0;
+        }
+      }
+
+      return {
+        'protein': totalProtein,
+        'carbs': totalCarbs,
+        'calories': totalCalories,
+      };
+    }
+
+    // run once on mount (replaces initState)
+    useEffect(() {
+      loadTodosAndCompleted();
+      return null;
+    }, const []);
+
     String image = "lib/assets/images/baki.jpg";
 
-    final allMeals = todoData?.meals
+    final allMeals = todoData.value?.meals
             .map((e) => e.nutrition)
             .where((n) => n.dishName != null && n.dishName!.isNotEmpty)
             .toList() ??
@@ -131,7 +113,7 @@ class _HomepageState extends State<Homepage> with RouteAware {
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh, color: Colors.orange),
-            onPressed: _loadTodosAndCompleted,
+            onPressed: loadTodosAndCompleted,
           ),
           IconButton(
             icon: const Icon(Icons.settings, color: Colors.orange),
@@ -183,7 +165,7 @@ class _HomepageState extends State<Homepage> with RouteAware {
         ),
       ),
       body: SafeArea(
-        child: todoData == null
+        child: todoData.value == null
             ? const Center(child: CircularProgressIndicator())
             : SingleChildScrollView(
                 child: Padding(
@@ -251,7 +233,7 @@ class _HomepageState extends State<Homepage> with RouteAware {
                           ),
                           _statCard(
                               "Completed Meals",
-                              "${completedTasks.length}/$total_meals",
+                              "${completedTasks.value.length}/${totalMeals.value}",
                               [Colors.green, Colors.teal],
                               '/todo-page'),
                         ],
@@ -327,9 +309,7 @@ class _HomepageState extends State<Homepage> with RouteAware {
                                     value: "Dinner", label: "Dinner"),
                               ],
                               onSelected: (value) {
-                                setState(() {
-                                  _searchQuery = value ?? "";
-                                });
+                                searchQuery.value = value ?? "";
                               },
                             ),
                             const SizedBox(height: 10),
@@ -358,7 +338,7 @@ class _HomepageState extends State<Homepage> with RouteAware {
                                             await api.deleteTodoItem(
                                                 meal.nutritionId ?? "");
                                         if (success == true) {
-                                          await _loadTodosAndCompleted();
+                                          await loadTodosAndCompleted();
                                         } else {
                                           ScaffoldMessenger.of(context)
                                               .showSnackBar(
@@ -390,7 +370,9 @@ class _HomepageState extends State<Homepage> with RouteAware {
   Widget _statCard(
       String title, String value, List<Color> gradientColors, String route) {
     return GestureDetector(
-      onTap: () => Navigator.of(context).pushNamed(route),
+      onTap: () {
+        Navigator.of(navigatorKey.currentContext!).pushNamed(route);
+      },
       child: Container(
         width: 160,
         height: 90,
