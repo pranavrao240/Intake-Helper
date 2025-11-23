@@ -290,6 +290,7 @@ class Homepage extends HookConsumerWidget {
                         child: Column(
                           children: [
                             DropdownMenu(
+                              initialSelection: "Breakfast",
                               textStyle: const TextStyle(color: Colors.white),
                               menuStyle: MenuStyle(
                                 backgroundColor: MaterialStateProperty.all(

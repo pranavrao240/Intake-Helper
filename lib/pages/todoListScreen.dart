@@ -8,6 +8,7 @@ import 'package:intake_helper/models/todo_model.dart';
 import 'package:intake_helper/models/nutrition_model.dart';
 import 'package:intake_helper/pages/HomePage.dart';
 import 'package:intake_helper/utility/notification.dart';
+import 'package:intake_helper/widgets/top_bar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SharedService {
@@ -130,17 +131,8 @@ class _TodolistScreenState extends ConsumerState<TodolistScreen> {
     final api = ref.read(apiservice);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Nutrition Todo List"),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.push(context, MaterialPageRoute(builder: (context) {
-              return Homepage();
-            }));
-          },
-        ),
-      ),
+      backgroundColor: const Color(0xFF181818),
+      appBar: customAppbar(context, title: "Todo List"),
       body: Column(
         children: [
           Expanded(
