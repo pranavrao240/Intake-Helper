@@ -1,5 +1,5 @@
 class Config {
-  static const String baseUrl = "http://192.168.0.103:3000";
+  static const String baseUrl = "http://192.168.0.102:3000";
   // static const String baseUrl = "10.109.101.240:3000";
   static const String nutritionAPI = "api/nutrition/import";
   static const String detailAPI = "api/nutrition/";

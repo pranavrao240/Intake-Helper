@@ -24,10 +24,8 @@ class RegisterPage extends HookConsumerWidget {
     final fullName = useState<String?>(null);
     final email = useState<String?>(null);
     final password = useState<String?>(null);
-    final cnfPassword = useState<String?>(null);
 
     final hidePassword = useState<bool>(true); // for confirm password field
-    final hidePassword2 = useState<bool>(true); // for password field
     final textPwd = useState<String>("");
     final fullNameController = useTextEditingController();
     final emailController = useTextEditingController();
@@ -237,9 +235,9 @@ class RegisterPage extends HookConsumerWidget {
                                     try {
                                       final response =
                                           await ApiService.registerUser(
-                                        fullName.value ?? "",
-                                        email.value ?? "",
-                                        password.value ?? "",
+                                        fullNameController.text ?? "",
+                                        emailController.text ?? "",
+                                        passwordController.text ?? "",
                                       );
 
                                       isAsyncCallProcess.value = false;
@@ -256,7 +254,7 @@ class RegisterPage extends HookConsumerWidget {
                                         FormHelper.showSimpleAlertDialog(
                                             context,
                                             Config.appName,
-                                            "Already Exists",
+                                            "Registration Failed",
                                             "OK", () {
                                           Navigator.of(context).pop();
                                         });

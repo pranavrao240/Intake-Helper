@@ -56,6 +56,7 @@ class ApiService {
       String fullName, String email, String password) async {
     Map<String, String> requestHeaders = {'Content-Type': 'application/json'};
     var url = Uri.parse('${Config.baseUrl}/${Config.registerAPI}');
+    print("Fields: $fullName, $email, $password");
 
     var response = await client.post(
       url,
@@ -68,9 +69,9 @@ class ApiService {
     );
 
     if (response.statusCode == 200) {
+      var data = jsonDecode(response.body);
       return true;
     } else {
-      print("Registration failed: ${response.body}");
       return false;
     }
   }
