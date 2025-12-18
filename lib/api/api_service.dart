@@ -1,267 +1,270 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/io_client.dart';
 import 'package:intake_helper/Config/Config.dart';
-import 'package:intake_helper/main.dart';
 import 'package:intake_helper/models/login_response_model.dart';
 import 'package:intake_helper/models/nutrition_model.dart';
-import 'package:intake_helper/models/todo.dart';
 import 'package:intake_helper/models/todo_model.dart';
 import 'package:intake_helper/utils/shared_service.dart';
+import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-final apiservice = Provider((ref) => ApiService());
+/// ================= STATE MODEL =================
+class ApiState {
+  final String? token;
+  final List<Nutrition>? nutritions;
+  final TodoModel? todo;
+  final String? message;
+  final LoginResponseModel? register;
 
-class ApiService {
-  var data;
+  ApiState(
+      {this.token, this.nutritions, this.todo, this.message, this.register});
+
+  ApiState copyWith(
+      {String? token,
+      List<Nutrition>? nutritions,
+      TodoModel? todo,
+      String? message,
+      LoginResponseModel? register}) {
+    return ApiState(
+      token: token ?? this.token,
+      nutritions: nutritions ?? this.nutritions,
+      todo: todo ?? this.todo,
+      message: message ?? this.message,
+    );
+  }
+}
+
+/// ================= PROVIDER =================
+final apiServiceProvider =
+    NotifierProvider<ApiService, ApiState>(() => ApiService());
+
+class ApiService extends Notifier<ApiState> {
   static final client = _createHttpClient();
 
   static http.Client _createHttpClient() {
     final httpClient = HttpClient()
-      ..badCertificateCallback =
-          (X509Certificate cert, String host, int port) => true;
+      ..badCertificateCallback = (_, __, ___) => true;
     return IOClient(httpClient);
   }
 
-  Future<List<Nutrition>?> getNutritions() async {
-    final headers = {'Content-Type': 'application/json'};
-    final url = Uri.parse('${Config.baseUrl}/${Config.nutritionAPI}');
+  @override
+  ApiState build() => ApiState();
 
-    try {
-      final response = await client.get(url, headers: headers);
+  Uri _url(String endpoint) => Uri.parse("${Config.baseUrl}/$endpoint");
 
-      if (response.statusCode == 200) {
-        final jsonMap = jsonDecode(response.body);
-
-        final nutritionResponse = NutritionResponse.fromJson(jsonMap);
-        print(
-            "Nutrition API Response from APIService: ${nutritionResponse.data}");
-
-        return nutritionResponse.data;
-      } else {
-        print("Error (${response.statusCode}): ${response.body}");
-        return null;
-      }
-    } catch (e, stack) {
-      print("Exception in getNutritions: $e");
-      print(stack);
-      return null;
-    }
-  }
-
-  // Register User
-  static Future<bool> registerUser(
+  /// ================= REGISTER =================
+  Future<bool> registerUser(
       String fullName, String email, String password) async {
-    Map<String, String> requestHeaders = {'Content-Type': 'application/json'};
-    var url = Uri.parse('${Config.baseUrl}/${Config.registerAPI}');
-    print("Fields: $fullName, $email, $password");
-
-    var response = await client.post(
-      url,
-      headers: requestHeaders,
-      body: jsonEncode({
-        "fullName": fullName,
-        "email": email,
-        "password": password,
-      }),
-    );
-
-    if (response.statusCode == 200) {
-      var data = jsonDecode(response.body);
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  // Login User
-  static Future<bool> loginUser(
-      BuildContext context, String email, String password) async {
-    Map<String, String> requestHeaders = {'Content-Type': 'application/json'};
-    var url = Uri.parse('${Config.baseUrl}/${Config.loginAPI}');
-
-    var response = await client.post(
-      url,
-      headers: requestHeaders,
-      body: jsonEncode({
-        "email": email,
-        "password": password,
-      }),
-    );
-
-    if (response.statusCode == 200) {
-      await SharedService.setLoginDetails(loginResponseJson(response.body));
-      var data = jsonDecode(response.body);
-
-      String fullName = data["data"]["fullName"];
-      String userEmail = data["data"]["email"];
-
-      print("Logged in user: $fullName ($userEmail)");
-      print("Token: ${data["data"]["token"]}");
-
-      return true;
-    } else {
-      print("Login failed: ${response.body}");
-      return false;
-    }
-  }
-
-  Future<Nutrition?> getNutritionById(String id) async {
-    Map<String, String> reqHeaders = {'Content-Type': 'application/json'};
-    var url = Uri.parse('${Config.baseUrl}/${Config.detailAPI}$id');
-
     try {
-      print("Fetching Nutrition by ID from: $url");
-      final response = await client.get(url, headers: reqHeaders);
+      final res = await client.post(
+        _url(Config.registerAPI),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          "fullName": fullName,
+          "email": email,
+          "password": password,
+        }),
+      );
 
-      if (response.statusCode == 200) {
-        print("Raw API body: ${response.body}");
-        final jsonMap = jsonDecode(response.body);
-        final rawData = jsonMap['data'] ?? jsonMap;
-
-        if (rawData == null || rawData is! Map<String, dynamic>) {
-          throw Exception('Invalid or missing nutrition data');
-        }
-
-        final nutrition = Nutrition.fromJson(rawData);
-        print("Fetched Nutrition: ${nutrition.dishName}");
-        return nutrition;
-      } else {
-        print(
-            "Failed to fetch Nutrition by ID (${response.statusCode}): ${response.body}");
-        return null;
-      }
-    } catch (e, stack) {
-      print("Exception: $e");
-      print(stack);
-      return null;
-    }
-  }
-
-  Future<TodoModel?> getTodo() async {
-    final loginDetails = await SharedService.LoginDetails();
-    final headers = {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer ${loginDetails?.data.token ?? ''}',
-    };
-    final url = Uri.parse('${Config.baseUrl}/${Config.TodoAPI}');
-
-    try {
-      final response = await client.get(url, headers: headers);
-      if (response.statusCode == 200) {
-        final json = jsonDecode(response.body);
-        print("Todo : ${json['data']}");
-        return TodoModel.fromJson(json['data']);
-      } else if (response.statusCode == 401) {
-        navigatorKey.currentState
-            ?.pushNamedAndRemoveUntil("/login", (route) => false);
-      } else {
-        print("Error ${response.statusCode}: ${response.body}");
+      if (res.statusCode == 200) {
+        final model = loginResponseJson(res.body);
+        final preferences = await SharedPreferences.getInstance();
+        preferences.setString('token', model.data.token);
+        state = state.copyWith(
+            token: model.data.token, message: model.message, register: model);
+        return true;
       }
     } catch (e) {
-      print("Exception in getTodo(): $e");
+      debugPrint("Register error: $e");
     }
+    return false;
+  }
+
+  /// ================= LOGIN =================
+  Future<bool> loginUser(String email, String password) async {
+    try {
+      final res = await client.post(
+        _url(Config.loginAPI),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({
+          "email": email,
+          "password": password,
+        }),
+      );
+
+      if (res.statusCode == 200) {
+        final model = loginResponseJson(res.body);
+        final preferences = await SharedPreferences.getInstance();
+
+        preferences.setString('token', model.data.token);
+        state = state.copyWith(
+          token: model.data.token,
+          message: model.message,
+        );
+        return true;
+      }
+    } catch (e) {
+      debugPrint("Login error: $e");
+    }
+
+    return false;
+  }
+
+  /// ================= NUTRITIONS =================
+  Future<List<Nutrition>> getNutritions() async {
+    if (state.nutritions != null) return state.nutritions!;
+
+    try {
+      final res = await client.get(_url(Config.nutritionAPI));
+
+      if (res.statusCode == 200) {
+        final jsonBody = jsonDecode(res.body);
+        final data = NutritionResponse.fromJson(jsonBody).data;
+        state = state.copyWith(nutritions: data);
+        return data;
+      }
+    } catch (e) {
+      debugPrint("Nutrition error: $e");
+    }
+
+    return [];
+  }
+
+  /// ================= NUTRITION BY ID =================
+  Future<Nutrition?> getNutritionById(String id) async {
+    try {
+      final preferences = await SharedPreferences.getInstance();
+      final token = preferences.getString('token');
+
+      final res = await client.get(
+        _url("${Config.detailAPI}$id"),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (res.statusCode == 200) {
+        final map = jsonDecode(res.body);
+        return Nutrition.fromJson(map['data'] ?? map);
+      }
+    } catch (e) {
+      debugPrint("Nutrition by id error: $e");
+    }
+
     return null;
   }
 
-  Future<void> resetTodo() async {
-    var loginDetails = await SharedService.LoginDetails();
-    Map<String, String> requestHeaders = {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer ${loginDetails?.data.token ?? ''}'
-    };
+  /// ================= TODO =================
+  Future<TodoModel?> getTodo() async {
+    try {
+      final preferences = await SharedPreferences.getInstance();
+      final token = preferences.getString('token');
 
-    var url = Uri.parse('${Config.baseUrl}/${Config.resetTodoAPI}');
-    var response = await ApiService.client.get(
-      url,
-      headers: requestHeaders,
+      final res = await client.get(
+        _url(Config.TodoAPI),
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer $token"
+        },
+      );
+
+      if (res.statusCode == 200) {
+        final jsonMap = jsonDecode(res.body);
+        final model = TodoModel.fromJson(jsonMap['data']);
+        state = state.copyWith(todo: model);
+        return model;
+      }
+
+      if (res.statusCode == 401) {
+        state = state.copyWith(token: null);
+      }
+    } catch (e) {
+      debugPrint('error in todo ${e.toString()}');
+    }
+
+    return null;
+  }
+
+  Future<bool> resetTodo() async {
+    final preferences = await SharedPreferences.getInstance();
+    final token = preferences.getString('token');
+    final res = await client.get(
+      _url(Config.resetTodoAPI),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
     );
-    print("Response: ${response.body}");
 
-    if (response.statusCode == 200) {
-    } else if (response.statusCode == 401) {
-      navigatorKey.currentState
-          ?.pushNamedAndRemoveUntil("/login", (route) => false);
-    } else {}
+    if (res.statusCode == 200) {
+      state = state.copyWith(todo: null);
+      return true;
+    }
+
+    if (res.statusCode == 401) {
+      state = state.copyWith(token: null);
+    }
+
+    return false;
   }
 
   Future<bool?> deleteTodoItem(String mealId) async {
-    var loginDetails = await SharedService.LoginDetails();
-    Map<String, String> requestHeaders = {
-      'Content-Type': 'application/json',
-      'Authorization': 'Basic ${loginDetails?.data.token ?? ''}'
-    };
+    try {
+      final preferences = await SharedPreferences.getInstance();
+      final token = preferences.getString('token');
+      final res = await client.delete(
+        _url(Config.TodoAPI),
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer $token",
+        },
+        body: jsonEncode({"mealId": mealId}),
+      );
 
-    var url = Uri.parse('${Config.baseUrl}/${Config.TodoAPI}');
-    var response = await ApiService.client.delete(
-      url,
-      headers: requestHeaders,
-      body: jsonEncode({"mealId": mealId}),
-    );
+      if (res.statusCode == 200) return true;
 
-    if (response.statusCode == 200) {
-      return true;
-    } else if (response.statusCode == 401) {
-      navigatorKey.currentState
-          ?.pushNamedAndRemoveUntil("/login", (route) => false);
-    } else {
-      return null;
+      if (res.statusCode == 401) {
+        state = state.copyWith(token: null);
+      }
+    } catch (e) {
+      debugPrint(e.toString());
     }
+
     return null;
   }
 
-  Future<bool?> addTodoItem(
-    String nutritionId,
-    String time,
-    String day,
-    String type,
-  ) async {
-    var loginDetails = await SharedService.LoginDetails();
+  Future<bool> addTodoItem(
+      String nutritionId, String time, String day, String type) async {
+    final preferences = await SharedPreferences.getInstance();
+    final token = preferences.getString('token');
+    final res = await client.post(
+      _url(Config.TodoAPI),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode({
+        "meals": [
+          {
+            "nutritionId": nutritionId,
+            "time": time,
+            "day": day,
+            "type": type,
+          }
+        ]
+      }),
+    );
 
-    Map<String, String> requestHeaders = {
-      'Content-Type': 'application/json',
-      'Authorization': 'Basic ${loginDetails?.data.token ?? ''}',
-    };
-
-    var url = Uri.parse('${Config.baseUrl}/${Config.TodoAPI}');
-
-    final body = {
-      "meals": [
-        {
-          "nutritionId": nutritionId,
-          "time": time,
-          "day": day,
-          "type": type,
-        }
-      ]
-    };
-
-    print("📦 Request body: $body");
-
-    try {
-      var response = await client.post(
-        url,
-        headers: requestHeaders,
-        body: jsonEncode(body),
-      );
-
-      if (response.statusCode == 200) {
-        print("✅ Item added to TodoList successfully");
-        return true;
-      } else if (response.statusCode == 401) {
-        navigatorKey.currentState?.pushNamedAndRemoveUntil(
-          "/login",
-          (route) => false,
-        );
-      } else {
-        print("❌ Failed to add Todo: ${response.body}");
-      }
-    } catch (e) {
-      print("❌ Exception while adding Todo: $e");
+    if (res.statusCode == 200) {
+      return true;
     }
 
-    return null;
+    return false;
   }
 }

@@ -174,12 +174,12 @@ class LoginPage extends HookConsumerWidget {
                                     if (await validateSave()) {
                                       isAsyncCallProcess.value = true;
                                       try {
-                                        final response =
-                                            await ApiService.loginUser(
-                                          context,
-                                          emailController.text.trim(),
-                                          passwordController.text.trim(),
-                                        );
+                                        final response = await ref
+                                            .read(apiServiceProvider.notifier)
+                                            .loginUser(
+                                              emailController.text.trim(),
+                                              passwordController.text.trim(),
+                                            );
                                         isAsyncCallProcess.value = false;
 
                                         if (response) {

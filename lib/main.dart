@@ -10,8 +10,6 @@ import 'package:intake_helper/pages/register_page.dart';
 import 'package:intake_helper/pages/todoListScreen.dart';
 import 'package:intake_helper/theme/app_theme.dart';
 import 'package:intake_helper/utility/notification.dart';
-import 'package:timezone/data/latest_all.dart' as tz;
-import 'package:timezone/timezone.dart' as tz;
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 Widget _defaultHome = const RegisterPage();

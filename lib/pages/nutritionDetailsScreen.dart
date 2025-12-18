@@ -235,14 +235,10 @@ class _NutritionDetailScreenState extends ConsumerState<NutritionDetailScreen> {
                   await showDialog(
                     context: context,
                     builder: (context) {
-                      print("selectedType: $selectedType");
-                      print("selectedDays: $selectedDays");
                       return _TimeDayPickerDialog(
                         onConfirm: (time, days) async {
                           selectedTime = time;
                           selectedDays = days;
-                          print("selectedTime: $selectedTime");
-                          print("selectedDays: $selectedDays");
 
                           for (String day in selectedDays) {
                             scheduleForMultipleDays(
@@ -272,14 +268,6 @@ class _NutritionDetailScreenState extends ConsumerState<NutritionDetailScreen> {
                       ),
                     ),
                   );
-
-                  print("Sending to API:");
-                  print("Nutrition ID: ${model.id}");
-                  print("Nutrition ID: ${model.dishName}");
-
-                  print("Formatted Time: $formattedTime");
-                  print("Selected Days: $selectedDays");
-                  print("Selected Type: $selectedType");
 
                   final success = await ApiService().addTodoItem(
                     model.id ?? "",

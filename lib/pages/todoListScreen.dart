@@ -42,8 +42,7 @@ class SharedService {
 }
 
 Future<void> resetTodo(WidgetRef ref) async {
-  final apiService = ref.watch(apiservice);
-  print("function enters");
+  final apiService = ref.watch(apiServiceProvider.notifier);
   await apiService.resetTodo();
 }
 
@@ -128,7 +127,7 @@ class _TodolistScreenState extends ConsumerState<TodolistScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final api = ref.read(apiservice);
+    final api = ref.read(apiServiceProvider.notifier);
 
     return Scaffold(
       backgroundColor: const Color(0xFF181818),
@@ -259,7 +258,7 @@ class _TodolistScreenState extends ConsumerState<TodolistScreen> {
                     ),
                   ),
                   onPressed: () async {
-                    final api = ref.read(apiservice);
+                    final api = ref.read(apiServiceProvider.notifier);
                     final snapshot = await api.getTodo();
                     final nutritions = snapshot?.meals
                         .map((meal) => meal.nutrition)
@@ -278,7 +277,6 @@ class _TodolistScreenState extends ConsumerState<TodolistScreen> {
                         if (!existingCompleted.contains(item.nutritionId)) {
                           existingCompleted.add(item.nutritionId ?? "");
                           // await NotificationService.cancelNotification(i);
-                          print("✔️ Completed Task: ${item.dishName}");
                         }
                         isCheckedList[i] = false;
                       }

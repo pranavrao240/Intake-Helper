@@ -22,8 +22,6 @@ class CustomNotification {
   CustomNotification._internal();
 
   Future<void> init() async {
-    print("INIT CALLED");
-
     if (_initialized) return;
 
     try {
@@ -114,15 +112,11 @@ class CustomNotification {
     int minute, {
     String? payload,
   }) async {
-    print("🔵 showScheduleNotification() CALLED");
-
     if (!_initialized) {
-      print("🔵 init not ready → calling init()");
       await init();
     }
 
     final now = tz.TZDateTime.now(tz.local);
-    print("⏰ Current Time = ${now.hour}:${now.minute}");
 
     // Create scheduled date
     tz.TZDateTime scheduleDate = tz.TZDateTime(
@@ -138,8 +132,6 @@ class CustomNotification {
     if (scheduleDate.isBefore(now)) {
       scheduleDate = scheduleDate.add(const Duration(days: 1));
     }
-
-    print(" Scheduled Time = ${scheduleDate.toString()}");
 
     // Create notification details
     const androidDetails = AndroidNotificationDetails(
@@ -171,8 +163,6 @@ class CustomNotification {
         matchDateTimeComponents: DateTimeComponents.time,
         payload: payload ?? 'scheduled_notification_$id',
       );
-
-      print('✅ Notification scheduled for ${scheduleDate.toString()}');
     } catch (e, st) {
       log('❌ Error scheduling notification: $e');
       log('Stack: $st');
@@ -230,8 +220,6 @@ Future<void> scheduleForMultipleDays({
       time.hour,
       time.minute,
     );
-
-    print("📌 Scheduling for $day → $scheduledDate");
 
     await CustomNotification().showScheduleNotification(
       id,

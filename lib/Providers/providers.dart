@@ -4,7 +4,7 @@ import 'package:intake_helper/models/nutrition_model.dart';
 
 final NutritionDetailsProvider =
     FutureProvider.family<Nutrition, String>((ref, id) async {
-  final apiService = ref.watch(apiservice);
+  final apiService = ref.watch(apiServiceProvider.notifier);
   final nutrition = await apiService.getNutritionById(id);
 
   if (nutrition == null) {

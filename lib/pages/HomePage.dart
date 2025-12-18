@@ -18,7 +18,8 @@ class Homepage extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final api = ApiService();
+    final api = ref.read(apiServiceProvider.notifier);
+
     final gradienColors = [Colors.red, Colors.orange];
 
     // hook states replacing StatefulWidget fields
@@ -87,7 +88,7 @@ class Homepage extends HookConsumerWidget {
 
     // run once on mount (replaces initState)
     useEffect(() {
-      loadTodosAndCompleted();
+      Future.microtask(() => {loadTodosAndCompleted()});
       return null;
     }, const []);
 

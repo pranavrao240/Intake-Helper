@@ -1,6 +1,5 @@
-// dart format width=80
-// coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
+// coverage:ignore-file
 // ignore_for_file: type=lint
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
@@ -84,6 +83,163 @@ class _$NutritionResponseCopyWithImpl<$Res>
           : data // ignore: cast_nullable_to_non_nullable
               as List<Nutrition>,
     ));
+  }
+}
+
+/// Adds pattern-matching-related methods to [NutritionResponse].
+extension NutritionResponsePatterns on NutritionResponse {
+  /// A variant of `map` that fallback to returning `orElse`.
+  ///
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case final Subclass value:
+  ///     return ...;
+  ///   case _:
+  ///     return orElse();
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>(
+    TResult Function(_NutritionResponse value)? $default, {
+    required TResult orElse(),
+  }) {
+    final _that = this;
+    switch (_that) {
+      case _NutritionResponse() when $default != null:
+        return $default(_that);
+      case _:
+        return orElse();
+    }
+  }
+
+  /// A `switch`-like method, using callbacks.
+  ///
+  /// Callbacks receives the raw object, upcasted.
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case final Subclass value:
+  ///     return ...;
+  ///   case final Subclass2 value:
+  ///     return ...;
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>(
+    TResult Function(_NutritionResponse value) $default,
+  ) {
+    final _that = this;
+    switch (_that) {
+      case _NutritionResponse():
+        return $default(_that);
+      case _:
+        throw StateError('Unexpected subclass');
+    }
+  }
+
+  /// A variant of `map` that fallback to returning `null`.
+  ///
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case final Subclass value:
+  ///     return ...;
+  ///   case _:
+  ///     return null;
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>(
+    TResult? Function(_NutritionResponse value)? $default,
+  ) {
+    final _that = this;
+    switch (_that) {
+      case _NutritionResponse() when $default != null:
+        return $default(_that);
+      case _:
+        return null;
+    }
+  }
+
+  /// A variant of `when` that fallback to an `orElse` callback.
+  ///
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case Subclass(:final field):
+  ///     return ...;
+  ///   case _:
+  ///     return orElse();
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>(
+    TResult Function(String message, List<Nutrition> data)? $default, {
+    required TResult orElse(),
+  }) {
+    final _that = this;
+    switch (_that) {
+      case _NutritionResponse() when $default != null:
+        return $default(_that.message, _that.data);
+      case _:
+        return orElse();
+    }
+  }
+
+  /// A `switch`-like method, using callbacks.
+  ///
+  /// As opposed to `map`, this offers destructuring.
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case Subclass(:final field):
+  ///     return ...;
+  ///   case Subclass2(:final field2):
+  ///     return ...;
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>(
+    TResult Function(String message, List<Nutrition> data) $default,
+  ) {
+    final _that = this;
+    switch (_that) {
+      case _NutritionResponse():
+        return $default(_that.message, _that.data);
+      case _:
+        throw StateError('Unexpected subclass');
+    }
+  }
+
+  /// A variant of `when` that fallback to returning `null`
+  ///
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case Subclass(:final field):
+  ///     return ...;
+  ///   case _:
+  ///     return null;
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>(
+    TResult? Function(String message, List<Nutrition> data)? $default,
+  ) {
+    final _that = this;
+    switch (_that) {
+      case _NutritionResponse() when $default != null:
+        return $default(_that.message, _that.data);
+      case _:
+        return null;
+    }
   }
 }
 
@@ -422,6 +578,286 @@ class _$NutritionCopyWithImpl<$Res> implements $NutritionCopyWith<$Res> {
           : selected // ignore: cast_nullable_to_non_nullable
               as String?,
     ));
+  }
+}
+
+/// Adds pattern-matching-related methods to [Nutrition].
+extension NutritionPatterns on Nutrition {
+  /// A variant of `map` that fallback to returning `orElse`.
+  ///
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case final Subclass value:
+  ///     return ...;
+  ///   case _:
+  ///     return orElse();
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>(
+    TResult Function(_Nutrition value)? $default, {
+    required TResult orElse(),
+  }) {
+    final _that = this;
+    switch (_that) {
+      case _Nutrition() when $default != null:
+        return $default(_that);
+      case _:
+        return orElse();
+    }
+  }
+
+  /// A `switch`-like method, using callbacks.
+  ///
+  /// Callbacks receives the raw object, upcasted.
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case final Subclass value:
+  ///     return ...;
+  ///   case final Subclass2 value:
+  ///     return ...;
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>(
+    TResult Function(_Nutrition value) $default,
+  ) {
+    final _that = this;
+    switch (_that) {
+      case _Nutrition():
+        return $default(_that);
+      case _:
+        throw StateError('Unexpected subclass');
+    }
+  }
+
+  /// A variant of `map` that fallback to returning `null`.
+  ///
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case final Subclass value:
+  ///     return ...;
+  ///   case _:
+  ///     return null;
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>(
+    TResult? Function(_Nutrition value)? $default,
+  ) {
+    final _that = this;
+    switch (_that) {
+      case _Nutrition() when $default != null:
+        return $default(_that);
+      case _:
+        return null;
+    }
+  }
+
+  /// A variant of `when` that fallback to an `orElse` callback.
+  ///
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case Subclass(:final field):
+  ///     return ...;
+  ///   case _:
+  ///     return orElse();
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>(
+    TResult Function(
+            @JsonKey(name: '_id') String? id,
+            @JsonKey(name: 'id') String? localId,
+            @JsonKey(name: 'nutritionId', fromJson: _dynamicToString)
+            String? nutritionId,
+            @JsonKey(name: 'DishName') String? dishName,
+            @JsonKey(name: 'Calories') double? calories,
+            @JsonKey(name: 'Protein') double? protein,
+            @JsonKey(name: 'Carbohydrates') double? carbohydrates,
+            @JsonKey(name: 'Fats') double? fats,
+            @JsonKey(name: 'Sodium') double? sodium,
+            @JsonKey(name: 'Iron') double? iron,
+            @JsonKey(name: 'Calcium') double? calcium,
+            @JsonKey(name: 'FreeSugar') double? freeSugar,
+            @JsonKey(name: 'Fibre') double? fibre,
+            @JsonKey(name: 'Sugar') double? sugar,
+            @JsonKey(name: 'type', fromJson: _dynamicToStringList)
+            List<String>? type,
+            @JsonKey(name: 'day', fromJson: _dynamicToStringList)
+            List<String>? day,
+            @JsonKey(name: 'time', fromJson: _dynamicToStringList)
+            List<String>? time,
+            @JsonKey(name: 'selected') String? selected)?
+        $default, {
+    required TResult orElse(),
+  }) {
+    final _that = this;
+    switch (_that) {
+      case _Nutrition() when $default != null:
+        return $default(
+            _that.id,
+            _that.localId,
+            _that.nutritionId,
+            _that.dishName,
+            _that.calories,
+            _that.protein,
+            _that.carbohydrates,
+            _that.fats,
+            _that.sodium,
+            _that.iron,
+            _that.calcium,
+            _that.freeSugar,
+            _that.fibre,
+            _that.sugar,
+            _that.type,
+            _that.day,
+            _that.time,
+            _that.selected);
+      case _:
+        return orElse();
+    }
+  }
+
+  /// A `switch`-like method, using callbacks.
+  ///
+  /// As opposed to `map`, this offers destructuring.
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case Subclass(:final field):
+  ///     return ...;
+  ///   case Subclass2(:final field2):
+  ///     return ...;
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>(
+    TResult Function(
+            @JsonKey(name: '_id') String? id,
+            @JsonKey(name: 'id') String? localId,
+            @JsonKey(name: 'nutritionId', fromJson: _dynamicToString)
+            String? nutritionId,
+            @JsonKey(name: 'DishName') String? dishName,
+            @JsonKey(name: 'Calories') double? calories,
+            @JsonKey(name: 'Protein') double? protein,
+            @JsonKey(name: 'Carbohydrates') double? carbohydrates,
+            @JsonKey(name: 'Fats') double? fats,
+            @JsonKey(name: 'Sodium') double? sodium,
+            @JsonKey(name: 'Iron') double? iron,
+            @JsonKey(name: 'Calcium') double? calcium,
+            @JsonKey(name: 'FreeSugar') double? freeSugar,
+            @JsonKey(name: 'Fibre') double? fibre,
+            @JsonKey(name: 'Sugar') double? sugar,
+            @JsonKey(name: 'type', fromJson: _dynamicToStringList)
+            List<String>? type,
+            @JsonKey(name: 'day', fromJson: _dynamicToStringList)
+            List<String>? day,
+            @JsonKey(name: 'time', fromJson: _dynamicToStringList)
+            List<String>? time,
+            @JsonKey(name: 'selected') String? selected)
+        $default,
+  ) {
+    final _that = this;
+    switch (_that) {
+      case _Nutrition():
+        return $default(
+            _that.id,
+            _that.localId,
+            _that.nutritionId,
+            _that.dishName,
+            _that.calories,
+            _that.protein,
+            _that.carbohydrates,
+            _that.fats,
+            _that.sodium,
+            _that.iron,
+            _that.calcium,
+            _that.freeSugar,
+            _that.fibre,
+            _that.sugar,
+            _that.type,
+            _that.day,
+            _that.time,
+            _that.selected);
+      case _:
+        throw StateError('Unexpected subclass');
+    }
+  }
+
+  /// A variant of `when` that fallback to returning `null`
+  ///
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case Subclass(:final field):
+  ///     return ...;
+  ///   case _:
+  ///     return null;
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>(
+    TResult? Function(
+            @JsonKey(name: '_id') String? id,
+            @JsonKey(name: 'id') String? localId,
+            @JsonKey(name: 'nutritionId', fromJson: _dynamicToString)
+            String? nutritionId,
+            @JsonKey(name: 'DishName') String? dishName,
+            @JsonKey(name: 'Calories') double? calories,
+            @JsonKey(name: 'Protein') double? protein,
+            @JsonKey(name: 'Carbohydrates') double? carbohydrates,
+            @JsonKey(name: 'Fats') double? fats,
+            @JsonKey(name: 'Sodium') double? sodium,
+            @JsonKey(name: 'Iron') double? iron,
+            @JsonKey(name: 'Calcium') double? calcium,
+            @JsonKey(name: 'FreeSugar') double? freeSugar,
+            @JsonKey(name: 'Fibre') double? fibre,
+            @JsonKey(name: 'Sugar') double? sugar,
+            @JsonKey(name: 'type', fromJson: _dynamicToStringList)
+            List<String>? type,
+            @JsonKey(name: 'day', fromJson: _dynamicToStringList)
+            List<String>? day,
+            @JsonKey(name: 'time', fromJson: _dynamicToStringList)
+            List<String>? time,
+            @JsonKey(name: 'selected') String? selected)?
+        $default,
+  ) {
+    final _that = this;
+    switch (_that) {
+      case _Nutrition() when $default != null:
+        return $default(
+            _that.id,
+            _that.localId,
+            _that.nutritionId,
+            _that.dishName,
+            _that.calories,
+            _that.protein,
+            _that.carbohydrates,
+            _that.fats,
+            _that.sodium,
+            _that.iron,
+            _that.calcium,
+            _that.freeSugar,
+            _that.fibre,
+            _that.sugar,
+            _that.type,
+            _that.day,
+            _that.time,
+            _that.selected);
+      case _:
+        return null;
+    }
   }
 }
 

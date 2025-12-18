@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intake_helper/api/api_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 final themeModeProvider = StateProvider<ThemeMode>((ref) => ThemeMode.system);
@@ -15,7 +17,6 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   String weight = '';
   String height = '';
   String dob = '';
-  final String userName = "Pranav";
   String age = '';
 
   @override
@@ -56,6 +57,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     final themeMode = ref.watch(themeModeProvider);
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final textColor = isDark ? Colors.white : Colors.black87;
+    final userState = ref.watch(apiServiceProvider);
+    final String userName = userState.register?.data.fullname ?? 'Guest';
 
     final currentThemeLabel = themeMode == ThemeMode.dark
         ? "Dark"
@@ -100,7 +103,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  'Intake Helper2',
+                  'Intake Helper',
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,

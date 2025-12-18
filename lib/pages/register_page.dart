@@ -32,6 +32,9 @@ class RegisterPage extends HookConsumerWidget {
     final passwordController = useTextEditingController();
     final confirmPasswordController = useTextEditingController();
     final hideConfirmPassword = useState(false);
+    final message = useState<String?>('');
+    final registerState = ref.watch(apiServiceProvider);
+    final registerNotifier = ref.read(apiServiceProvider.notifier);
 
     // Helper: validateSave (keeps same behavior)
     Future<bool> validateSave() async {
@@ -233,33 +236,29 @@ class RegisterPage extends HookConsumerWidget {
                                     // API integration
                                     isAsyncCallProcess.value = true;
                                     try {
-                                      final response =
-                                          await ApiService.registerUser(
-                                        fullNameController.text ?? "",
-                                        emailController.text ?? "",
-                                        passwordController.text ?? "",
-                                      );
+                                      final response = await ref
+                                          .read(apiServiceProvider.notifier)
+                                          .registerUser(
+                                            fullNameController.text,
+                                            emailController.text,
+                                            passwordController.text,
+                                          );
+
+                                      print(
+                                          'register api fetched - > ${response}');
 
                                       isAsyncCallProcess.value = false;
 
-                                      if (response == true) {
-                                        FormHelper.showSimpleAlertDialog(
-                                            context,
-                                            Config.appName,
-                                            "Registered Successfully",
-                                            "OK", () {
-                                          Navigator.of(context).pop();
-                                        });
-                                      } else {
-                                        FormHelper.showSimpleAlertDialog(
-                                            context,
-                                            Config.appName,
-                                            "Registration Failed",
-                                            "OK", () {
-                                          Navigator.of(context).pop();
-                                        });
-                                      }
+                                      FormHelper.showSimpleAlertDialog(
+                                          context,
+                                          Config.appName,
+                                          registerState.message ??
+                                              'Registration Successfull!',
+                                          "OK", () {
+                                        Navigator.of(context).pop();
+                                      });
                                     } catch (e) {
+                                      print('Error in reg page - $e');
                                       isAsyncCallProcess.value = false;
                                       FormHelper.showSimpleAlertDialog(
                                           context,

@@ -26,7 +26,7 @@ class _NutritionScreenState extends ConsumerState<NutritionScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final api = ref.read(apiservice);
+    final api = ref.read(apiServiceProvider.notifier);
 
     return Scaffold(
       backgroundColor: const Color(0xFF121212),
