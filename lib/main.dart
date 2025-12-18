@@ -41,7 +41,6 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
-    // You can add any timezone-related initialization here if needed
   }
 
   @override
