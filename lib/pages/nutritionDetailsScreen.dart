@@ -8,6 +8,7 @@ import 'package:intake_helper/Providers/providers.dart';
 import 'package:intake_helper/api/api_service.dart';
 import 'package:intake_helper/models/nutrition_model.dart';
 import 'package:intake_helper/utility/notification.dart';
+import 'package:intake_helper/widgets/top_bar.dart';
 import 'package:intl/intl.dart';
 import 'package:pie_chart/pie_chart.dart';
 
@@ -46,20 +47,7 @@ class _NutritionDetailScreenState extends ConsumerState<NutritionDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF1F1F1F),
-        leading: IconButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-            icon: Icon(Icons.arrow_back, color: Colors.white)),
-        title: const Text("Nutrition Details",
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 22,
-              color: Color(0xFF00FFAA), // Neon green gym accent
-            )),
-      ),
+      appBar: customAppbar(context, title: "Nutrition Details"),
 
       body: SingleChildScrollView(
         child: _mealDetails(ref),
@@ -247,14 +235,10 @@ class _NutritionDetailScreenState extends ConsumerState<NutritionDetailScreen> {
                   await showDialog(
                     context: context,
                     builder: (context) {
-                      print("selectedType: $selectedType");
-                      print("selectedDays: $selectedDays");
                       return _TimeDayPickerDialog(
                         onConfirm: (time, days) async {
                           selectedTime = time;
                           selectedDays = days;
-                          print("selectedTime: $selectedTime");
-                          print("selectedDays: $selectedDays");
 
                           for (String day in selectedDays) {
                             scheduleForMultipleDays(
@@ -285,14 +269,6 @@ class _NutritionDetailScreenState extends ConsumerState<NutritionDetailScreen> {
                     ),
                   );
 
-                  print("Sending to API:");
-                  print("Nutrition ID: ${model.id}");
-                  print("Nutrition ID: ${model.dishName}");
-
-                  print("Formatted Time: $formattedTime");
-                  print("Selected Days: $selectedDays");
-                  print("Selected Type: $selectedType");
-
                   final success = await ApiService().addTodoItem(
                     model.id ?? "",
                     formattedTime,
@@ -316,21 +292,33 @@ class _NutritionDetailScreenState extends ConsumerState<NutritionDetailScreen> {
                     );
                   }
                 },
-                child: Container(
-                  width: 200,
-                  height: 50,
-                  decoration: BoxDecoration(
-                    color: const Color.fromARGB(255, 18, 187, 221),
-                    borderRadius: BorderRadius.circular(8.0),
-                  ),
-                  child: const Center(
-                    child: Text(
-                      "Add In your Todo List",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                        fontSize: 25,
-                        fontFamily: "Roboto",
+                child: SizedBox(
+                  width: double.infinity,
+                  child: Container(
+                    height: 52,
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [Colors.greenAccent, Colors.green],
+                        begin: Alignment.centerLeft,
+                        end: Alignment.centerRight,
+                      ),
+                      borderRadius: BorderRadius.circular(10),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.45),
+                          offset: const Offset(0, 8),
+                          blurRadius: 20,
+                        ),
+                      ],
+                    ),
+                    child: const Center(
+                      child: Text(
+                        'Add In your Todo List ',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16.5,
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
                     ),
                   ),

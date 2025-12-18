@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intake_helper/api/api_service.dart';
 import 'package:intake_helper/models/nutrition_model.dart';
+import 'package:intake_helper/widgets/top_bar.dart';
 
 class NutritionScreen extends ConsumerStatefulWidget {
   const NutritionScreen({super.key});
@@ -25,27 +26,13 @@ class _NutritionScreenState extends ConsumerState<NutritionScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final api = ref.read(apiservice);
+    final api = ref.read(apiServiceProvider.notifier);
 
     return Scaffold(
       backgroundColor: const Color(0xFF121212),
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF1F1F1F),
-        leading: IconButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-            icon: Icon(Icons.arrow_back, color: Colors.white)),
-        title: const Text(
-          "Nutrition Tracker",
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 22,
-            color: Color(0xFF00FFAA),
-          ),
-        ),
-        elevation: 4,
-        centerTitle: true,
+      appBar: customAppbar(
+        context,
+        title: "Nutrition Tracker",
       ),
       body: Column(
         children: [

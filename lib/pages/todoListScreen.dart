@@ -8,6 +8,7 @@ import 'package:intake_helper/models/todo_model.dart';
 import 'package:intake_helper/models/nutrition_model.dart';
 import 'package:intake_helper/pages/HomePage.dart';
 import 'package:intake_helper/utility/notification.dart';
+import 'package:intake_helper/widgets/top_bar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SharedService {
@@ -41,8 +42,7 @@ class SharedService {
 }
 
 Future<void> resetTodo(WidgetRef ref) async {
-  final apiService = ref.watch(apiservice);
-  print("function enters");
+  final apiService = ref.watch(apiServiceProvider.notifier);
   await apiService.resetTodo();
 }
 
@@ -127,20 +127,11 @@ class _TodolistScreenState extends ConsumerState<TodolistScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final api = ref.read(apiservice);
+    final api = ref.read(apiServiceProvider.notifier);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Nutrition Todo List"),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.push(context, MaterialPageRoute(builder: (context) {
-              return Homepage();
-            }));
-          },
-        ),
-      ),
+      backgroundColor: const Color(0xFF181818),
+      appBar: customAppbar(context, title: "Todo List"),
       body: Column(
         children: [
           Expanded(
@@ -267,7 +258,7 @@ class _TodolistScreenState extends ConsumerState<TodolistScreen> {
                     ),
                   ),
                   onPressed: () async {
-                    final api = ref.read(apiservice);
+                    final api = ref.read(apiServiceProvider.notifier);
                     final snapshot = await api.getTodo();
                     final nutritions = snapshot?.meals
                         .map((meal) => meal.nutrition)
@@ -286,7 +277,6 @@ class _TodolistScreenState extends ConsumerState<TodolistScreen> {
                         if (!existingCompleted.contains(item.nutritionId)) {
                           existingCompleted.add(item.nutritionId ?? "");
                           // await NotificationService.cancelNotification(i);
-                          print("✔️ Completed Task: ${item.dishName}");
                         }
                         isCheckedList[i] = false;
                       }
