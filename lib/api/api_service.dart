@@ -58,7 +58,7 @@ class ApiService extends AsyncNotifier<ApiState> {
   @override
   ApiState build() => ApiState(null);
 
-  Uri _url(String endpoint) => Uri.parse("${Config.baseUrl}/$endpoint");
+  Uri _url(String endpoint) => Uri.parse("${Config.baseUrl}$endpoint");
 
   /// ================= REGISTER =================
   Future<bool> registerUser(
