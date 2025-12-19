@@ -185,7 +185,6 @@ class Homepage extends HookConsumerWidget {
                         children: [
                           Container(
                             width: 160,
-                            height: 90,
                             decoration: BoxDecoration(
                               gradient: LinearGradient(colors: gradienColors),
                               borderRadius: BorderRadius.circular(12),
@@ -212,7 +211,8 @@ class Homepage extends HookConsumerWidget {
                                       mainAxisAlignment:
                                           MainAxisAlignment.center,
                                       children: [
-                                        Text('Completed Protein:',
+                                        Text('Completed Protein',
+                                            textAlign: TextAlign.center,
                                             style: const TextStyle(
                                                 color: Colors.white,
                                                 fontSize: 16)),
@@ -291,7 +291,7 @@ class Homepage extends HookConsumerWidget {
                         child: Column(
                           children: [
                             DropdownMenu(
-                              initialSelection: "Breakfast",
+                              hintText: 'Select Category',
                               textStyle: const TextStyle(color: Colors.white),
                               menuStyle: MenuStyle(
                                 backgroundColor: MaterialStateProperty.all(
@@ -377,7 +377,7 @@ class Homepage extends HookConsumerWidget {
       },
       child: Container(
         width: 160,
-        height: 90,
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
         decoration: BoxDecoration(
           gradient: LinearGradient(colors: gradientColors),
           borderRadius: BorderRadius.circular(12),
@@ -389,20 +389,28 @@ class Homepage extends HookConsumerWidget {
             ),
           ],
         ),
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(title,
-                  style: const TextStyle(color: Colors.white, fontSize: 16)),
-              const SizedBox(height: 6),
-              Text(value,
-                  style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold)),
-            ],
-          ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min, // 🔥 KEY FIX
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              title,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 14, // slightly smaller
+              ),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              value,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
         ),
       ),
     );

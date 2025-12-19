@@ -189,14 +189,14 @@ class _NutritionDetailScreenState extends ConsumerState<NutritionDetailScreen> {
               _nutritionTile("Protein", "${model.protein} g"),
               _nutritionTile("Carbohydrates", "${model.carbohydrates} g"),
               const SizedBox(height: 16),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  _buildCheckboxTile(eatType[0], 0),
-                  _buildCheckboxTile(eatType[1], 1),
-                  _buildCheckboxTile(eatType[2], 2),
-                ],
+              Wrap(
+                spacing: 12, // horizontal gap
+                runSpacing: 8, // vertical gap
+                children: List.generate(eatType.length, (index) {
+                  return _buildCheckboxTile(eatType[index], index);
+                }),
               ),
+
               const SizedBox(height: 16),
               // Padding(
               //   padding: const EdgeInsets.only(left: 390),
@@ -374,33 +374,38 @@ class _NutritionDetailScreenState extends ConsumerState<NutritionDetailScreen> {
     );
   }
 
-//
   Widget _buildCheckboxTile(String title, int index) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8.0),
-        border: Border.all(
-          color: const Color.fromARGB(255, 248, 243, 243),
-          width: 2.0,
+    return IntrinsicWidth(
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(8.0),
+          border: Border.all(color: Colors.white, width: 1.5),
         ),
-      ),
-      padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Checkbox(
-            value: isCheckedList[index],
-            onChanged: (value) {
-              setState(() {
-                isCheckedList[index] = value ?? false;
-              });
-            },
-          ),
-          Text(
-            title,
-            style: const TextStyle(color: Colors.white),
-          ),
-        ],
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Checkbox(
+              visualDensity: VisualDensity.compact,
+              value: isCheckedList[index],
+              onChanged: (value) {
+                setState(() {
+                  isCheckedList[index] = value ?? false;
+                });
+              },
+            ),
+            Flexible(
+              child: Text(
+                title,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 14,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
