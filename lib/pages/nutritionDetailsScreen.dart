@@ -187,6 +187,7 @@ class _NutritionDetailScreenState extends ConsumerState<NutritionDetailScreen> {
                   return _buildCheckboxTile(eatType[index], index);
                 }),
               ),
+
               const SizedBox(height: 16),
               const SizedBox(height: 16),
               GestureDetector(
