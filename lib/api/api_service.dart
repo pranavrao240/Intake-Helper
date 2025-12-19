@@ -7,7 +7,6 @@ import 'package:intake_helper/Config/Config.dart';
 import 'package:intake_helper/models/login_response_model.dart';
 import 'package:intake_helper/models/nutrition_model.dart';
 import 'package:intake_helper/models/todo_model.dart';
-import 'package:intake_helper/utils/shared_service.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -53,7 +52,7 @@ class ApiService extends Notifier<ApiState> {
   @override
   ApiState build() => ApiState();
 
-  Uri _url(String endpoint) => Uri.parse("${Config.baseUrl}/$endpoint");
+  Uri _url(String endpoint) => Uri.parse("${Config.baseUrl}$endpoint");
 
   /// ================= REGISTER =================
   Future<bool> registerUser(

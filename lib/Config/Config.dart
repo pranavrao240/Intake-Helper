@@ -1,5 +1,6 @@
 class Config {
-  static const String baseUrl = "http://192.168.0.105:3000";
+  static const String baseUrl =
+      "https://intake-helper-app-api-ucbe.vercel.app/";
   // static const String baseUrl = "10.109.101.240:3000";
   static const String nutritionAPI = "api/nutrition/import";
   static const String detailAPI = "api/nutrition/";

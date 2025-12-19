@@ -53,14 +53,8 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       title: 'Intake Helper',
       debugShowCheckedModeBanner: false,
-      // theme: ThemeData(
-      //   primarySwatch: Colors.orange,
-      //   visualDensity: VisualDensity.adaptivePlatformDensity,
-      //   useMaterial3: true,
-      //   scaffoldBackgroundColor: const Color.fromARGB(255, 39, 38, 38),
-      // ),
-      theme: AppTheme.lightTheme, // 🌞 Light Green
-      darkTheme: AppTheme.darkTheme, // 🌚 Dark Green
+      theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.darkTheme,
       themeMode: ThemeMode.system,
       navigatorKey: navigatorKey,
       initialRoute: '/',
