@@ -187,6 +187,7 @@ class ApiService extends AsyncNotifier<ApiState> {
           'Authorization': 'Bearer $token',
         },
       );
+      print('respone called $res');
 
       if (res.statusCode == 200) {
         final map = jsonDecode(res.body);
@@ -212,6 +213,8 @@ class ApiService extends AsyncNotifier<ApiState> {
           "Authorization": "Bearer $token"
         },
       );
+
+      print('todo response called');
 
       if (res.statusCode == 200) {
         final jsonMap = jsonDecode(res.body);

@@ -247,11 +247,7 @@ class RegisterPage extends HookConsumerWidget {
                                           registerState.value!.message ??
                                               'Registration Successfull!',
                                           "OK", () {
-                                        Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                                builder: (context) =>
-                                                    LoginPage()));
+                                        context.go("/login");
                                       });
                                     } catch (e) {
                                       isAsyncCallProcess.value = false;
