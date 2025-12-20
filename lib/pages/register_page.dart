@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intake_helper/Config/Config.dart';
 import 'package:intake_helper/api/api_service.dart';
@@ -21,9 +22,6 @@ class RegisterPage extends HookConsumerWidget {
 
     // Local states using hooks (replaces setState)
     final isAsyncCallProcess = useState<bool>(false);
-    final fullName = useState<String?>(null);
-    final email = useState<String?>(null);
-    final password = useState<String?>(null);
 
     final hidePassword = useState<bool>(true); // for confirm password field
     final textPwd = useState<String>("");
@@ -32,10 +30,7 @@ class RegisterPage extends HookConsumerWidget {
     final passwordController = useTextEditingController();
     final confirmPasswordController = useTextEditingController();
     final hideConfirmPassword = useState(false);
-    final message = useState<String?>('');
     final registerState = ref.watch(apiServiceProvider);
-    final registerNotifier = ref.read(apiServiceProvider.notifier);
-
     // Helper: validateSave (keeps same behavior)
     Future<bool> validateSave() async {
       final form = globalKey.currentState;
@@ -252,10 +247,10 @@ class RegisterPage extends HookConsumerWidget {
                                       FormHelper.showSimpleAlertDialog(
                                           context,
                                           Config.appName,
-                                          registerState.message ??
+                                          registerState.value!.message ??
                                               'Registration Successfull!',
                                           "OK", () {
-                                        Navigator.of(context).pop();
+                                        context.go("/login");
                                       });
                                     } catch (e) {
                                       print('Error in reg page - $e');
@@ -265,7 +260,7 @@ class RegisterPage extends HookConsumerWidget {
                                           Config.appName,
                                           "Error occurred",
                                           "OK", () {
-                                        Navigator.of(context).pop();
+                                        context.pop();
                                       });
                                     }
                                   } else {
@@ -274,7 +269,7 @@ class RegisterPage extends HookConsumerWidget {
                                         Config.appName,
                                         "Please fill all the fields",
                                         "OK", () {
-                                      Navigator.of(context).pop();
+                                      context.pop();
                                     });
                                   }
                                 },

@@ -6,7 +6,8 @@
     <application
         android:label="intake_helper"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/ic_launcher"
+        android:enableOnBackInvokedCallback="true">
         <uses-library
     android:name="com.google.android.material"
     android:required="false" />

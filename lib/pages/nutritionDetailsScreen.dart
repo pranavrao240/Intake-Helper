@@ -4,6 +4,7 @@ import 'package:android_intent_plus/android_intent.dart';
 import 'package:android_intent_plus/flag.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intake_helper/Providers/providers.dart';
 import 'package:intake_helper/api/api_service.dart';
 import 'package:intake_helper/models/nutrition_model.dart';
@@ -34,14 +35,11 @@ class _NutritionDetailScreenState extends ConsumerState<NutritionDetailScreen> {
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    final args = ModalRoute.of(context)?.settings.arguments as Map?;
+    final extras = GoRouterState.of(context).extra as Map<String, dynamic>?;
 
-    if (args != null) {
-      setState(() {
-        _id = args['_id']?.toString() ?? args['nutritionId']?.toString() ?? '';
-      });
-      print("Nutrition ID: $_id");
-    }
+    _id = extras?['_id'] ?? '';
+
+    debugPrint("Nutrition ID: $_id");
   }
 
   @override
@@ -86,6 +84,8 @@ class _NutritionDetailScreenState extends ConsumerState<NutritionDetailScreen> {
               child: Text("No data available",
                   style: TextStyle(color: Colors.white)));
         }
+        print('Nutrition data found for the given ID');
+
         return _mealDetailsUI(model);
       },
       error: (error, stack) {
@@ -277,7 +277,7 @@ class _NutritionDetailScreenState extends ConsumerState<NutritionDetailScreen> {
                   );
 
                   if (success == true) {
-                    Navigator.of(context).pushNamed("/todo-page");
+                    context.push("/todo");
 
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
@@ -479,7 +479,7 @@ class _TimeDayPickerDialogState extends State<_TimeDayPickerDialog> {
       ),
       actions: [
         TextButton(
-          onPressed: () => Navigator.pop(context),
+          onPressed: () => context.pop(),
           child:
               const Text("Cancel", style: TextStyle(color: Colors.redAccent)),
         ),
@@ -487,7 +487,7 @@ class _TimeDayPickerDialogState extends State<_TimeDayPickerDialog> {
           onPressed: () {
             widget.onConfirm(_selectedTime, _selectedDays.toList());
 
-            Navigator.pop(context);
+            context.pop();
           },
           child: const Text("Add", style: TextStyle(color: Colors.greenAccent)),
         ),

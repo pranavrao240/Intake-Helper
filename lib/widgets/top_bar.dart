@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 PreferredSizeWidget customAppbar(BuildContext context,
-    {required String title}) {
+    {required String title, VoidCallback? onBack}) {
   return AppBar(
     backgroundColor: const Color(0xFF1F1F1F),
     leading: IconButton(
         onPressed: () {
-          Navigator.of(context).pop();
+          onBack != null ? onBack.call() : context.pop();
         },
         icon: Icon(Icons.arrow_back, color: Colors.white)),
     title: Text(

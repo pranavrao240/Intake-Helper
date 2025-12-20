@@ -38,9 +38,9 @@ class ApiState {
 
 /// ================= PROVIDER =================
 final apiServiceProvider =
-    NotifierProvider<ApiService, ApiState>(() => ApiService());
+    AsyncNotifierProvider<ApiService, ApiState>(() => ApiService());
 
-class ApiService extends Notifier<ApiState> {
+class ApiService extends AsyncNotifier<ApiState> {
   static final client = _createHttpClient();
 
   static http.Client _createHttpClient() {
@@ -74,8 +74,8 @@ class ApiService extends Notifier<ApiState> {
         final model = loginResponseJson(res.body);
         final preferences = await SharedPreferences.getInstance();
         preferences.setString('token', model.data.token);
-        state = state.copyWith(
-            token: model.data.token, message: model.message, register: model);
+        state = AsyncValue.data(state.value!.copyWith(
+            token: model.data.token, message: model.message, register: model));
         return true;
       }
     } catch (e) {
@@ -101,10 +101,10 @@ class ApiService extends Notifier<ApiState> {
         final preferences = await SharedPreferences.getInstance();
 
         preferences.setString('token', model.data.token);
-        state = state.copyWith(
+        state = AsyncValue.data(state.value!.copyWith(
           token: model.data.token,
           message: model.message,
-        );
+        ));
         return true;
       }
     } catch (e) {
@@ -116,7 +116,7 @@ class ApiService extends Notifier<ApiState> {
 
   /// ================= NUTRITIONS =================
   Future<List<Nutrition>> getNutritions() async {
-    if (state.nutritions != null) return state.nutritions!;
+    if (state.value!.nutritions != null) return state.value!.nutritions!;
 
     try {
       final res = await client.get(_url(Config.nutritionAPI));
@@ -124,7 +124,9 @@ class ApiService extends Notifier<ApiState> {
       if (res.statusCode == 200) {
         final jsonBody = jsonDecode(res.body);
         final data = NutritionResponse.fromJson(jsonBody).data;
-        state = state.copyWith(nutritions: data);
+        state = AsyncValue.data(state.value!.copyWith(
+          nutritions: data,
+        ));
         return data;
       }
     } catch (e) {
@@ -147,6 +149,7 @@ class ApiService extends Notifier<ApiState> {
           'Authorization': 'Bearer $token',
         },
       );
+      print('respone called $res');
 
       if (res.statusCode == 200) {
         final map = jsonDecode(res.body);
@@ -173,15 +176,21 @@ class ApiService extends Notifier<ApiState> {
         },
       );
 
+      print('todo response called');
+
       if (res.statusCode == 200) {
         final jsonMap = jsonDecode(res.body);
         final model = TodoModel.fromJson(jsonMap['data']);
-        state = state.copyWith(todo: model);
+        state = AsyncValue.data(state.value!.copyWith(
+          todo: model,
+        ));
         return model;
       }
 
       if (res.statusCode == 401) {
-        state = state.copyWith(token: null);
+        state = AsyncValue.data(state.value!.copyWith(
+          token: null,
+        ));
       }
     } catch (e) {
       debugPrint('error in todo ${e.toString()}');
@@ -202,12 +211,16 @@ class ApiService extends Notifier<ApiState> {
     );
 
     if (res.statusCode == 200) {
-      state = state.copyWith(todo: null);
+      state = AsyncValue.data(state.value!.copyWith(
+        todo: null,
+      ));
       return true;
     }
 
     if (res.statusCode == 401) {
-      state = state.copyWith(token: null);
+      state = AsyncValue.data(state.value!.copyWith(
+        token: null,
+      ));
     }
 
     return false;
@@ -229,7 +242,9 @@ class ApiService extends Notifier<ApiState> {
       if (res.statusCode == 200) return true;
 
       if (res.statusCode == 401) {
-        state = state.copyWith(token: null);
+        state = AsyncValue.data(state.value!.copyWith(
+          token: null,
+        ));
       }
     } catch (e) {
       debugPrint(e.toString());

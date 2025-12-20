@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intake_helper/api/api_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -58,7 +58,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final textColor = isDark ? Colors.white : Colors.black87;
     final userState = ref.watch(apiServiceProvider);
-    final String userName = userState.register?.data.fullname ?? 'Guest';
+    final String userName = userState.value!.register?.data.fullname ?? 'Guest';
 
     final currentThemeLabel = themeMode == ThemeMode.dark
         ? "Dark"
@@ -89,7 +89,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
           centerTitle: true,
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => context.pop(),
           ),
         ),
         body: Padding(
@@ -191,11 +191,9 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                 const SizedBox(height: 30),
                 ElevatedButton.icon(
                   onPressed: () {
-                    Navigator.pushNamedAndRemoveUntil(
-                      context,
-                      '/login',
-                      (route) => false,
-                    );
+                    SharedPreferences.getInstance()
+                        .then((prefs) => prefs.clear());
+                    context.go('/login');
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.deepPurple,

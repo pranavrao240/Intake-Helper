@@ -9,7 +9,13 @@ final NutritionDetailsProvider =
 
   if (nutrition == null) {
     throw Exception('No nutrition data found for the given ID');
+  } else {
+    print('Nutrition data found for the given ID');
   }
 
   return nutrition;
 });
+
+final nutritonProvider = AsyncNotifierProvider<ApiService, ApiState>(
+  ApiService.new,
+);
