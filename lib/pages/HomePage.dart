@@ -51,30 +51,6 @@ class Homepage extends HookConsumerWidget {
       };
     }
 
-    Future<Map<String, double>> calculateCompletedMacros() async {
-      final data = await api.getTodo();
-      final completed = await SharedService.getCompletedTasks();
-
-      double totalProtein = 0;
-      double totalCarbs = 0;
-      double totalCalories = 0;
-
-      for (final meal in data?.meals ?? []) {
-        final nutrition = meal.nutrition;
-        if (nutrition != null && completed.contains(nutrition.id)) {
-          totalProtein += nutrition.protein ?? 0;
-          totalCarbs += nutrition.carbohydrates ?? 0;
-          totalCalories += nutrition.calories ?? 0;
-        }
-      }
-
-      return {
-        'protein': totalProtein,
-        'carbs': totalCarbs,
-        'calories': totalCalories,
-      };
-    }
-
     Future<void> loadAll() async {
       try {
         isLoading.value = true;
@@ -109,17 +85,6 @@ class Homepage extends HookConsumerWidget {
       return null;
     }, []);
 
-    // ---------------- FILTER ----------------
-    // final meals = useMemoized(() {
-    //   return todoData.value?.meals
-    //           .map((e) => e.nutrition)
-    //           .whereType<Nutrition>()
-    //           .where((n) =>
-    //               searchQuery.value.isEmpty ||
-    //               (n.type ?? []).contains(searchQuery.value))
-    //           .toList() ??
-    //       [];
-    // }, [todoData.value, searchQuery.value]);
     final allMeals = todoData.value?.meals
             .map((e) => e.nutrition)
             .where((n) => n.dishName != null && n.dishName!.isNotEmpty)

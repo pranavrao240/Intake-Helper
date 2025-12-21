@@ -238,10 +238,12 @@ class _TodolistScreenState extends ConsumerState<TodolistScreen> {
                           onTap: isCompleted
                               ? null
                               : () {
-                                  context.go(
-                                    "/meal-details",
-                                    extra: {'_id': item.id},
-                                  );
+                                  if (item.id != null) {
+                                    context.pushNamed(
+                                      RouteConstants.mealDetails.name,
+                                      pathParameters: {'id': item.id!},
+                                    );
+                                  }
                                 },
                         ),
                       );
