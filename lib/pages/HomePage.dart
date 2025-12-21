@@ -4,8 +4,8 @@ import 'package:intake_helper/api/api_service.dart';
 import 'package:intake_helper/models/nutrition_model.dart';
 import 'package:intake_helper/models/todo_model.dart';
 import 'package:intake_helper/pages/todoListScreen.dart';
+import 'package:intake_helper/router.dart';
 import 'package:pie_chart/pie_chart.dart';
-// Added imports for hooks & riverpod
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -51,30 +51,6 @@ class Homepage extends HookConsumerWidget {
       };
     }
 
-    Future<Map<String, double>> calculateCompletedMacros() async {
-      final data = await api.getTodo();
-      final completed = await SharedService.getCompletedTasks();
-
-      double totalProtein = 0;
-      double totalCarbs = 0;
-      double totalCalories = 0;
-
-      for (final meal in data?.meals ?? []) {
-        final nutrition = meal.nutrition;
-        if (nutrition != null && completed.contains(nutrition.id)) {
-          totalProtein += nutrition.protein ?? 0;
-          totalCarbs += nutrition.carbohydrates ?? 0;
-          totalCalories += nutrition.calories ?? 0;
-        }
-      }
-
-      return {
-        'protein': totalProtein,
-        'carbs': totalCarbs,
-        'calories': totalCalories,
-      };
-    }
-
     Future<void> loadAll() async {
       try {
         isLoading.value = true;
@@ -109,17 +85,6 @@ class Homepage extends HookConsumerWidget {
       return null;
     }, []);
 
-    // ---------------- FILTER ----------------
-    // final meals = useMemoized(() {
-    //   return todoData.value?.meals
-    //           .map((e) => e.nutrition)
-    //           .whereType<Nutrition>()
-    //           .where((n) =>
-    //               searchQuery.value.isEmpty ||
-    //               (n.type ?? []).contains(searchQuery.value))
-    //           .toList() ??
-    //       [];
-    // }, [todoData.value, searchQuery.value]);
     final allMeals = todoData.value?.meals
             .map((e) => e.nutrition)
             .where((n) => n.dishName != null && n.dishName!.isNotEmpty)
@@ -304,18 +269,23 @@ class Homepage extends HookConsumerWidget {
                             return Card(
                               color: Colors.black87,
                               child: ListTile(
-                                title: Text(meal.dishName ?? '',
+                                  title: Text(meal.dishName ?? '',
+                                      style:
+                                          const TextStyle(color: Colors.white)),
+                                  subtitle: Text(
+                                    "Calories: ${meal.calories ?? 0}, Protein: ${meal.protein ?? 0}g",
                                     style:
-                                        const TextStyle(color: Colors.white)),
-                                subtitle: Text(
-                                  "Calories: ${meal.calories ?? 0}, Protein: ${meal.protein ?? 0}g",
-                                  style: const TextStyle(color: Colors.white70),
-                                ),
-                                onTap: () => context.push(
-                                  "/meal-details",
-                                  extra: {'_id': meal.id},
-                                ),
-                              ),
+                                        const TextStyle(color: Colors.white70),
+                                  ),
+                                  onTap: () => {
+                                        if (meal.id != null)
+                                          {
+                                            context.pushNamed(
+                                              RouteConstants.mealDetails.name,
+                                              pathParameters: {'id': meal.id!},
+                                            )
+                                          }
+                                      }),
                             );
                           },
                         ),
@@ -361,7 +331,6 @@ class Homepage extends HookConsumerWidget {
       ),
     );
 
-    // ✅ Wrap ONLY if onTap is provided
     return onTap == null
         ? card
         : GestureDetector(

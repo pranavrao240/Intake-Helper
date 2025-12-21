@@ -1,5 +1,4 @@
 import 'package:go_router/go_router.dart';
-import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../main.dart';
@@ -22,7 +21,6 @@ class AppRoute {
 class RouteConstants {
   static const login = AppRoute(path: '/login', name: 'login');
   static const register = AppRoute(path: '/register', name: 'register');
-
   static const home = AppRoute(path: '/home', name: 'home');
   static const settings = AppRoute(path: '/settings', name: 'settings');
   static const todo = AppRoute(path: '/todo', name: 'todo');
@@ -31,11 +29,38 @@ class RouteConstants {
       AppRoute(path: '/meal-details', name: 'meal-details');
 }
 
-/// ---------- AUTH CHECK ----------
+// Add this function to check if token is expired
+Future<bool> isTokenExpired() async {
+  final prefs = await SharedPreferences.getInstance();
+  final expiryTime = prefs.getInt('token_expiry');
+  if (expiryTime == null) return true;
+
+  final now = DateTime.now().millisecondsSinceEpoch;
+  return now > expiryTime;
+}
+
+// Update the isUserLoggedIn function
 Future<bool> isUserLoggedIn() async {
   final prefs = await SharedPreferences.getInstance();
   final token = prefs.getString('token');
-  return token != null && token.isNotEmpty;
+
+  if (token == null || token.isEmpty) return false;
+
+  // Check if token is expired
+  final expired = await isTokenExpired();
+  if (expired) {
+    await clearAuthData(); // Clear auth data if token is expired
+    return false;
+  }
+
+  return true;
+}
+
+// Add this function to clear auth data
+Future<void> clearAuthData() async {
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.remove('token');
+  await prefs.remove('token_expiry');
 }
 
 /// ---------- ROUTE GROUPS ----------
@@ -56,11 +81,15 @@ final protectedRoutes = [
 final GoRouter appRouter = GoRouter(
   navigatorKey: navigatorKey,
   initialLocation: RouteConstants.login.path,
-
-  /// 🔐 GLOBAL REDIRECT
   redirect: (context, state) async {
     final loggedIn = await isUserLoggedIn();
     final path = state.uri.path;
+
+    // If token is expired, redirect to login
+    if (await isTokenExpired()) {
+      await clearAuthData();
+      return RouteConstants.login.path;
+    }
 
     // Not logged in → protected page
     if (!loggedIn && protectedRoutes.contains(path)) {
@@ -74,7 +103,6 @@ final GoRouter appRouter = GoRouter(
 
     return null;
   },
-
   routes: [
     /// ---------- PUBLIC ----------
     GoRoute(
@@ -109,15 +137,23 @@ final GoRouter appRouter = GoRouter(
       path: RouteConstants.nutrition.path,
       builder: (_, __) => const NutritionScreen(),
     ),
-
-    /// ---------- DETAILS (with extra) ----------
     GoRoute(
       name: RouteConstants.mealDetails.name,
-      path: RouteConstants.mealDetails.path,
-      builder: (_, state) {
-        final args = state.extra as Map<String, dynamic>;
-        return NutritionDetailScreen();
+      path: '${RouteConstants.mealDetails.path}/:id', // Add :id to the path
+      builder: (context, state) {
+        final id = state.pathParameters['id'] ?? ''; // Get ID from URL
+        return NutritionDetailScreen(id: id);
       },
-    ),
+    )
   ],
 );
+
+// Add this function to save auth data after successful login
+Future<void> saveAuthData(String token, {int expiresIn = 3600}) async {
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.setString('token', token);
+
+  // Set expiry time (current time + expiresIn seconds)
+  final expiryTime = DateTime.now().millisecondsSinceEpoch + (expiresIn * 1000);
+  await prefs.setInt('token_expiry', expiryTime);
+}

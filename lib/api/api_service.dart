@@ -8,6 +8,7 @@ import 'package:intake_helper/models/login_response_model.dart';
 import 'package:intake_helper/models/nutrition_model.dart';
 import 'package:intake_helper/models/todo_model.dart';
 import 'package:flutter/material.dart';
+import 'package:intake_helper/router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// ================= STATE MODEL =================
@@ -101,6 +102,8 @@ class ApiService extends AsyncNotifier<ApiState> {
         final preferences = await SharedPreferences.getInstance();
 
         preferences.setString('token', model.data.token);
+        // After successful login
+        await saveAuthData(model.data.token);
         state = AsyncValue.data(state.value!.copyWith(
           token: model.data.token,
           message: model.message,

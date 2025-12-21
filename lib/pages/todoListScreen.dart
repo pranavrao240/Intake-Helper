@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intake_helper/api/api_service.dart';
 import 'package:intake_helper/models/todo_model.dart';
 import 'package:intake_helper/models/nutrition_model.dart';
+import 'package:intake_helper/router.dart';
 import 'package:intake_helper/utility/notification.dart';
 import 'package:intake_helper/widgets/top_bar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -232,10 +233,12 @@ class _TodolistScreenState extends ConsumerState<TodolistScreen> {
                           onTap: isCompleted
                               ? null
                               : () {
-                                  context.go(
-                                    "/meal-details",
-                                    extra: {'_id': item.id},
-                                  );
+                                  if (item.id != null) {
+                                    context.pushNamed(
+                                      RouteConstants.mealDetails.name,
+                                      pathParameters: {'id': item.id!},
+                                    );
+                                  }
                                 },
                         ),
                       );

@@ -14,7 +14,9 @@ import 'package:intl/intl.dart';
 import 'package:pie_chart/pie_chart.dart';
 
 class NutritionDetailScreen extends ConsumerStatefulWidget {
-  const NutritionDetailScreen({super.key});
+  const NutritionDetailScreen({super.key, required this.id});
+
+  final String id;
 
   @override
   ConsumerState<NutritionDetailScreen> createState() =>
@@ -35,23 +37,17 @@ class _NutritionDetailScreenState extends ConsumerState<NutritionDetailScreen> {
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    final extras = GoRouterState.of(context).extra as Map<String, dynamic>?;
-
-    _id = extras?['_id'] ?? '';
-
-    debugPrint("Nutrition ID: $_id");
+    _id = widget.id;
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: customAppbar(context, title: "Nutrition Details"),
-
       body: SingleChildScrollView(
         child: _mealDetails(ref),
       ),
       backgroundColor: const Color(0xFF121212),
-      // backgroundColor: const Color.fromARGB(255, 39, 38, 38),
     );
   }
 
@@ -196,19 +192,7 @@ class _NutritionDetailScreenState extends ConsumerState<NutritionDetailScreen> {
                   return _buildCheckboxTile(eatType[index], index);
                 }),
               ),
-
               const SizedBox(height: 16),
-              // Padding(
-              //   padding: const EdgeInsets.only(left: 390),
-              //   child: GestureDetector(
-              //     onTap: () => _toggleSelection(model),
-              //     child: Icon(
-              //       _isBookmarked ? Icons.bookmark : Icons.bookmark_outline,
-              //       color: Colors.white,
-              //       size: 30,
-              //     ),
-              //   ),
-              // ),
               const SizedBox(height: 16),
               GestureDetector(
                 onTap: () async {
@@ -422,8 +406,8 @@ class _TimeDayPickerDialog extends StatefulWidget {
 
 class _TimeDayPickerDialogState extends State<_TimeDayPickerDialog> {
   TimeOfDay _selectedTime = TimeOfDay.now();
-  List<String> _days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-  Set<String> _selectedDays = {};
+  final List<String> _days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  final Set<String> _selectedDays = {};
 
   @override
   Widget build(BuildContext context) {
