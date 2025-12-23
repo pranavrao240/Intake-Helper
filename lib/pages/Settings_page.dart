@@ -18,14 +18,14 @@ class ThemeModeNotifier extends StateNotifier<ThemeMode> {
   }
 
   Future<void> _loadTheme() async {
-    final prefs = await SharedPreferences.getInstance();
-    final themeIndex = prefs.getInt(_themeKey) ?? ThemeMode.system.index;
+    final pref = await SharedPreferences.getInstance();
+    final themeIndex = pref.getInt(_themeKey) ?? ThemeMode.system.index;
     state = ThemeMode.values[themeIndex];
   }
 
   Future<void> setTheme(ThemeMode theme) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt(_themeKey, theme.index);
+    final pref = await SharedPreferences.getInstance();
+    await pref.setInt(_themeKey, theme.index);
     state = theme;
   }
 }
@@ -40,12 +40,6 @@ class SettingsPage extends HookConsumerWidget {
     final height = useState('');
     final dob = useState('');
     final age = useState('');
-
-    Future<void> getProfileData() async {
-      SharedPreferences preferences = await SharedPreferences.getInstance();
-      final token = preferences.getString('token');
-      ref.read(apiServiceProvider.notifier).getProfile(token!);
-    }
 
     // ---- Load user details once ----
     useEffect(() {
@@ -78,15 +72,15 @@ class SettingsPage extends HookConsumerWidget {
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
         ),
-        builder: (_) => const Adddetails(),
+        builder: (_) => const AddDetails(),
       );
 
       // reload after bottom sheet closes
-      final prefs = await SharedPreferences.getInstance();
-      age.value = prefs.getString('age') ?? '';
-      weight.value = prefs.getString('weight') ?? '';
-      height.value = prefs.getString('height') ?? '';
-      dob.value = prefs.getString('dob') ?? '';
+      final pref = await SharedPreferences.getInstance();
+      age.value = pref.getString('age') ?? '';
+      weight.value = pref.getString('weight') ?? '';
+      height.value = pref.getString('height') ?? '';
+      dob.value = pref.getString('dob') ?? '';
     }
 
     // ---- Providers ----
@@ -208,8 +202,8 @@ class SettingsPage extends HookConsumerWidget {
               const SizedBox(height: 30),
               ElevatedButton.icon(
                 onPressed: () async {
-                  final prefs = await SharedPreferences.getInstance();
-                  await prefs.clear();
+                  final pref = await SharedPreferences.getInstance();
+                  await pref.clear();
                   context.go('/login');
                 },
                 icon: const Icon(Icons.logout),
@@ -301,14 +295,14 @@ class ThemeSelectorSheet extends ConsumerWidget {
   }
 }
 
-class Adddetails extends ConsumerStatefulWidget {
-  const Adddetails({super.key});
+class AddDetails extends ConsumerStatefulWidget {
+  const AddDetails({super.key});
 
   @override
-  ConsumerState<Adddetails> createState() => _AdddetailsState();
+  ConsumerState<AddDetails> createState() => _AddDetailsState();
 }
 
-class _AdddetailsState extends ConsumerState<Adddetails> {
+class _AddDetailsState extends ConsumerState<AddDetails> {
   final _ageController = TextEditingController();
   final _weightController = TextEditingController();
   final _heightController = TextEditingController();
@@ -321,19 +315,19 @@ class _AdddetailsState extends ConsumerState<Adddetails> {
   }
 
   Future<void> _loadSavedData() async {
-    final prefs = await SharedPreferences.getInstance();
-    _ageController.text = prefs.getString('age') ?? '';
-    _weightController.text = prefs.getString('weight') ?? '';
-    _heightController.text = prefs.getString('height') ?? '';
-    _dobController.text = prefs.getString('dob') ?? '';
+    final pref = await SharedPreferences.getInstance();
+    _ageController.text = pref.getString('age') ?? '';
+    _weightController.text = pref.getString('weight') ?? '';
+    _heightController.text = pref.getString('height') ?? '';
+    _dobController.text = pref.getString('dob') ?? '';
   }
 
   Future<void> _saveData() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('age', _ageController.text);
-    await prefs.setString('weight', _weightController.text);
-    await prefs.setString('height', _heightController.text);
-    await prefs.setString('dob', _dobController.text);
+    final pref = await SharedPreferences.getInstance();
+    await pref.setString('age', _ageController.text);
+    await pref.setString('weight', _weightController.text);
+    await pref.setString('height', _heightController.text);
+    await pref.setString('dob', _dobController.text);
   }
 
   @override

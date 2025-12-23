@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intake_helper/Providers/providers.dart';
 import 'package:intake_helper/api/api_service.dart';
 import 'package:intake_helper/models/nutrition_model.dart';
 import 'package:intake_helper/models/todo_model.dart';
@@ -38,7 +37,7 @@ class Homepage extends HookConsumerWidget {
 
       for (final meal in data.meals) {
         final n = meal.nutrition;
-        if (n != null && completed.contains(n.id)) {
+        if (completed.contains(n.id)) {
           protein += n.protein ?? 0;
           carbs += n.carbohydrates ?? 0;
           calories += n.calories ?? 0;
@@ -152,9 +151,8 @@ class Homepage extends HookConsumerWidget {
               child:
                   const Text('LogOut', style: TextStyle(color: Colors.white)),
               onTap: () => {
-                SharedPreferences.getInstance().then((prefs) => prefs.clear()),
+                SharedPreferences.getInstance().then((pref) => pref.clear()),
                 context.push('/login'),
-                // SharedPreferences.getInstance().then((prefs) => prefs.clear()),
               },
             ),
           ],

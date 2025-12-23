@@ -7,7 +7,7 @@ part 'todo.g.dart';
 @freezed
 abstract class Todo with _$Todo {
   factory Todo({
-    @JsonKey(name: '_id') String? id,
+    String? id,
     required Nutrition nutrition,
   }) = _Todo;
 

@@ -99,12 +99,12 @@ class RegisterPage extends HookConsumerWidget {
                               Border.all(color: Colors.grey.shade800, width: 1),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.6),
+                              color: Colors.black.withValues(alpha: 0.6),
                               offset: const Offset(0, 8),
                               blurRadius: 28,
                             ),
                             BoxShadow(
-                              color: Colors.white.withOpacity(0.01),
+                              color: Colors.white.withValues(alpha: 0.01),
                               offset: const Offset(0, -2),
                               blurRadius: 6,
                               spreadRadius: 0,
@@ -231,7 +231,7 @@ class RegisterPage extends HookConsumerWidget {
                                     // API integration
                                     isAsyncCallProcess.value = true;
                                     try {
-                                      final response = await ref
+                                      await ref
                                           .read(apiServiceProvider.notifier)
                                           .registerUser(
                                             fullNameController.text,
@@ -287,7 +287,8 @@ class RegisterPage extends HookConsumerWidget {
                                     borderRadius: BorderRadius.circular(10),
                                     boxShadow: [
                                       BoxShadow(
-                                        color: Colors.black.withOpacity(0.45),
+                                        color: Colors.black
+                                            .withValues(alpha: 0.45),
                                         offset: const Offset(0, 8),
                                         blurRadius: 20,
                                       ),

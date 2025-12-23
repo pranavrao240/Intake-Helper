@@ -7,8 +7,8 @@ part 'todo_model.g.dart';
 @freezed
 abstract class TodoModel with _$TodoModel {
   factory TodoModel({
-    @JsonKey(name: 'userId') String? userId,
-    @JsonKey(name: 'mealId') String? mealId,
+    String? userId,
+    String? mealId,
     @Default([]) List<Meal> meals,
   }) = _TodoModel;
 

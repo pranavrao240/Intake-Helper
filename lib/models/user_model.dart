@@ -18,12 +18,12 @@ abstract class ProfileResponse with _$ProfileResponse {
 @freezed
 abstract class ProfileData with _$ProfileData {
   const factory ProfileData({
-    @JsonKey(name: '_id') required String id,
-    @JsonKey(name: 'fullName') required String fullName,
+    required String id,
+    required String fullName,
     required String email,
     required DateTime createdAt,
     required DateTime updatedAt,
-    @JsonKey(name: '__v') required int v,
+    required int v,
   }) = _ProfileData;
 
   factory ProfileData.fromJson(Map<String, dynamic> json) =>

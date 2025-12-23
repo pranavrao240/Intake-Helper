@@ -75,12 +75,6 @@ class _NutritionDetailScreenState extends ConsumerState<NutritionDetailScreen> {
 
     return details.when(
       data: (model) {
-        if (model == null) {
-          return const Center(
-              child: Text("No data available",
-                  style: TextStyle(color: Colors.white)));
-        }
-
         return _mealDetailsUI(model);
       },
       error: (error, stack) {
@@ -290,7 +284,7 @@ class _NutritionDetailScreenState extends ConsumerState<NutritionDetailScreen> {
                       borderRadius: BorderRadius.circular(10),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.45),
+                          color: Colors.black.withValues(alpha: 0.45),
                           offset: const Offset(0, 8),
                           blurRadius: 20,
                         ),
@@ -313,24 +307,6 @@ class _NutritionDetailScreenState extends ConsumerState<NutritionDetailScreen> {
             ],
           ),
         ],
-      ),
-    );
-  }
-
-  bool _isBookmarked = false;
-
-  void _toggleSelection(Nutrition model) {
-    setState(() {
-      _isBookmarked = !_isBookmarked;
-    });
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          _isBookmarked ? 'Selected' : 'Not Selected',
-          style: const TextStyle(color: Colors.white),
-        ),
-        backgroundColor: Colors.teal,
       ),
     );
   }

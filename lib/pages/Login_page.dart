@@ -1,5 +1,4 @@
 import 'package:flutter/foundation.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
@@ -8,7 +7,6 @@ import 'package:intake_helper/Config/Config.dart';
 import 'package:intake_helper/api/api_service.dart';
 import 'package:intake_helper/components/custom_textfield.dart';
 import 'package:intake_helper/pages/register_page.dart';
-import 'package:intake_helper/router.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:snippet_coder_utils/FormHelper.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -25,8 +23,6 @@ class LoginPage extends HookConsumerWidget {
     final emailController = useTextEditingController();
     final passwordController = useTextEditingController();
     final hidePassword = useState<bool>(true);
-    final email = useState<String?>(null);
-    final password = useState<String?>(null);
 
     Future<bool> validateSave() async {
       final form = globalKey.currentState;
@@ -94,12 +90,12 @@ class LoginPage extends HookConsumerWidget {
                                 color: Colors.grey.shade800, width: 1),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.6),
+                                color: Colors.black.withValues(alpha: 0.6),
                                 offset: const Offset(0, 8),
                                 blurRadius: 28,
                               ),
                               BoxShadow(
-                                color: Colors.white.withOpacity(0.01),
+                                color: Colors.white.withValues(alpha: 0.01),
                                 offset: const Offset(0, -2),
                                 blurRadius: 6,
                                 spreadRadius: 0,
@@ -185,10 +181,10 @@ class LoginPage extends HookConsumerWidget {
                                         isAsyncCallProcess.value = false;
 
                                         if (response) {
-                                          SharedPreferences prefs =
+                                          SharedPreferences pref =
                                               await SharedPreferences
                                                   .getInstance();
-                                          await prefs.setString("user_email",
+                                          await pref.setString("user_email",
                                               emailController.text.trim());
 
                                           FormHelper.showSimpleAlertDialog(
@@ -241,7 +237,8 @@ class LoginPage extends HookConsumerWidget {
                                       borderRadius: BorderRadius.circular(10),
                                       boxShadow: [
                                         BoxShadow(
-                                          color: Colors.black.withOpacity(0.45),
+                                          color: Colors.black
+                                              .withValues(alpha: 0.45),
                                           offset: const Offset(0, 8),
                                           blurRadius: 20,
                                         ),

@@ -218,7 +218,7 @@ Future<void> scheduleForMultipleDays({
     int id = now.millisecondsSinceEpoch ~/ 1000 + weekday;
 
     // Next occurrence of selected weekday
-    tz.TZDateTime scheduledDate = _nextInstanceOfWeekday(
+    _nextInstanceOfWeekday(
       weekday,
       time.hour,
       time.minute,

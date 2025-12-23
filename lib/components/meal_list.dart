@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intake_helper/models/nutrition_model.dart';
 
 class MealList extends StatelessWidget {
