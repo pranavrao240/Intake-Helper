@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intake_helper/Providers/providers.dart';
 import 'package:intake_helper/api/api_service.dart';
 import 'package:intake_helper/models/nutrition_model.dart';
 import 'package:intake_helper/models/todo_model.dart';
