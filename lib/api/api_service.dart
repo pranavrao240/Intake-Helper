@@ -58,7 +58,7 @@ class ApiService extends AsyncNotifier<ApiState> {
   @override
   ApiState build() => ApiState(null);
 
-  Uri _url(String endpoint) => Uri.parse("${Config.baseUrl}$endpoint");
+  Uri _url(String endpoint) => Uri.parse("${Config.baseUrl}/$endpoint");
 
   /// ================= REGISTER =================
   Future<bool> registerUser(
@@ -187,7 +187,6 @@ class ApiService extends AsyncNotifier<ApiState> {
           'Authorization': 'Bearer $token',
         },
       );
-      print('respone called $res');
 
       if (res.statusCode == 200) {
         final map = jsonDecode(res.body);
@@ -213,8 +212,6 @@ class ApiService extends AsyncNotifier<ApiState> {
           "Authorization": "Bearer $token"
         },
       );
-
-      print('todo response called');
 
       if (res.statusCode == 200) {
         final jsonMap = jsonDecode(res.body);

@@ -75,6 +75,12 @@ class _NutritionDetailScreenState extends ConsumerState<NutritionDetailScreen> {
 
     return details.when(
       data: (model) {
+        if (model == null) {
+          return const Center(
+              child: Text("No data available",
+                  style: TextStyle(color: Colors.white)));
+        }
+
         return _mealDetailsUI(model);
       },
       error: (error, stack) {

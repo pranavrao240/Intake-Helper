@@ -21,6 +21,7 @@ class AppRoute {
 class RouteConstants {
   static const login = AppRoute(path: '/login', name: 'login');
   static const register = AppRoute(path: '/register', name: 'register');
+
   static const home = AppRoute(path: '/home', name: 'home');
   static const settings = AppRoute(path: '/settings', name: 'settings');
   static const todo = AppRoute(path: '/todo', name: 'todo');
