@@ -6,11 +6,8 @@ Future<void> requestAlarmPermission() async {
   final status = await Permission.scheduleExactAlarm.status;
 
   if (status.isGranted) {
-    print("Alarm permission ALREADY GRANTED");
     return;
   }
-
-  print("Opening alarm permission settings...");
 
   // Opens the system settings page — REQUIRED for Pixel phones
   const intent = AndroidIntent(

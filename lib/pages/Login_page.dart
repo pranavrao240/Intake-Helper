@@ -2,11 +2,13 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intake_helper/Config/Config.dart';
 import 'package:intake_helper/api/api_service.dart';
-import 'package:intake_helper/pages/register_page.dart';
 import 'package:intake_helper/components/custom_textfield.dart';
+import 'package:intake_helper/pages/register_page.dart';
+import 'package:intake_helper/router.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:snippet_coder_utils/FormHelper.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -194,11 +196,7 @@ class LoginPage extends HookConsumerWidget {
                                               Config.appName,
                                               "Logged in Successfully",
                                               "OK", () {
-                                            Navigator.of(context).pop();
-                                            Navigator.pushNamedAndRemoveUntil(
-                                                context,
-                                                "/home",
-                                                (route) => false);
+                                            context.go("/home");
                                           });
                                         } else {
                                           FormHelper.showSimpleAlertDialog(
@@ -206,7 +204,7 @@ class LoginPage extends HookConsumerWidget {
                                               Config.appName,
                                               "Invalid email/password",
                                               "OK", () {
-                                            Navigator.of(context).pop();
+                                            context.pop();
                                           });
                                         }
                                       } catch (e) {
@@ -216,7 +214,7 @@ class LoginPage extends HookConsumerWidget {
                                             Config.appName,
                                             "Error occurred",
                                             "OK", () {
-                                          Navigator.of(context).pop();
+                                          context.pop();
                                         });
                                       }
                                     } else {
@@ -225,7 +223,7 @@ class LoginPage extends HookConsumerWidget {
                                           Config.appName,
                                           "Please fill all the fields",
                                           "OK", () {
-                                        Navigator.of(context).pop();
+                                        context.pop();
                                       });
                                     }
                                   },
@@ -267,30 +265,31 @@ class LoginPage extends HookConsumerWidget {
 
                               // Sign up row
                               Center(
-                                child: RichText(
-                                  text: TextSpan(
+                                child: Row(children: [
+                                  Text(
+                                    "Don't have an account? ",
                                     style: const TextStyle(
                                         color: Colors.white70, fontSize: 14),
-                                    children: <TextSpan>[
-                                      const TextSpan(
-                                          text: "Don't have an account? "),
-                                      TextSpan(
-                                        text: "Sign Up",
-                                        recognizer: TapGestureRecognizer()
-                                          ..onTap = () {
-                                            Navigator.pushReplacement(
-                                                context,
-                                                MaterialPageRoute(
-                                                    builder: (context) =>
-                                                        const RegisterPage()));
-                                          },
-                                        style: const TextStyle(
-                                            color: Colors.green,
-                                            fontWeight: FontWeight.bold),
-                                      )
-                                    ],
                                   ),
-                                ),
+                                  GestureDetector(
+                                    onTap: () {
+                                      try {
+                                        Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    RegisterPage()));
+                                      } catch (e) {}
+                                    },
+                                    child: Text(
+                                      "Sign Up",
+                                      style: TextStyle(
+                                        color: Colors.green,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                ]),
                               ),
                             ],
                           ),

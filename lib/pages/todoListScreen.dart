@@ -3,10 +3,11 @@ import 'dart:math';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intake_helper/api/api_service.dart';
 import 'package:intake_helper/models/todo_model.dart';
 import 'package:intake_helper/models/nutrition_model.dart';
-import 'package:intake_helper/pages/HomePage.dart';
+import 'package:intake_helper/router.dart';
 import 'package:intake_helper/utility/notification.dart';
 import 'package:intake_helper/widgets/top_bar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -53,8 +54,6 @@ void setNotification(var item, var index) async {
     final parts = rawTime.split(":");
     final hour = int.tryParse(parts[0]);
     final minute = int.tryParse(parts[1]);
-    print(
-        "For Dish-${item.dishName} Notification time is  -> hour: $hour, minute: $minute");
 
     if (hour != null && minute != null) {
       await CustomNotification().showScheduleNotification(
@@ -79,8 +78,6 @@ class _TodolistScreenState extends ConsumerState<TodolistScreen> {
   String _searchQuery = "";
   List<bool> isCheckedList = [];
   List<String> completedIds = [];
-  bool _isLoading = true;
-  bool _notificationsScheduled = false;
 
   @override
   void initState() {
@@ -99,9 +96,7 @@ class _TodolistScreenState extends ConsumerState<TodolistScreen> {
         );
       }
     } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
+      if (mounted) {}
     }
   }
 
@@ -131,7 +126,11 @@ class _TodolistScreenState extends ConsumerState<TodolistScreen> {
 
     return Scaffold(
       backgroundColor: const Color(0xFF181818),
-      appBar: customAppbar(context, title: "Todo List"),
+      appBar: customAppbar(
+        context,
+        title: "Todo List",
+        onBack: () => context.pushReplacement('/home'),
+      ),
       body: Column(
         children: [
           Expanded(
@@ -212,6 +211,12 @@ class _TodolistScreenState extends ConsumerState<TodolistScreen> {
                                         .then((success) {
                                       if (success == true) {
                                         setState(() {});
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
+                                          const SnackBar(
+                                              content: Text(
+                                                  "Item deleted successfully!")),
+                                        );
                                       } else {
                                         ScaffoldMessenger.of(context)
                                             .showSnackBar(
@@ -226,10 +231,12 @@ class _TodolistScreenState extends ConsumerState<TodolistScreen> {
                           onTap: isCompleted
                               ? null
                               : () {
-                                  Navigator.of(context).pushNamed(
-                                    "/meal-details",
-                                    arguments: {'_id': item.id},
-                                  );
+                                  if (item.id != null) {
+                                    context.pushNamed(
+                                      RouteConstants.mealDetails.name,
+                                      pathParameters: {'id': item.id!},
+                                    );
+                                  }
                                 },
                         ),
                       );
@@ -276,7 +283,7 @@ class _TodolistScreenState extends ConsumerState<TodolistScreen> {
                         final item = filteredData[i];
                         if (!existingCompleted.contains(item.nutritionId)) {
                           existingCompleted.add(item.nutritionId ?? "");
-                          // await NotificationService.cancelNotification(i);
+                          await CustomNotification().cancelNotification(i);
                         }
                         isCheckedList[i] = false;
                       }

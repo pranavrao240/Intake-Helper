@@ -4,6 +4,7 @@ import 'package:android_intent_plus/android_intent.dart';
 import 'package:android_intent_plus/flag.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intake_helper/Providers/providers.dart';
 import 'package:intake_helper/api/api_service.dart';
 import 'package:intake_helper/models/nutrition_model.dart';
@@ -13,7 +14,9 @@ import 'package:intl/intl.dart';
 import 'package:pie_chart/pie_chart.dart';
 
 class NutritionDetailScreen extends ConsumerStatefulWidget {
-  const NutritionDetailScreen({super.key});
+  const NutritionDetailScreen({super.key, required this.id});
+
+  final String id;
 
   @override
   ConsumerState<NutritionDetailScreen> createState() =>
@@ -34,26 +37,17 @@ class _NutritionDetailScreenState extends ConsumerState<NutritionDetailScreen> {
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    final args = ModalRoute.of(context)?.settings.arguments as Map?;
-
-    if (args != null) {
-      setState(() {
-        _id = args['_id']?.toString() ?? args['nutritionId']?.toString() ?? '';
-      });
-      print("Nutrition ID: $_id");
-    }
+    _id = widget.id;
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: customAppbar(context, title: "Nutrition Details"),
-
       body: SingleChildScrollView(
         child: _mealDetails(ref),
       ),
       backgroundColor: const Color(0xFF121212),
-      // backgroundColor: const Color.fromARGB(255, 39, 38, 38),
     );
   }
 
@@ -86,6 +80,7 @@ class _NutritionDetailScreenState extends ConsumerState<NutritionDetailScreen> {
               child: Text("No data available",
                   style: TextStyle(color: Colors.white)));
         }
+
         return _mealDetailsUI(model);
       },
       error: (error, stack) {
@@ -96,8 +91,10 @@ class _NutritionDetailScreenState extends ConsumerState<NutritionDetailScreen> {
       loading: () {
         return const Center(
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              SizedBox(
+                height: 20,
+              ),
               CircularProgressIndicator(),
               SizedBox(height: 16),
               Text('Loading...', style: TextStyle(color: Colors.white)),
@@ -196,19 +193,7 @@ class _NutritionDetailScreenState extends ConsumerState<NutritionDetailScreen> {
                   return _buildCheckboxTile(eatType[index], index);
                 }),
               ),
-
               const SizedBox(height: 16),
-              // Padding(
-              //   padding: const EdgeInsets.only(left: 390),
-              //   child: GestureDetector(
-              //     onTap: () => _toggleSelection(model),
-              //     child: Icon(
-              //       _isBookmarked ? Icons.bookmark : Icons.bookmark_outline,
-              //       color: Colors.white,
-              //       size: 30,
-              //     ),
-              //   ),
-              // ),
               const SizedBox(height: 16),
               GestureDetector(
                 onTap: () async {
@@ -277,7 +262,7 @@ class _NutritionDetailScreenState extends ConsumerState<NutritionDetailScreen> {
                   );
 
                   if (success == true) {
-                    Navigator.of(context).pushNamed("/todo-page");
+                    context.push("/todo");
 
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
@@ -422,8 +407,8 @@ class _TimeDayPickerDialog extends StatefulWidget {
 
 class _TimeDayPickerDialogState extends State<_TimeDayPickerDialog> {
   TimeOfDay _selectedTime = TimeOfDay.now();
-  List<String> _days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-  Set<String> _selectedDays = {};
+  final List<String> _days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  final Set<String> _selectedDays = {};
 
   @override
   Widget build(BuildContext context) {
@@ -479,7 +464,7 @@ class _TimeDayPickerDialogState extends State<_TimeDayPickerDialog> {
       ),
       actions: [
         TextButton(
-          onPressed: () => Navigator.pop(context),
+          onPressed: () => context.pop(),
           child:
               const Text("Cancel", style: TextStyle(color: Colors.redAccent)),
         ),
@@ -487,7 +472,7 @@ class _TimeDayPickerDialogState extends State<_TimeDayPickerDialog> {
           onPressed: () {
             widget.onConfirm(_selectedTime, _selectedDays.toList());
 
-            Navigator.pop(context);
+            context.pop();
           },
           child: const Text("Add", style: TextStyle(color: Colors.greenAccent)),
         ),
