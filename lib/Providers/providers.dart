@@ -16,6 +16,6 @@ final NutritionDetailsProvider =
   return nutrition;
 });
 
-final nutritonProvider = AsyncNotifierProvider<ApiService, ApiState>(
+final appProvider = AsyncNotifierProvider<ApiService, ApiState>(
   ApiService.new,
 );

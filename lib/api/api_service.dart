@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
@@ -8,6 +9,7 @@ import 'package:intake_helper/models/login_response_model.dart';
 import 'package:intake_helper/models/nutrition_model.dart';
 import 'package:intake_helper/models/todo_model.dart';
 import 'package:flutter/material.dart';
+import 'package:intake_helper/models/user_model.dart';
 import 'package:intake_helper/router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -18,8 +20,9 @@ class ApiState {
   final TodoModel? todo;
   final String? message;
   final LoginResponseModel? register;
+  final ProfileData? profileData;
 
-  ApiState(
+  ApiState(this.profileData,
       {this.token, this.nutritions, this.todo, this.message, this.register});
 
   ApiState copyWith(
@@ -27,8 +30,10 @@ class ApiState {
       List<Nutrition>? nutritions,
       TodoModel? todo,
       String? message,
-      LoginResponseModel? register}) {
+      LoginResponseModel? register,
+      ProfileData? profileData}) {
     return ApiState(
+      profileData ?? this.profileData,
       token: token ?? this.token,
       nutritions: nutritions ?? this.nutritions,
       todo: todo ?? this.todo,
@@ -51,9 +56,9 @@ class ApiService extends AsyncNotifier<ApiState> {
   }
 
   @override
-  ApiState build() => ApiState();
+  ApiState build() => ApiState(null);
 
-  Uri _url(String endpoint) => Uri.parse("${Config.baseUrl}$endpoint");
+  Uri _url(String endpoint) => Uri.parse("${Config.baseUrl}/$endpoint");
 
   /// ================= REGISTER =================
   Future<bool> registerUser(
@@ -76,7 +81,9 @@ class ApiService extends AsyncNotifier<ApiState> {
         final preferences = await SharedPreferences.getInstance();
         preferences.setString('token', model.data.token);
         state = AsyncValue.data(state.value!.copyWith(
-            token: model.data.token, message: model.message, register: model));
+            token: model.data.token,
+            message: model.message,
+            register: model.data as LoginResponseModel));
         return true;
       }
     } catch (e) {
@@ -97,6 +104,8 @@ class ApiService extends AsyncNotifier<ApiState> {
         }),
       );
 
+      print('response from login --> ${res.body}');
+
       if (res.statusCode == 200) {
         final model = loginResponseJson(res.body);
         final preferences = await SharedPreferences.getInstance();
@@ -115,6 +124,32 @@ class ApiService extends AsyncNotifier<ApiState> {
     }
 
     return false;
+  }
+
+  Future<void> getProfile(String token) async {
+    print('enters in getprofile');
+
+    final response = await client.get(
+      _url(Config.profileAPI),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    print('response from profile --> ${response.body}');
+    try {
+      if (response.statusCode == 200) {
+        print('response from profile enters success');
+        final jsonBody = jsonDecode(response.body);
+        final data = ProfileResponse.fromJson(jsonBody).data;
+        print('data from profile --> $data');
+
+        state = AsyncValue.data(state.value!.copyWith(profileData: data));
+      }
+    } catch (e) {
+      log('Profile error: $e');
+    }
   }
 
   /// ================= NUTRITIONS =================
@@ -152,7 +187,6 @@ class ApiService extends AsyncNotifier<ApiState> {
           'Authorization': 'Bearer $token',
         },
       );
-      print('respone called $res');
 
       if (res.statusCode == 200) {
         final map = jsonDecode(res.body);
@@ -172,14 +206,12 @@ class ApiService extends AsyncNotifier<ApiState> {
       final token = preferences.getString('token');
 
       final res = await client.get(
-        _url(Config.TodoAPI),
+        _url(Config.todoAPI),
         headers: {
           "Content-Type": "application/json",
           "Authorization": "Bearer $token"
         },
       );
-
-      print('todo response called');
 
       if (res.statusCode == 200) {
         final jsonMap = jsonDecode(res.body);
@@ -234,7 +266,7 @@ class ApiService extends AsyncNotifier<ApiState> {
       final preferences = await SharedPreferences.getInstance();
       final token = preferences.getString('token');
       final res = await client.delete(
-        _url(Config.TodoAPI),
+        _url(Config.todoAPI),
         headers: {
           "Content-Type": "application/json",
           "Authorization": "Bearer $token",
@@ -261,7 +293,7 @@ class ApiService extends AsyncNotifier<ApiState> {
     final preferences = await SharedPreferences.getInstance();
     final token = preferences.getString('token');
     final res = await client.post(
-      _url(Config.TodoAPI),
+      _url(Config.todoAPI),
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $token',

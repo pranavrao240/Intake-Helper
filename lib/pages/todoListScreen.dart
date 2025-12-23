@@ -54,8 +54,6 @@ void setNotification(var item, var index) async {
     final parts = rawTime.split(":");
     final hour = int.tryParse(parts[0]);
     final minute = int.tryParse(parts[1]);
-    print(
-        "For Dish-${item.dishName} Notification time is  -> hour: $hour, minute: $minute");
 
     if (hour != null && minute != null) {
       await CustomNotification().showScheduleNotification(

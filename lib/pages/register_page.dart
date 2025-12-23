@@ -239,9 +239,6 @@ class RegisterPage extends HookConsumerWidget {
                                             passwordController.text,
                                           );
 
-                                      print(
-                                          'register api fetched - > ${response}');
-
                                       isAsyncCallProcess.value = false;
 
                                       FormHelper.showSimpleAlertDialog(
@@ -250,10 +247,13 @@ class RegisterPage extends HookConsumerWidget {
                                           registerState.value!.message ??
                                               'Registration Successfull!',
                                           "OK", () {
-                                        context.go("/login");
+                                        Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    LoginPage()));
                                       });
                                     } catch (e) {
-                                      print('Error in reg page - $e');
                                       isAsyncCallProcess.value = false;
                                       FormHelper.showSimpleAlertDialog(
                                           context,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intake_helper/Providers/providers.dart';
 import 'package:intake_helper/api/api_service.dart';
 import 'package:intake_helper/models/nutrition_model.dart';
 import 'package:intake_helper/models/todo_model.dart';
@@ -82,6 +83,7 @@ class Homepage extends HookConsumerWidget {
     // ---------------- INIT ----------------
     useEffect(() {
       Future.microtask(() => loadAll());
+
       return null;
     }, []);
 
@@ -96,6 +98,7 @@ class Homepage extends HookConsumerWidget {
     return Scaffold(
       backgroundColor: const Color(0xFF121212),
       appBar: AppBar(
+        leading: const SizedBox.shrink(),
         backgroundColor: Colors.black,
         title: const Text("Gym Intake Tracker",
             style: TextStyle(color: Colors.white)),
@@ -106,7 +109,7 @@ class Homepage extends HookConsumerWidget {
           ),
           IconButton(
             icon: const Icon(Icons.settings, color: Colors.orange),
-            onPressed: () => context.go('/settings'),
+            onPressed: () => context.push('/settings'),
           ),
         ],
       ),
@@ -122,9 +125,7 @@ class Homepage extends HookConsumerWidget {
         child: PopupMenuButton<String>(
           color: Colors.black,
           icon: const Icon(Icons.question_answer, color: Colors.white),
-          onSelected: (value) {
-            print('Selected: $value');
-          },
+          onSelected: (value) {},
           itemBuilder: (BuildContext context) => [
             // in progress :-
             // const PopupMenuItem<String>(
@@ -144,7 +145,7 @@ class Homepage extends HookConsumerWidget {
               value: 'Settings',
               child:
                   const Text('Settings', style: TextStyle(color: Colors.white)),
-              onTap: () => {context.push('/settings')},
+              onTap: () => {context.push(RouteConstants.settings.path)},
             ),
             PopupMenuItem<String>(
               value: 'Logout',
@@ -152,7 +153,7 @@ class Homepage extends HookConsumerWidget {
                   const Text('LogOut', style: TextStyle(color: Colors.white)),
               onTap: () => {
                 SharedPreferences.getInstance().then((prefs) => prefs.clear()),
-                context.go('/login'),
+                context.push('/login'),
                 // SharedPreferences.getInstance().then((prefs) => prefs.clear()),
               },
             ),

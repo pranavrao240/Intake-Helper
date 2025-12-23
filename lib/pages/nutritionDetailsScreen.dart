@@ -80,7 +80,6 @@ class _NutritionDetailScreenState extends ConsumerState<NutritionDetailScreen> {
               child: Text("No data available",
                   style: TextStyle(color: Colors.white)));
         }
-        print('Nutrition data found for the given ID');
 
         return _mealDetailsUI(model);
       },
@@ -92,8 +91,10 @@ class _NutritionDetailScreenState extends ConsumerState<NutritionDetailScreen> {
       loading: () {
         return const Center(
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              SizedBox(
+                height: 20,
+              ),
               CircularProgressIndicator(),
               SizedBox(height: 16),
               Text('Loading...', style: TextStyle(color: Colors.white)),

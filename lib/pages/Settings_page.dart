@@ -1,64 +1,98 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intake_helper/api/api_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-final themeModeProvider = StateProvider<ThemeMode>((ref) => ThemeMode.system);
+final themeModeProvider =
+    StateNotifierProvider<ThemeModeNotifier, ThemeMode>((ref) {
+  return ThemeModeNotifier();
+});
 
-class SettingsPage extends ConsumerStatefulWidget {
-  const SettingsPage({Key? key}) : super(key: key);
+class ThemeModeNotifier extends StateNotifier<ThemeMode> {
+  static const String _themeKey = 'theme_mode';
 
-  @override
-  ConsumerState<SettingsPage> createState() => _SettingsPageState();
+  ThemeModeNotifier() : super(ThemeMode.system) {
+    _loadTheme();
+  }
+
+  Future<void> _loadTheme() async {
+    final prefs = await SharedPreferences.getInstance();
+    final themeIndex = prefs.getInt(_themeKey) ?? ThemeMode.system.index;
+    state = ThemeMode.values[themeIndex];
+  }
+
+  Future<void> setTheme(ThemeMode theme) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(_themeKey, theme.index);
+    state = theme;
+  }
 }
 
-class _SettingsPageState extends ConsumerState<SettingsPage> {
-  String weight = '';
-  String height = '';
-  String dob = '';
-  String age = '';
+class SettingsPage extends HookConsumerWidget {
+  const SettingsPage({super.key});
 
   @override
-  void initState() {
-    super.initState();
-  }
+  Widget build(BuildContext context, WidgetRef ref) {
+    // ---- Hooks state ----
+    final weight = useState('');
+    final height = useState('');
+    final dob = useState('');
+    final age = useState('');
 
-  Future<void> _loadUserDetails() async {
-    final prefs = await SharedPreferences.getInstance();
-    setState(() {
-      age = prefs.getString('age') ?? '';
-      weight = prefs.getString('weight') ?? '';
-      height = prefs.getString('height') ?? '';
-      dob = prefs.getString('dob') ?? '';
-    });
-  }
+    Future<void> getProfileData() async {
+      SharedPreferences preferences = await SharedPreferences.getInstance();
+      final token = preferences.getString('token');
+      ref.read(apiServiceProvider.notifier).getProfile(token!);
+    }
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _loadUserDetails();
-  }
+    // ---- Load user details once ----
+    useEffect(() {
+      Future.microtask(() async {
+        SharedPreferences preferences = await SharedPreferences.getInstance();
+        final token = preferences.getString('token');
+        if (token != null) {
+          await ref.read(apiServiceProvider.notifier).getProfile(token);
+        }
+      });
+      return null;
+    }, []);
+    // Watch for changes in the API state
+    final userState = ref.watch(apiServiceProvider);
 
-  Future<void> _showAddDetailsSheet(BuildContext context) async {
-    await showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (_) => const Adddetails(),
+    // Extract user data from the state
+    final String userName = userState.maybeWhen(
+      data: (data) => data.profileData?.fullName ?? 'Guest',
+      orElse: () => "Guest",
     );
-    await _loadUserDetails();
-  }
+    final String email = userState.maybeWhen(
+      data: (data) => data.profileData?.email ?? 'Guest',
+      orElse: () => "Guest",
+    );
 
-  @override
-  Widget build(BuildContext context) {
+    Future<void> showAddDetailsSheet() async {
+      await showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        builder: (_) => const Adddetails(),
+      );
+
+      // reload after bottom sheet closes
+      final prefs = await SharedPreferences.getInstance();
+      age.value = prefs.getString('age') ?? '';
+      weight.value = prefs.getString('weight') ?? '';
+      height.value = prefs.getString('height') ?? '';
+      dob.value = prefs.getString('dob') ?? '';
+    }
+
+    // ---- Providers ----
     final themeMode = ref.watch(themeModeProvider);
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final textColor = isDark ? Colors.white : Colors.black87;
-    final userState = ref.watch(apiServiceProvider);
-    final String userName = userState.value!.register?.data.fullname ?? 'Guest';
 
     final currentThemeLabel = themeMode == ThemeMode.dark
         ? "Dark"
@@ -66,165 +100,130 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
             ? "Light"
             : "System";
 
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      themeMode: themeMode,
-      theme: ThemeData(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.deepPurple,
-          brightness: Brightness.light,
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("Settings"),
+        centerTitle: true,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.pop(),
         ),
       ),
-      darkTheme: ThemeData(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.deepPurple,
-          brightness: Brightness.dark,
-        ),
-      ),
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Text("Settings"),
-          centerTitle: true,
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: () => context.pop(),
-          ),
-        ),
-        body: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 40),
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                const CircleAvatar(
-                  radius: 60,
-                  backgroundImage: AssetImage('lib/assets/images/baki.jpg'),
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              const CircleAvatar(
+                radius: 60,
+                backgroundImage: AssetImage('lib/assets/images/baki.jpg'),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Intake Helper',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: textColor,
                 ),
-                const SizedBox(height: 16),
-                Text(
-                  'Intake Helper',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: textColor,
+              ),
+              const SizedBox(height: 30),
+              _buildInfoCard(
+                icon: Icons.person,
+                title: "Name:",
+                value: userName,
+              ),
+              _buildInfoCard(
+                icon: Icons.email,
+                title: "Email Id:",
+                value: email,
+              ),
+              GestureDetector(
+                onTap: showAddDetailsSheet,
+                child: _buildInfoCard(
+                  icon: Icons.edit,
+                  title: "Add details",
+                  value: "Click to add details",
+                ),
+              ),
+              Card(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                elevation: 4,
+                margin: const EdgeInsets.symmetric(vertical: 12),
+                child: ListTile(
+                  leading: const Icon(Icons.dark_mode),
+                  title: const Text("Select Theme:"),
+                  trailing: Text(
+                    currentThemeLabel,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
-                ),
-                const SizedBox(height: 30),
-                _buildInfoCard(
-                  icon: Icons.person,
-                  title: "Name:",
-                  value: userName,
-                ),
-                _buildInfoCard(
-                  icon: Icons.email,
-                  title: "Email Id:",
-                  value: "$userName@example.com",
-                ),
-                GestureDetector(
-                  onTap: () => _showAddDetailsSheet(context),
-                  child: _buildInfoCard(
-                    icon: Icons.edit,
-                    title: "Add details",
-                    value: "Click to add details",
-                  ),
-                ),
-                Card(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  elevation: 4,
-                  margin: const EdgeInsets.symmetric(vertical: 12),
-                  child: ListTile(
-                    leading: const Icon(Icons.dark_mode),
-                    title: const Text("Select Theme:"),
-                    trailing: Text(
-                      currentThemeLabel,
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    onTap: () {
-                      showModalBottomSheet(
-                        context: context,
-                        shape: const RoundedRectangleBorder(
-                          borderRadius:
-                              BorderRadius.vertical(top: Radius.circular(20)),
-                        ),
-                        builder: (_) => const ThemeSelectorSheet(),
-                      );
-                    },
-                  ),
-                ),
-                const SizedBox(height: 20),
-                GridView(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  padding: EdgeInsets.zero,
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 12,
-                    mainAxisSpacing: 12,
-                    childAspectRatio: 1.0,
-                  ),
-                  children: [
-                    _buildSelfDetailCard(
-                      icon: Icons.cake,
-                      title: "Age:",
-                      value: age.isEmpty ? "Not set" : age,
-                    ),
-                    _buildSelfDetailCard(
-                      icon: Icons.monitor_weight,
-                      title: "Weight:",
-                      value: weight.isEmpty ? "Not set" : "$weight kg",
-                    ),
-                    _buildSelfDetailCard(
-                      icon: Icons.height,
-                      title: "Height:",
-                      value: height.isEmpty ? "Not set" : "$height cm",
-                    ),
-                    _buildSelfDetailCard(
-                      icon: Icons.calendar_today,
-                      title: "Date of Birth:",
-                      value: dob.isEmpty ? "Not set" : dob,
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 30),
-                ElevatedButton.icon(
-                  onPressed: () {
-                    SharedPreferences.getInstance()
-                        .then((prefs) => prefs.clear());
-                    context.go('/login');
+                  onTap: () {
+                    showModalBottomSheet(
+                      context: context,
+                      shape: const RoundedRectangleBorder(
+                        borderRadius:
+                            BorderRadius.vertical(top: Radius.circular(20)),
+                      ),
+                      builder: (_) => const ThemeSelectorSheet(),
+                    );
                   },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.deepPurple,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 24, vertical: 12),
-                  ),
-                  icon: const Icon(
-                    Icons.logout,
-                  ),
-                  label: Text(
-                    'Logout',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Theme.of(context).brightness == Brightness.dark
-                          ? Colors.white
-                          : Colors.black,
-                    ),
-                  ),
                 ),
-              ],
-            ),
+              ),
+              const SizedBox(height: 20),
+              GridView(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 12,
+                  mainAxisSpacing: 12,
+                ),
+                children: [
+                  _buildSelfDetailCard(
+                    icon: Icons.cake,
+                    title: "Age:",
+                    value: age.value.isEmpty ? "Not set" : age.value,
+                  ),
+                  _buildSelfDetailCard(
+                    icon: Icons.monitor_weight,
+                    title: "Weight:",
+                    value:
+                        weight.value.isEmpty ? "Not set" : "${weight.value} kg",
+                  ),
+                  _buildSelfDetailCard(
+                    icon: Icons.height,
+                    title: "Height:",
+                    value:
+                        height.value.isEmpty ? "Not set" : "${height.value} cm",
+                  ),
+                  _buildSelfDetailCard(
+                    icon: Icons.calendar_today,
+                    title: "Date of Birth:",
+                    value: dob.value.isEmpty ? "Not set" : dob.value,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 30),
+              ElevatedButton.icon(
+                onPressed: () async {
+                  final prefs = await SharedPreferences.getInstance();
+                  await prefs.clear();
+                  context.go('/login');
+                },
+                icon: const Icon(Icons.logout),
+                label: const Text('Logout'),
+              ),
+            ],
           ),
         ),
       ),
     );
   }
 
-  Widget _buildInfoCard({
+  // ---- helpers (unchanged) ----
+  static Widget _buildInfoCard({
     required IconData icon,
     required String title,
     required String value,
@@ -242,7 +241,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     );
   }
 
-  Widget _buildSelfDetailCard({
+  static Widget _buildSelfDetailCard({
     required IconData icon,
     required String title,
     required String value,
@@ -291,7 +290,7 @@ class ThemeSelectorSheet extends ConsumerWidget {
             groupValue: themeMode,
             onChanged: (ThemeMode? value) {
               if (value != null) {
-                ref.read(themeModeProvider.notifier).state = value;
+                ref.read(themeModeProvider.notifier).setTheme(value);
                 Navigator.pop(context);
               }
             },
