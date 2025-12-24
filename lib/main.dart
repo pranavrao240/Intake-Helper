@@ -46,12 +46,11 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return Consumer(
       builder: (context, ref, _) {
-        final themeMode = ref.watch(themeModeProvider);
         return MaterialApp.router(
           debugShowCheckedModeBanner: false,
-          themeMode: themeMode,
+          themeMode: ThemeMode.light,
           theme: AppTheme.lightTheme,
-          darkTheme: AppTheme.darkTheme,
+          darkTheme: AppTheme.lightTheme,
           routerConfig: appRouter,
         );
       },

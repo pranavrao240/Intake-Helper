@@ -192,6 +192,13 @@ class _TodolistScreenState extends ConsumerState<TodolistScreen> {
                           ),
                           leading: Checkbox(
                             value: isCheckedList[index],
+                            activeColor: Colors.green, // ✔ checked background
+                            checkColor: Colors.white, // ✔ tick color
+                            side: const BorderSide(
+                              // ✔ border when unchecked
+                              color: Colors.black,
+                              width: 1.5,
+                            ),
                             onChanged: isCompleted
                                 ? null
                                 : (bool? value) {

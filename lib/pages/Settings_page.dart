@@ -84,15 +84,7 @@ class SettingsPage extends HookConsumerWidget {
     }
 
     // ---- Providers ----
-    final themeMode = ref.watch(themeModeProvider);
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final textColor = isDark ? Colors.white : Colors.black87;
-
-    final currentThemeLabel = themeMode == ThemeMode.dark
-        ? "Dark"
-        : themeMode == ThemeMode.light
-            ? "Light"
-            : "System";
+    final textColor = Colors.black87;
 
     return Scaffold(
       appBar: AppBar(
@@ -138,31 +130,6 @@ class SettingsPage extends HookConsumerWidget {
                   icon: Icons.edit,
                   title: "Add details",
                   value: "Click to add details",
-                ),
-              ),
-              Card(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                elevation: 4,
-                margin: const EdgeInsets.symmetric(vertical: 12),
-                child: ListTile(
-                  leading: const Icon(Icons.dark_mode),
-                  title: const Text("Select Theme:"),
-                  trailing: Text(
-                    currentThemeLabel,
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  onTap: () {
-                    showModalBottomSheet(
-                      context: context,
-                      shape: const RoundedRectangleBorder(
-                        borderRadius:
-                            BorderRadius.vertical(top: Radius.circular(20)),
-                      ),
-                      builder: (_) => const ThemeSelectorSheet(),
-                    );
-                  },
                 ),
               ),
               const SizedBox(height: 20),
@@ -255,41 +222,6 @@ class SettingsPage extends HookConsumerWidget {
             Text(value, style: const TextStyle(fontSize: 16)),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class ThemeSelectorSheet extends ConsumerWidget {
-  const ThemeSelectorSheet({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final themeMode = ref.watch(themeModeProvider);
-
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: ThemeMode.values.map((mode) {
-          final label = mode == ThemeMode.light
-              ? "Light"
-              : mode == ThemeMode.dark
-                  ? "Dark"
-                  : "System";
-
-          return RadioListTile<ThemeMode>(
-            title: Text(label),
-            value: mode,
-            groupValue: themeMode,
-            onChanged: (ThemeMode? value) {
-              if (value != null) {
-                ref.read(themeModeProvider.notifier).setTheme(value);
-                Navigator.pop(context);
-              }
-            },
-          );
-        }).toList(),
       ),
     );
   }
