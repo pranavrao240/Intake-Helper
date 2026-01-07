@@ -372,14 +372,11 @@ class __$ProfileResponseCopyWithImpl<$Res>
 
 /// @nodoc
 mixin _$ProfileData {
-  @JsonKey(name: '_id')
   String get id;
-  @JsonKey(name: 'fullName')
   String get fullName;
   String get email;
   DateTime get createdAt;
   DateTime get updatedAt;
-  @JsonKey(name: '__v')
   int get v;
 
   /// Create a copy of ProfileData
@@ -426,12 +423,12 @@ abstract mixin class $ProfileDataCopyWith<$Res> {
       _$ProfileDataCopyWithImpl;
   @useResult
   $Res call(
-      {@JsonKey(name: '_id') String id,
-      @JsonKey(name: 'fullName') String fullName,
+      {String id,
+      String fullName,
       String email,
       DateTime createdAt,
       DateTime updatedAt,
-      @JsonKey(name: '__v') int v});
+      int v});
 }
 
 /// @nodoc
@@ -575,13 +572,8 @@ extension ProfileDataPatterns on ProfileData {
 
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>(
-    TResult Function(
-            @JsonKey(name: '_id') String id,
-            @JsonKey(name: 'fullName') String fullName,
-            String email,
-            DateTime createdAt,
-            DateTime updatedAt,
-            @JsonKey(name: '__v') int v)?
+    TResult Function(String id, String fullName, String email,
+            DateTime createdAt, DateTime updatedAt, int v)?
         $default, {
     required TResult orElse(),
   }) {
@@ -610,13 +602,8 @@ extension ProfileDataPatterns on ProfileData {
 
   @optionalTypeArgs
   TResult when<TResult extends Object?>(
-    TResult Function(
-            @JsonKey(name: '_id') String id,
-            @JsonKey(name: 'fullName') String fullName,
-            String email,
-            DateTime createdAt,
-            DateTime updatedAt,
-            @JsonKey(name: '__v') int v)
+    TResult Function(String id, String fullName, String email,
+            DateTime createdAt, DateTime updatedAt, int v)
         $default,
   ) {
     final _that = this;
@@ -643,13 +630,8 @@ extension ProfileDataPatterns on ProfileData {
 
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>(
-    TResult? Function(
-            @JsonKey(name: '_id') String id,
-            @JsonKey(name: 'fullName') String fullName,
-            String email,
-            DateTime createdAt,
-            DateTime updatedAt,
-            @JsonKey(name: '__v') int v)?
+    TResult? Function(String id, String fullName, String email,
+            DateTime createdAt, DateTime updatedAt, int v)?
         $default,
   ) {
     final _that = this;
@@ -667,20 +649,18 @@ extension ProfileDataPatterns on ProfileData {
 @JsonSerializable()
 class _ProfileData implements ProfileData {
   const _ProfileData(
-      {@JsonKey(name: '_id') required this.id,
-      @JsonKey(name: 'fullName') required this.fullName,
+      {required this.id,
+      required this.fullName,
       required this.email,
       required this.createdAt,
       required this.updatedAt,
-      @JsonKey(name: '__v') required this.v});
+      required this.v});
   factory _ProfileData.fromJson(Map<String, dynamic> json) =>
       _$ProfileDataFromJson(json);
 
   @override
-  @JsonKey(name: '_id')
   final String id;
   @override
-  @JsonKey(name: 'fullName')
   final String fullName;
   @override
   final String email;
@@ -689,7 +669,6 @@ class _ProfileData implements ProfileData {
   @override
   final DateTime updatedAt;
   @override
-  @JsonKey(name: '__v')
   final int v;
 
   /// Create a copy of ProfileData
@@ -743,12 +722,12 @@ abstract mixin class _$ProfileDataCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {@JsonKey(name: '_id') String id,
-      @JsonKey(name: 'fullName') String fullName,
+      {String id,
+      String fullName,
       String email,
       DateTime createdAt,
       DateTime updatedAt,
-      @JsonKey(name: '__v') int v});
+      int v});
 }
 
 /// @nodoc

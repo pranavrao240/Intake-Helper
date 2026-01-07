@@ -339,41 +339,23 @@ class __$NutritionResponseCopyWithImpl<$Res>
 
 /// @nodoc
 mixin _$Nutrition {
-  @JsonKey(name: '_id')
   String? get id;
-  @JsonKey(name: 'id')
   String? get localId;
-  @JsonKey(name: 'nutritionId', fromJson: _dynamicToString)
   String? get nutritionId;
-  @JsonKey(name: 'DishName')
   String? get dishName;
-  @JsonKey(name: 'Calories')
   double? get calories;
-  @JsonKey(name: 'Protein')
   double? get protein;
-  @JsonKey(name: 'Carbohydrates')
   double? get carbohydrates;
-  @JsonKey(name: 'Fats')
   double? get fats;
-  @JsonKey(name: 'Sodium')
   double? get sodium;
-  @JsonKey(name: 'Iron')
   double? get iron;
-  @JsonKey(name: 'Calcium')
   double? get calcium;
-  @JsonKey(name: 'FreeSugar')
   double? get freeSugar;
-  @JsonKey(name: 'Fibre')
   double? get fibre;
-  @JsonKey(name: 'Sugar')
   double? get sugar;
-  @JsonKey(name: 'type', fromJson: _dynamicToStringList)
   List<String>? get type;
-  @JsonKey(name: 'day', fromJson: _dynamicToStringList)
   List<String>? get day; // ✅ Corrected
-  @JsonKey(name: 'time', fromJson: _dynamicToStringList)
   List<String>? get time;
-  @JsonKey(name: 'selected')
   String? get selected;
 
   /// Create a copy of Nutrition
@@ -452,25 +434,24 @@ abstract mixin class $NutritionCopyWith<$Res> {
       _$NutritionCopyWithImpl;
   @useResult
   $Res call(
-      {@JsonKey(name: '_id') String? id,
-      @JsonKey(name: 'id') String? localId,
-      @JsonKey(name: 'nutritionId', fromJson: _dynamicToString)
+      {String? id,
+      String? localId,
       String? nutritionId,
-      @JsonKey(name: 'DishName') String? dishName,
-      @JsonKey(name: 'Calories') double? calories,
-      @JsonKey(name: 'Protein') double? protein,
-      @JsonKey(name: 'Carbohydrates') double? carbohydrates,
-      @JsonKey(name: 'Fats') double? fats,
-      @JsonKey(name: 'Sodium') double? sodium,
-      @JsonKey(name: 'Iron') double? iron,
-      @JsonKey(name: 'Calcium') double? calcium,
-      @JsonKey(name: 'FreeSugar') double? freeSugar,
-      @JsonKey(name: 'Fibre') double? fibre,
-      @JsonKey(name: 'Sugar') double? sugar,
-      @JsonKey(name: 'type', fromJson: _dynamicToStringList) List<String>? type,
-      @JsonKey(name: 'day', fromJson: _dynamicToStringList) List<String>? day,
-      @JsonKey(name: 'time', fromJson: _dynamicToStringList) List<String>? time,
-      @JsonKey(name: 'selected') String? selected});
+      String? dishName,
+      double? calories,
+      double? protein,
+      double? carbohydrates,
+      double? fats,
+      double? sodium,
+      double? iron,
+      double? calcium,
+      double? freeSugar,
+      double? fibre,
+      double? sugar,
+      List<String>? type,
+      List<String>? day,
+      List<String>? time,
+      String? selected});
 }
 
 /// @nodoc
@@ -675,28 +656,24 @@ extension NutritionPatterns on Nutrition {
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>(
     TResult Function(
-            @JsonKey(name: '_id') String? id,
-            @JsonKey(name: 'id') String? localId,
-            @JsonKey(name: 'nutritionId', fromJson: _dynamicToString)
+            String? id,
+            String? localId,
             String? nutritionId,
-            @JsonKey(name: 'DishName') String? dishName,
-            @JsonKey(name: 'Calories') double? calories,
-            @JsonKey(name: 'Protein') double? protein,
-            @JsonKey(name: 'Carbohydrates') double? carbohydrates,
-            @JsonKey(name: 'Fats') double? fats,
-            @JsonKey(name: 'Sodium') double? sodium,
-            @JsonKey(name: 'Iron') double? iron,
-            @JsonKey(name: 'Calcium') double? calcium,
-            @JsonKey(name: 'FreeSugar') double? freeSugar,
-            @JsonKey(name: 'Fibre') double? fibre,
-            @JsonKey(name: 'Sugar') double? sugar,
-            @JsonKey(name: 'type', fromJson: _dynamicToStringList)
+            String? dishName,
+            double? calories,
+            double? protein,
+            double? carbohydrates,
+            double? fats,
+            double? sodium,
+            double? iron,
+            double? calcium,
+            double? freeSugar,
+            double? fibre,
+            double? sugar,
             List<String>? type,
-            @JsonKey(name: 'day', fromJson: _dynamicToStringList)
             List<String>? day,
-            @JsonKey(name: 'time', fromJson: _dynamicToStringList)
             List<String>? time,
-            @JsonKey(name: 'selected') String? selected)?
+            String? selected)?
         $default, {
     required TResult orElse(),
   }) {
@@ -743,28 +720,24 @@ extension NutritionPatterns on Nutrition {
   @optionalTypeArgs
   TResult when<TResult extends Object?>(
     TResult Function(
-            @JsonKey(name: '_id') String? id,
-            @JsonKey(name: 'id') String? localId,
-            @JsonKey(name: 'nutritionId', fromJson: _dynamicToString)
+            String? id,
+            String? localId,
             String? nutritionId,
-            @JsonKey(name: 'DishName') String? dishName,
-            @JsonKey(name: 'Calories') double? calories,
-            @JsonKey(name: 'Protein') double? protein,
-            @JsonKey(name: 'Carbohydrates') double? carbohydrates,
-            @JsonKey(name: 'Fats') double? fats,
-            @JsonKey(name: 'Sodium') double? sodium,
-            @JsonKey(name: 'Iron') double? iron,
-            @JsonKey(name: 'Calcium') double? calcium,
-            @JsonKey(name: 'FreeSugar') double? freeSugar,
-            @JsonKey(name: 'Fibre') double? fibre,
-            @JsonKey(name: 'Sugar') double? sugar,
-            @JsonKey(name: 'type', fromJson: _dynamicToStringList)
+            String? dishName,
+            double? calories,
+            double? protein,
+            double? carbohydrates,
+            double? fats,
+            double? sodium,
+            double? iron,
+            double? calcium,
+            double? freeSugar,
+            double? fibre,
+            double? sugar,
             List<String>? type,
-            @JsonKey(name: 'day', fromJson: _dynamicToStringList)
             List<String>? day,
-            @JsonKey(name: 'time', fromJson: _dynamicToStringList)
             List<String>? time,
-            @JsonKey(name: 'selected') String? selected)
+            String? selected)
         $default,
   ) {
     final _that = this;
@@ -809,28 +782,24 @@ extension NutritionPatterns on Nutrition {
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>(
     TResult? Function(
-            @JsonKey(name: '_id') String? id,
-            @JsonKey(name: 'id') String? localId,
-            @JsonKey(name: 'nutritionId', fromJson: _dynamicToString)
+            String? id,
+            String? localId,
             String? nutritionId,
-            @JsonKey(name: 'DishName') String? dishName,
-            @JsonKey(name: 'Calories') double? calories,
-            @JsonKey(name: 'Protein') double? protein,
-            @JsonKey(name: 'Carbohydrates') double? carbohydrates,
-            @JsonKey(name: 'Fats') double? fats,
-            @JsonKey(name: 'Sodium') double? sodium,
-            @JsonKey(name: 'Iron') double? iron,
-            @JsonKey(name: 'Calcium') double? calcium,
-            @JsonKey(name: 'FreeSugar') double? freeSugar,
-            @JsonKey(name: 'Fibre') double? fibre,
-            @JsonKey(name: 'Sugar') double? sugar,
-            @JsonKey(name: 'type', fromJson: _dynamicToStringList)
+            String? dishName,
+            double? calories,
+            double? protein,
+            double? carbohydrates,
+            double? fats,
+            double? sodium,
+            double? iron,
+            double? calcium,
+            double? freeSugar,
+            double? fibre,
+            double? sugar,
             List<String>? type,
-            @JsonKey(name: 'day', fromJson: _dynamicToStringList)
             List<String>? day,
-            @JsonKey(name: 'time', fromJson: _dynamicToStringList)
             List<String>? time,
-            @JsonKey(name: 'selected') String? selected)?
+            String? selected)?
         $default,
   ) {
     final _that = this;
@@ -865,28 +834,24 @@ extension NutritionPatterns on Nutrition {
 @JsonSerializable()
 class _Nutrition implements Nutrition {
   const _Nutrition(
-      {@JsonKey(name: '_id') this.id,
-      @JsonKey(name: 'id') this.localId,
-      @JsonKey(name: 'nutritionId', fromJson: _dynamicToString)
+      {this.id,
+      this.localId,
       this.nutritionId,
-      @JsonKey(name: 'DishName') this.dishName,
-      @JsonKey(name: 'Calories') this.calories,
-      @JsonKey(name: 'Protein') this.protein,
-      @JsonKey(name: 'Carbohydrates') this.carbohydrates,
-      @JsonKey(name: 'Fats') this.fats,
-      @JsonKey(name: 'Sodium') this.sodium,
-      @JsonKey(name: 'Iron') this.iron,
-      @JsonKey(name: 'Calcium') this.calcium,
-      @JsonKey(name: 'FreeSugar') this.freeSugar,
-      @JsonKey(name: 'Fibre') this.fibre,
-      @JsonKey(name: 'Sugar') this.sugar,
-      @JsonKey(name: 'type', fromJson: _dynamicToStringList)
+      this.dishName,
+      this.calories,
+      this.protein,
+      this.carbohydrates,
+      this.fats,
+      this.sodium,
+      this.iron,
+      this.calcium,
+      this.freeSugar,
+      this.fibre,
+      this.sugar,
       final List<String>? type,
-      @JsonKey(name: 'day', fromJson: _dynamicToStringList)
       final List<String>? day,
-      @JsonKey(name: 'time', fromJson: _dynamicToStringList)
       final List<String>? time,
-      @JsonKey(name: 'selected') this.selected})
+      this.selected})
       : _type = type,
         _day = day,
         _time = time;
@@ -894,50 +859,35 @@ class _Nutrition implements Nutrition {
       _$NutritionFromJson(json);
 
   @override
-  @JsonKey(name: '_id')
   final String? id;
   @override
-  @JsonKey(name: 'id')
   final String? localId;
   @override
-  @JsonKey(name: 'nutritionId', fromJson: _dynamicToString)
   final String? nutritionId;
   @override
-  @JsonKey(name: 'DishName')
   final String? dishName;
   @override
-  @JsonKey(name: 'Calories')
   final double? calories;
   @override
-  @JsonKey(name: 'Protein')
   final double? protein;
   @override
-  @JsonKey(name: 'Carbohydrates')
   final double? carbohydrates;
   @override
-  @JsonKey(name: 'Fats')
   final double? fats;
   @override
-  @JsonKey(name: 'Sodium')
   final double? sodium;
   @override
-  @JsonKey(name: 'Iron')
   final double? iron;
   @override
-  @JsonKey(name: 'Calcium')
   final double? calcium;
   @override
-  @JsonKey(name: 'FreeSugar')
   final double? freeSugar;
   @override
-  @JsonKey(name: 'Fibre')
   final double? fibre;
   @override
-  @JsonKey(name: 'Sugar')
   final double? sugar;
   final List<String>? _type;
   @override
-  @JsonKey(name: 'type', fromJson: _dynamicToStringList)
   List<String>? get type {
     final value = _type;
     if (value == null) return null;
@@ -948,7 +898,6 @@ class _Nutrition implements Nutrition {
 
   final List<String>? _day;
   @override
-  @JsonKey(name: 'day', fromJson: _dynamicToStringList)
   List<String>? get day {
     final value = _day;
     if (value == null) return null;
@@ -961,7 +910,6 @@ class _Nutrition implements Nutrition {
   final List<String>? _time;
 // ✅ Corrected
   @override
-  @JsonKey(name: 'time', fromJson: _dynamicToStringList)
   List<String>? get time {
     final value = _time;
     if (value == null) return null;
@@ -971,7 +919,6 @@ class _Nutrition implements Nutrition {
   }
 
   @override
-  @JsonKey(name: 'selected')
   final String? selected;
 
   /// Create a copy of Nutrition
@@ -1058,25 +1005,24 @@ abstract mixin class _$NutritionCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {@JsonKey(name: '_id') String? id,
-      @JsonKey(name: 'id') String? localId,
-      @JsonKey(name: 'nutritionId', fromJson: _dynamicToString)
+      {String? id,
+      String? localId,
       String? nutritionId,
-      @JsonKey(name: 'DishName') String? dishName,
-      @JsonKey(name: 'Calories') double? calories,
-      @JsonKey(name: 'Protein') double? protein,
-      @JsonKey(name: 'Carbohydrates') double? carbohydrates,
-      @JsonKey(name: 'Fats') double? fats,
-      @JsonKey(name: 'Sodium') double? sodium,
-      @JsonKey(name: 'Iron') double? iron,
-      @JsonKey(name: 'Calcium') double? calcium,
-      @JsonKey(name: 'FreeSugar') double? freeSugar,
-      @JsonKey(name: 'Fibre') double? fibre,
-      @JsonKey(name: 'Sugar') double? sugar,
-      @JsonKey(name: 'type', fromJson: _dynamicToStringList) List<String>? type,
-      @JsonKey(name: 'day', fromJson: _dynamicToStringList) List<String>? day,
-      @JsonKey(name: 'time', fromJson: _dynamicToStringList) List<String>? time,
-      @JsonKey(name: 'selected') String? selected});
+      String? dishName,
+      double? calories,
+      double? protein,
+      double? carbohydrates,
+      double? fats,
+      double? sodium,
+      double? iron,
+      double? calcium,
+      double? freeSugar,
+      double? fibre,
+      double? sugar,
+      List<String>? type,
+      List<String>? day,
+      List<String>? time,
+      String? selected});
 }
 
 /// @nodoc

@@ -9,4 +9,7 @@ class Config {
   static const String resetTodoAPI = "api/reset-todos";
   static const String todoAPI = "api/todos";
   static const String profileAPI = "api/profile";
+
+  //OpenAI Apis
+  static const String getOpenAiResponse = "https://api.openai.com/v1/responses";
 }

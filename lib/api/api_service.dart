@@ -165,6 +165,8 @@ class ApiService extends AsyncNotifier<ApiState> {
         state = AsyncValue.data(state.value!.copyWith(
           nutritions: data,
         ));
+
+        print('data from nutrition --> $data');
         return data;
       }
     } catch (e) {

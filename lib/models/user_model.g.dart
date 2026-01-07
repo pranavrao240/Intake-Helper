@@ -21,20 +21,20 @@ Map<String, dynamic> _$ProfileResponseToJson(_ProfileResponse instance) =>
     };
 
 _ProfileData _$ProfileDataFromJson(Map<String, dynamic> json) => _ProfileData(
-      id: json['_id'] as String,
+      id: json['id'] as String,
       fullName: json['fullName'] as String,
       email: json['email'] as String,
       createdAt: DateTime.parse(json['createdAt'] as String),
       updatedAt: DateTime.parse(json['updatedAt'] as String),
-      v: (json['__v'] as num).toInt(),
+      v: (json['v'] as num).toInt(),
     );
 
 Map<String, dynamic> _$ProfileDataToJson(_ProfileData instance) =>
     <String, dynamic>{
-      '_id': instance.id,
+      'id': instance.id,
       'fullName': instance.fullName,
       'email': instance.email,
       'createdAt': instance.createdAt.toIso8601String(),
       'updatedAt': instance.updatedAt.toIso8601String(),
-      '__v': instance.v,
+      'v': instance.v,
     };

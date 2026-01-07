@@ -14,9 +14,7 @@ T _$identity<T>(T value) => value;
 
 /// @nodoc
 mixin _$TodoModel {
-  @JsonKey(name: 'userId')
   String? get userId;
-  @JsonKey(name: 'mealId')
   String? get mealId;
   List<Meal> get meals;
 
@@ -56,10 +54,7 @@ abstract mixin class $TodoModelCopyWith<$Res> {
   factory $TodoModelCopyWith(TodoModel value, $Res Function(TodoModel) _then) =
       _$TodoModelCopyWithImpl;
   @useResult
-  $Res call(
-      {@JsonKey(name: 'userId') String? userId,
-      @JsonKey(name: 'mealId') String? mealId,
-      List<Meal> meals});
+  $Res call({String? userId, String? mealId, List<Meal> meals});
 }
 
 /// @nodoc
@@ -188,8 +183,7 @@ extension TodoModelPatterns on TodoModel {
 
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>(
-    TResult Function(@JsonKey(name: 'userId') String? userId,
-            @JsonKey(name: 'mealId') String? mealId, List<Meal> meals)?
+    TResult Function(String? userId, String? mealId, List<Meal> meals)?
         $default, {
     required TResult orElse(),
   }) {
@@ -217,9 +211,7 @@ extension TodoModelPatterns on TodoModel {
 
   @optionalTypeArgs
   TResult when<TResult extends Object?>(
-    TResult Function(@JsonKey(name: 'userId') String? userId,
-            @JsonKey(name: 'mealId') String? mealId, List<Meal> meals)
-        $default,
+    TResult Function(String? userId, String? mealId, List<Meal> meals) $default,
   ) {
     final _that = this;
     switch (_that) {
@@ -244,8 +236,7 @@ extension TodoModelPatterns on TodoModel {
 
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>(
-    TResult? Function(@JsonKey(name: 'userId') String? userId,
-            @JsonKey(name: 'mealId') String? mealId, List<Meal> meals)?
+    TResult? Function(String? userId, String? mealId, List<Meal> meals)?
         $default,
   ) {
     final _that = this;
@@ -261,19 +252,14 @@ extension TodoModelPatterns on TodoModel {
 /// @nodoc
 @JsonSerializable()
 class _TodoModel implements TodoModel {
-  _TodoModel(
-      {@JsonKey(name: 'userId') this.userId,
-      @JsonKey(name: 'mealId') this.mealId,
-      final List<Meal> meals = const []})
+  _TodoModel({this.userId, this.mealId, final List<Meal> meals = const []})
       : _meals = meals;
   factory _TodoModel.fromJson(Map<String, dynamic> json) =>
       _$TodoModelFromJson(json);
 
   @override
-  @JsonKey(name: 'userId')
   final String? userId;
   @override
-  @JsonKey(name: 'mealId')
   final String? mealId;
   final List<Meal> _meals;
   @override
@@ -328,10 +314,7 @@ abstract mixin class _$TodoModelCopyWith<$Res>
       __$TodoModelCopyWithImpl;
   @override
   @useResult
-  $Res call(
-      {@JsonKey(name: 'userId') String? userId,
-      @JsonKey(name: 'mealId') String? mealId,
-      List<Meal> meals});
+  $Res call({String? userId, String? mealId, List<Meal> meals});
 }
 
 /// @nodoc

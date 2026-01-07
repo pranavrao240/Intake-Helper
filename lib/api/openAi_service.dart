@@ -1,0 +1,91 @@
+import 'dart:convert';
+
+import 'package:dio/dio.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:intake_helper/Config/Config.dart';
+import 'package:intake_helper/models/openAi/api_model.dart';
+part 'openAi_service.freezed.dart';
+part 'openAi_service.g.dart';
+
+@freezed
+abstract class OpenAiState with _$OpenAiState {
+  const factory OpenAiState({
+    ApiModel? openAiModel,
+    @Default(false) bool isLoading,
+    String? errorMessage,
+    String? message,
+  }) = _OpenAiState;
+
+  factory OpenAiState.fromJson(Map<String, dynamic> json) =>
+      _$OpenAiStateFromJson(json);
+}
+
+class OpenAiService extends AsyncNotifier<OpenAiState> {
+  final dio = Dio();
+  final token =
+      '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';
+  Options get _options => Options(
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+  @override
+  OpenAiState build() {
+    return OpenAiState(isLoading: false, openAiModel: null);
+  }
+
+  Future<void> postOpenAiResponse({
+    required String prompt,
+  }) async {
+    try {
+      state = AsyncValue.loading();
+      final response = await dio.post(
+        Config.getOpenAiResponse,
+        options: _options,
+        data: jsonEncode({
+          "model": "gpt-4.1-mini",
+          "input": prompt,
+        }),
+      );
+
+      print('openai response: ${response.data}');
+
+      if (response.statusCode == 200) {
+        final openAiModel = ApiModel.fromJson(response.data);
+        print('openAiModel: $openAiModel');
+        state = AsyncValue.data(
+          state.value!.copyWith(
+            isLoading: false,
+            openAiModel: openAiModel,
+            message: "fetch success",
+          ),
+        );
+      } else {
+        state = AsyncValue.data(
+          state.value!.copyWith(
+            isLoading: false,
+            message: "fetch failed",
+          ),
+        );
+      }
+    } on DioException catch (e) {
+      print('DioException: $e');
+      state = AsyncValue.data(
+        state.value!.copyWith(
+          isLoading: false,
+          errorMessage: e.toString(),
+        ),
+      );
+    } on Exception catch (e) {
+      print('Exception: $e');
+      state = AsyncValue.data(
+        state.value!.copyWith(
+          isLoading: false,
+          errorMessage: e.toString(),
+        ),
+      );
+    }
+  }
+}

@@ -127,17 +127,21 @@ class Homepage extends HookConsumerWidget {
           onSelected: (value) {},
           itemBuilder: (BuildContext context) => [
             // in progress :-
-            // const PopupMenuItem<String>(
-            //   value: 'Generate Meal Plan',
-            //   child: Text('Generate Meal Plan',
-            //       style: TextStyle(color: Colors.white)),
-            // ),
+            PopupMenuItem<String>(
+              value: 'AI Meal Planner',
+              child: GestureDetector(
+                child: Text('AI Meal Planner',
+                    style: TextStyle(color: Colors.white)),
+                onTap: () async =>
+                    await context.push(RouteConstants.aiMealPlanner.path),
+              ),
+            ),
             PopupMenuItem<String>(
               value: 'Search Meal Plans',
               child: GestureDetector(
                 child: const Text('Search Meal Plans',
                     style: TextStyle(color: Colors.white)),
-                onTap: () => context.push('/nutrition'),
+                onTap: () => context.push(RouteConstants.nutrition.path),
               ),
             ),
             PopupMenuItem<String>(

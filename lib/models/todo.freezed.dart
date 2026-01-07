@@ -14,7 +14,6 @@ T _$identity<T>(T value) => value;
 
 /// @nodoc
 mixin _$Todo {
-  @JsonKey(name: '_id')
   String? get id;
   Nutrition get nutrition;
 
@@ -53,7 +52,7 @@ abstract mixin class $TodoCopyWith<$Res> {
   factory $TodoCopyWith(Todo value, $Res Function(Todo) _then) =
       _$TodoCopyWithImpl;
   @useResult
-  $Res call({@JsonKey(name: '_id') String? id, Nutrition nutrition});
+  $Res call({String? id, Nutrition nutrition});
 
   $NutritionCopyWith<$Res> get nutrition;
 }
@@ -189,8 +188,7 @@ extension TodoPatterns on Todo {
 
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>(
-    TResult Function(@JsonKey(name: '_id') String? id, Nutrition nutrition)?
-        $default, {
+    TResult Function(String? id, Nutrition nutrition)? $default, {
     required TResult orElse(),
   }) {
     final _that = this;
@@ -217,8 +215,7 @@ extension TodoPatterns on Todo {
 
   @optionalTypeArgs
   TResult when<TResult extends Object?>(
-    TResult Function(@JsonKey(name: '_id') String? id, Nutrition nutrition)
-        $default,
+    TResult Function(String? id, Nutrition nutrition) $default,
   ) {
     final _that = this;
     switch (_that) {
@@ -243,8 +240,7 @@ extension TodoPatterns on Todo {
 
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>(
-    TResult? Function(@JsonKey(name: '_id') String? id, Nutrition nutrition)?
-        $default,
+    TResult? Function(String? id, Nutrition nutrition)? $default,
   ) {
     final _that = this;
     switch (_that) {
@@ -259,11 +255,10 @@ extension TodoPatterns on Todo {
 /// @nodoc
 @JsonSerializable()
 class _Todo implements Todo {
-  _Todo({@JsonKey(name: '_id') this.id, required this.nutrition});
+  _Todo({this.id, required this.nutrition});
   factory _Todo.fromJson(Map<String, dynamic> json) => _$TodoFromJson(json);
 
   @override
-  @JsonKey(name: '_id')
   final String? id;
   @override
   final Nutrition nutrition;
@@ -309,7 +304,7 @@ abstract mixin class _$TodoCopyWith<$Res> implements $TodoCopyWith<$Res> {
       __$TodoCopyWithImpl;
   @override
   @useResult
-  $Res call({@JsonKey(name: '_id') String? id, Nutrition nutrition});
+  $Res call({String? id, Nutrition nutrition});
 
   @override
   $NutritionCopyWith<$Res> get nutrition;

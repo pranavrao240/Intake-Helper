@@ -1,4 +1,5 @@
 import 'package:go_router/go_router.dart';
+import 'package:intake_helper/pages/Ai%20meal%20planner/ai_meal_planner_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../main.dart';
@@ -28,6 +29,8 @@ class RouteConstants {
   static const nutrition = AppRoute(path: '/nutrition', name: 'nutrition');
   static const mealDetails =
       AppRoute(path: '/meal-details', name: 'meal-details');
+  static const aiMealPlanner =
+      AppRoute(path: '/ai-meal-planner', name: 'ai-meal-planner');
 }
 
 // Add this function to check if token is expired
@@ -76,12 +79,13 @@ final protectedRoutes = [
   RouteConstants.todo.path,
   RouteConstants.nutrition.path,
   RouteConstants.mealDetails.path,
+  RouteConstants.aiMealPlanner.path,
 ];
 
 /// ---------- GO ROUTER ----------
 final GoRouter appRouter = GoRouter(
   navigatorKey: navigatorKey,
-  initialLocation: RouteConstants.login.path,
+  initialLocation: RouteConstants.home.path,
   redirect: (context, state) async {
     final loggedIn = await isUserLoggedIn();
     final path = state.uri.path;
@@ -137,6 +141,11 @@ final GoRouter appRouter = GoRouter(
       name: RouteConstants.nutrition.name,
       path: RouteConstants.nutrition.path,
       builder: (_, __) => const NutritionScreen(),
+    ),
+    GoRoute(
+      name: RouteConstants.aiMealPlanner.name,
+      path: RouteConstants.aiMealPlanner.path,
+      builder: (_, __) => const AiMealPlannerScreen(),
     ),
     GoRoute(
       name: RouteConstants.mealDetails.name,
