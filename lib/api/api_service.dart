@@ -225,7 +225,6 @@ class ApiService extends AsyncNotifier<ApiState> {
         final map = Nutrition.fromJson(json.decode(res.body));
         print("nutritionMap from getNutritionById --> ${map}");
 
-        // API may return either { data: {...} } or {...} directly
         final nutritionMap = map;
 
         state = AsyncValue.data(state.value!.copyWith(
