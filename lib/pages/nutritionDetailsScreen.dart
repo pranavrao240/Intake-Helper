@@ -149,9 +149,9 @@ class _NutritionDetailScreenState extends ConsumerState<NutritionDetailScreen> {
                 ),
               ),
               dataMap: {
-                "Calories": model.calories ?? 0.0,
-                "Protein": model.protein ?? 0.0,
-                "Carbohydrates": model.carbohydrates ?? 0.0,
+                "Calories": (model.calories ?? 0.0).toDouble(),
+                "Protein": (model.protein ?? 0.0).toDouble(),
+                "Carbohydrates": (model.carbohydrates ?? 0.0).toDouble(),
               },
               chartType: ChartType.ring,
               colorList: const [

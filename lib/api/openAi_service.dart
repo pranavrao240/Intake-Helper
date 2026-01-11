@@ -45,8 +45,18 @@ class OpenAiService extends AsyncNotifier<OpenAiState> {
         Config.getOpenAiResponse,
         options: _options,
         data: jsonEncode({
-          "model": "gpt-4.1-mini",
-          "input": prompt,
+          "model": "gpt-5.2",
+          "input": [
+            {
+              "role": "system",
+              "content":
+                  "You are a professional diet and meal planner. Suggest meal plans strictly according to the user’s available ingredients and dietary goals.\n\nRules:\n- Always provide a clear meal name.\n- Always specify the meal type.\n- Meal type must be exactly one of: Breakfast, Lunch, Dinner.\n- Always include simple step-by-step cooking instructions.\n- Always calculate and display the total Protein, total Calories, and total Carbohydrates.\n- Nutritional values must be realistic and consistent.\n- Do not add unnecessary explanations or commentary.\n- Do NOT use curly braces {}, square brackets [], quotation marks \"\", or JSON-style formatting.\n\nOutput format (mandatory, follow exactly):\n\nMeal Name:\nMeal Type:\nSteps:\n1.\n2.\n3.\nNutrition:\nProtein: 00.00\nCalories: 00.00\nCarbs: 00.00"
+            },
+            {
+              "role": "user",
+              "content": prompt,
+            }
+          ],
         }),
       );
 

@@ -6,6 +6,20 @@ part of 'todo_model.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
+_TodoResponse _$TodoResponseFromJson(Map<String, dynamic> json) =>
+    _TodoResponse(
+      message: json['message'] as String,
+      data: json['data'] == null
+          ? null
+          : TodoModel.fromJson(json['data'] as Map<String, dynamic>),
+    );
+
+Map<String, dynamic> _$TodoResponseToJson(_TodoResponse instance) =>
+    <String, dynamic>{
+      'message': instance.message,
+      'data': instance.data,
+    };
+
 _TodoModel _$TodoModelFromJson(Map<String, dynamic> json) => _TodoModel(
       userId: json['userId'] as String?,
       mealId: json['mealId'] as String?,
@@ -23,7 +37,7 @@ Map<String, dynamic> _$TodoModelToJson(_TodoModel instance) =>
     };
 
 _Meal _$MealFromJson(Map<String, dynamic> json) => _Meal(
-      id: json['_id'] as String?,
+      id: json['_id'] as String,
       nutrition: Nutrition.fromJson(json['nutrition'] as Map<String, dynamic>),
     );
 

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intake_helper/api/api_service.dart';
@@ -46,7 +45,7 @@ class _NutritionScreenState extends ConsumerState<NutritionScreen> {
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.4),
+                  color: Colors.black.withValues(alpha: 0.4),
                   blurRadius: 8,
                   offset: const Offset(0, 4),
                 ),
@@ -58,18 +57,17 @@ class _NutritionScreenState extends ConsumerState<NutritionScreen> {
                 return SearchBar(
                   controller: controller,
                   hintText: "Search Meals or Nutrients",
-                  elevation: MaterialStateProperty.all(0),
-                  hintStyle: MaterialStateProperty.all(
+                  elevation: WidgetStateProperty.all(0),
+                  hintStyle: WidgetStateProperty.all(
                     const TextStyle(color: Colors.grey),
                   ),
                   backgroundColor:
-                      MaterialStateProperty.all(const Color(0xFF2A2A2A)),
-                  surfaceTintColor:
-                      MaterialStateProperty.all(Colors.transparent),
-                  textStyle: MaterialStateProperty.all(
+                      WidgetStateProperty.all(const Color(0xFF2A2A2A)),
+                  surfaceTintColor: WidgetStateProperty.all(Colors.transparent),
+                  textStyle: WidgetStateProperty.all(
                     const TextStyle(color: Colors.white),
                   ),
-                  padding: const MaterialStatePropertyAll(
+                  padding: const WidgetStatePropertyAll(
                       EdgeInsets.symmetric(horizontal: 16)),
                   onSubmitted: (value) {
                     setState(() {
@@ -86,7 +84,7 @@ class _NutritionScreenState extends ConsumerState<NutritionScreen> {
             ),
           ),
           Expanded(
-            child: FutureBuilder<List<Nutrition>?>(
+            child: FutureBuilder<List<Nutrition>>(
               future: api.getNutritions(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
@@ -127,7 +125,7 @@ class _NutritionScreenState extends ConsumerState<NutritionScreen> {
                           borderRadius: BorderRadius.circular(12),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.5),
+                              color: Colors.black.withValues(alpha: 0.5),
                               blurRadius: 6,
                               offset: const Offset(0, 4),
                             ),

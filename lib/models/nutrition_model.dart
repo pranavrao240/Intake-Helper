@@ -13,43 +13,55 @@ abstract class NutritionResponse with _$NutritionResponse {
       _$NutritionResponseFromJson(json);
 }
 
-List<String> _dynamicToStringList(dynamic value) {
+String? _anyToString(dynamic value) {
+  if (value == null) return null;
+  return value.toString();
+}
+
+List<String>? _stringOrListToStringList(dynamic value) {
+  if (value == null) return null;
+
+  // Case: ["Breakfast"]
   if (value is List) {
     return value.map((e) => e.toString()).toList();
-  } else if (value is String) {
-    return [value]; // convert single string into a list
   }
+
+  // Case: "Breakfast" or "NULL"
+  if (value is String) {
+    if (value.toUpperCase() == 'NULL' || value.isEmpty) return [];
+    return [value];
+  }
+
   return [];
 }
 
-String? _dynamicToString(dynamic value) {
+double? _numToDouble(dynamic value) {
   if (value == null) return null;
-  return value.toString();
+  if (value is num) return value.toDouble();
+  return double.tryParse(value.toString());
 }
 
 @freezed
 abstract class Nutrition with _$Nutrition {
   const factory Nutrition({
-    String? id,
-    String? localId,
-    String? nutritionId,
-    String? dishName,
-    double? calories,
-    double? protein,
+    @JsonKey(fromJson: _anyToString) String? id,
+    @JsonKey(fromJson: _anyToString) String? nutritionId,
+    @JsonKey(name: '_id', fromJson: _anyToString) String? localId,
+    @JsonKey(name: 'DishName') String? dishName,
+    @JsonKey(name: 'Calories', fromJson: _numToDouble) double? calories,
+    @JsonKey(name: 'Protein', fromJson: _numToDouble) double? protein,
+    @JsonKey(name: 'Carbohydrates', fromJson: _numToDouble)
     double? carbohydrates,
-    double? fats,
-    double? sodium,
-    double? iron,
-    double? calcium,
-    double? freeSugar,
-    double? fibre,
-    double? sugar,
-    List<String>? type,
-    List<String>? day,
-
-    // ✅ Corrected
-    List<String>? time,
-    String? selected,
+    @JsonKey(name: 'Fat', fromJson: _numToDouble) double? fats,
+    @JsonKey(name: 'Fiber', fromJson: _numToDouble) double? fibre,
+    @JsonKey(name: 'Sugar', fromJson: _numToDouble) double? sugar,
+    @JsonKey(name: 'Sodium', fromJson: _numToDouble) double? sodium,
+    @JsonKey(name: 'Iron', fromJson: _numToDouble) double? iron,
+    @JsonKey(name: 'Calcium', fromJson: _numToDouble) double? calcium,
+    @JsonKey(fromJson: _stringOrListToStringList) List<String>? type,
+    @JsonKey(fromJson: _stringOrListToStringList) List<String>? time,
+    @JsonKey(fromJson: _stringOrListToStringList) List<String>? day,
+    @JsonKey(fromJson: _anyToString) String? selected,
   }) = _Nutrition;
 
   factory Nutrition.fromJson(Map<String, dynamic> json) =>

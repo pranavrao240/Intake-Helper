@@ -59,11 +59,11 @@ class Homepage extends HookConsumerWidget {
         final data = await api.getTodo();
         final completed = await SharedService.getCompletedTasks();
 
-        todoData.value = data;
+        todoData.value = data?.data;
         completedTasks.value = completed;
 
         if (data != null) {
-          calculateMacros(data, completed); // ✅ UPDATE STATE
+          calculateMacros(data.data!, completed); // ✅ UPDATE STATE
         }
       } catch (e) {
         error.value = "Failed to load data";

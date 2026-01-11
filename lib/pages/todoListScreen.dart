@@ -134,17 +134,18 @@ class _TodolistScreenState extends ConsumerState<TodolistScreen> {
       body: Column(
         children: [
           Expanded(
-            child: FutureBuilder<TodoModel?>(
+            child: FutureBuilder<TodoResponse?>(
               future: api.getTodo(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
                 } else if (snapshot.hasError) {
                   return Center(child: Text("Error: ${snapshot.error}"));
-                } else if (!snapshot.hasData || snapshot.data!.meals.isEmpty) {
+                } else if (!snapshot.hasData ||
+                    snapshot.data!.data!.meals.isEmpty) {
                   return const Center(child: Text("No nutrition data found."));
                 } else {
-                  final nutritions = snapshot.data!.meals
+                  final nutritions = snapshot.data!.data!.meals
                       .map((meal) => meal.nutrition)
                       .where(
                           (n) => n.dishName != null && n.dishName!.isNotEmpty)
@@ -166,8 +167,7 @@ class _TodolistScreenState extends ConsumerState<TodolistScreen> {
                     itemBuilder: (context, index) {
                       final item = filteredData[index];
 
-                      final isCompleted =
-                          completedIds.contains(item.nutritionId);
+                      final isCompleted = completedIds.contains(item.id);
 
                       return Card(
                         color: isCompleted ? Colors.grey[300] : Colors.white,
@@ -214,7 +214,7 @@ class _TodolistScreenState extends ConsumerState<TodolistScreen> {
                                 ? null
                                 : () {
                                     api
-                                        .deleteTodoItem(item.nutritionId ?? "")
+                                        .deleteTodoItem(item.id ?? "")
                                         .then((success) {
                                       if (success == true) {
                                         setState(() {});
@@ -274,7 +274,7 @@ class _TodolistScreenState extends ConsumerState<TodolistScreen> {
                   onPressed: () async {
                     final api = ref.read(apiServiceProvider.notifier);
                     final snapshot = await api.getTodo();
-                    final nutritions = snapshot?.meals
+                    final nutritions = snapshot?.data?.meals
                         .map((meal) => meal.nutrition)
                         .where(
                             (n) => n.dishName != null && n.dishName!.isNotEmpty)
@@ -288,8 +288,8 @@ class _TodolistScreenState extends ConsumerState<TodolistScreen> {
                     for (int i = 0; i < isCheckedList.length; i++) {
                       if (isCheckedList[i]) {
                         final item = filteredData[i];
-                        if (!existingCompleted.contains(item.nutritionId)) {
-                          existingCompleted.add(item.nutritionId ?? "");
+                        if (!existingCompleted.contains(item.id)) {
+                          existingCompleted.add(item.id ?? "");
                           await CustomNotification().cancelNotification(i);
                         }
                         isCheckedList[i] = false;

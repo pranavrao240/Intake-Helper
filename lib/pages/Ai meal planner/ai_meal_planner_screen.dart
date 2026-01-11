@@ -8,6 +8,21 @@ import 'package:intake_helper/pages/Ai%20meal%20planner/widgets/user_bubble.dart
 import 'package:intake_helper/theme/app_theme.dart';
 import 'package:intake_helper/utils/message_type.dart';
 
+// Holds the state of the chat messages
+class ChatMessagesNotifier extends StateNotifier<List<ChatMessage>> {
+  ChatMessagesNotifier() : super([]);
+
+  void addMessage(ChatMessage message) {
+    state = [...state, message];
+  }
+}
+
+// Provides the ChatMessagesNotifier to the widget tree
+final chatMessagesProvider =
+    StateNotifierProvider<ChatMessagesNotifier, List<ChatMessage>>((ref) {
+  return ChatMessagesNotifier();
+});
+
 class MealInfo {
   final String name;
   final String mealType;
@@ -22,6 +37,17 @@ class MealInfo {
     this.protein = 0,
     this.carbs = 0,
   });
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is MealInfo &&
+        other.name == name &&
+        other.mealType == mealType;
+  }
+
+  @override
+  int get hashCode => name.hashCode ^ mealType.hashCode;
 }
 
 class AiMealPlannerScreen extends HookConsumerWidget {
@@ -30,18 +56,17 @@ class AiMealPlannerScreen extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final promptController = useTextEditingController();
-    final messages = useState<List<ChatMessage>>([]);
+    final messages = ref.watch(chatMessagesProvider);
 
     final isGenerating = useState(false);
 
     Future<void> showMealPlanDialog(List<MealInfo> mealInfos) async {
+      final selected = <MealInfo>[];
       final selectedMeals = await showDialog<List<MealInfo>>(
         context: context,
         builder: (context) {
           return StatefulBuilder(
             builder: (context, setState) {
-              final selected = <MealInfo>[];
-
               return AlertDialog(
                 backgroundColor: const Color(0xFF1E1E1E),
                 shape: RoundedRectangleBorder(
@@ -56,23 +81,19 @@ class AiMealPlannerScreen extends HookConsumerWidget {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: mealInfos.map((info) {
-                      final isSelected = selected.contains(info);
-
                       return GestureDetector(
                         onTap: () {
-                          setState(
-                            () {
-                              if (isSelected) {
-                                selected.remove(info);
-                              } else {
-                                selected.add(info);
-                              }
-                            },
-                          );
+                          setState(() {
+                            if (selected.contains(info)) {
+                              selected.remove(info);
+                            } else {
+                              selected.add(info);
+                            }
+                          });
                         },
                         child: SelectableMealCard(
                           mealInfo: info,
-                          isSelected: isSelected,
+                          isSelected: selected.contains(info),
                         ),
                       );
                     }).toList(),
@@ -88,6 +109,14 @@ class AiMealPlannerScreen extends HookConsumerWidget {
                   ),
                   ElevatedButton(
                     onPressed: () {
+                      print("Selected meals: ${selected.map((e) => {
+                            'name': e.name,
+                            'mealType': e.mealType,
+                            'calories': e.calories,
+                            'protein': e.protein,
+                            'carbs': e.carbs
+                          }).join(', ')}");
+
                       Navigator.pop(context, selected);
                     },
                     style: ElevatedButton.styleFrom(
@@ -113,45 +142,59 @@ class AiMealPlannerScreen extends HookConsumerWidget {
     }
 
     void parseAndShowMealPlan(String response) {
-      final mealInfos = <MealInfo>[];
+      String mealName = '';
+      String mealType = '';
+      double protein = 0.0;
+      double calories = 0.0;
+      double carbs = 0.0;
+
       final lines = response.split('\n');
-      String currentMealType = '';
 
       for (final line in lines) {
-        if (line.contains('Breakfast:')) currentMealType = 'Breakfast';
-        if (line.contains('Lunch:')) currentMealType = 'Lunch';
-        if (line.contains('Dinner:')) currentMealType = 'Dinner';
-        if (line.contains('Snacks:')) currentMealType = 'Snacks';
+        final trimmed = line.trim();
 
-        if (line.contains(':') && currentMealType.isNotEmpty) {
-          final parts = line.split(':');
-          final name = parts.sublist(1).join(':').trim();
+        // Meal name
+        if (trimmed.startsWith('Meal Name:')) {
+          mealName = trimmed.replaceFirst('Meal Name:', '').trim();
+        }
 
-          // Basic parsing for nutritional info - this can be improved
-          double calories = 0, protein = 0, carbs = 0;
-          final calRegex = RegExp(r'Calories: (\d+)');
-          final proRegex = RegExp(r'Protein: (\d+)g');
-          final carbRegex = RegExp(r'Carbs: (\d+)g');
+        // Meal type
+        else if (trimmed.startsWith('Meal Type:')) {
+          mealType = trimmed.replaceFirst('Meal Type:', '').trim();
+        }
 
-          if (calRegex.hasMatch(response)) {
-            calories = double.parse(calRegex.firstMatch(response)!.group(1)!);
-          }
-          if (proRegex.hasMatch(response)) {
-            protein = double.parse(proRegex.firstMatch(response)!.group(1)!);
-          }
-          if (carbRegex.hasMatch(response)) {
-            carbs = double.parse(carbRegex.firstMatch(response)!.group(1)!);
-          }
-
-          mealInfos.add(MealInfo(
-            name: name,
-            mealType: currentMealType,
-            calories: calories,
-            protein: protein,
-            carbs: carbs,
-          ));
+        // Nutrition values
+        else if (trimmed.startsWith('Protein:')) {
+          protein = double.tryParse(
+                trimmed.replaceFirst('Protein:', '').trim(),
+              ) ??
+              0.0;
+        } else if (trimmed.startsWith('Calories:')) {
+          calories = double.tryParse(
+                trimmed.replaceFirst('Calories:', '').trim(),
+              ) ??
+              0.0;
+        } else if (trimmed.startsWith('Carbs:')) {
+          carbs = double.tryParse(
+                trimmed.replaceFirst('Carbs:', '').trim(),
+              ) ??
+              0.0;
         }
       }
+
+      // Safety check
+      if (mealName.isEmpty || mealType.isEmpty) return;
+
+      final mealInfos = [
+        MealInfo(
+          name: mealName,
+          mealType: mealType,
+          calories: calories,
+          protein: protein,
+          carbs: carbs,
+        )
+      ];
+
       showMealPlanDialog(mealInfos);
     }
 
@@ -159,7 +202,7 @@ class AiMealPlannerScreen extends HookConsumerWidget {
       if (promptController.text.trim().isEmpty) return;
 
       final userMessage = ChatMessage(promptController.text, MessageType.user);
-      messages.value = [...messages.value, userMessage];
+      ref.read(chatMessagesProvider.notifier).addMessage(userMessage);
       isGenerating.value = true;
 
       final openAiService = ref.read(openAiProvider.notifier);
@@ -176,7 +219,7 @@ class AiMealPlannerScreen extends HookConsumerWidget {
       );
 
       final aiResponse = ChatMessage(aiResponseText, MessageType.ai);
-      messages.value = [...messages.value, aiResponse];
+      ref.read(chatMessagesProvider.notifier).addMessage(aiResponse);
       isGenerating.value = false;
     }
 
@@ -189,40 +232,48 @@ class AiMealPlannerScreen extends HookConsumerWidget {
         centerTitle: true,
         elevation: 0,
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: messages.value.length,
-              itemBuilder: (context, index) {
-                final msg = messages.value[index];
-                return msg.type == MessageType.user
-                    ? userBubble(
-                        msg.text,
-                        onEdit: () {
-                          promptController.text = msg.text;
-                        },
-                      )
-                    : aiBubble(
-                        msg.text,
-                        context,
-                        onSave: (response) => parseAndShowMealPlan(response),
-                      );
-              },
+      body: messages.isEmpty
+          ? const Center(
+              child: Text(
+                'Generate Your Meal Plan',
+                style: TextStyle(color: Colors.white, fontSize: 18),
+              ),
+            )
+          : Column(
+              children: [
+                Expanded(
+                  child: ListView.builder(
+                    padding: const EdgeInsets.all(16),
+                    itemCount: messages.length,
+                    itemBuilder: (context, index) {
+                      final msg = messages[index];
+                      return msg.type == MessageType.user
+                          ? userBubble(
+                              msg.text,
+                              onEdit: () {
+                                promptController.text = msg.text;
+                              },
+                            )
+                          : aiBubble(
+                              msg.text,
+                              context,
+                              onSave: (response) =>
+                                  parseAndShowMealPlan(response),
+                            );
+                    },
+                  ),
+                ),
+                if (isGenerating.value)
+                  const Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: CircularProgressIndicator(),
+                  ),
+                ChatInputBar(
+                  controller: promptController,
+                  onSend: sendMessage,
+                ),
+              ],
             ),
-          ),
-          if (isGenerating.value)
-            const Padding(
-              padding: EdgeInsets.all(8.0),
-              child: CircularProgressIndicator(),
-            ),
-          ChatInputBar(
-            controller: promptController,
-            onSend: sendMessage,
-          ),
-        ],
-      ),
     );
   }
 }

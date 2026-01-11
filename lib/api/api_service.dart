@@ -17,17 +17,24 @@ import 'package:shared_preferences/shared_preferences.dart';
 class ApiState {
   final String? token;
   final List<Nutrition>? nutritions;
+  final Nutrition? nutrition;
   final TodoModel? todo;
   final String? message;
   final LoginResponseModel? register;
   final ProfileData? profileData;
 
   ApiState(this.profileData,
-      {this.token, this.nutritions, this.todo, this.message, this.register});
+      {this.token,
+      this.nutritions,
+      this.nutrition,
+      this.todo,
+      this.message,
+      this.register});
 
   ApiState copyWith(
       {String? token,
       List<Nutrition>? nutritions,
+      Nutrition? nutrition,
       TodoModel? todo,
       String? message,
       LoginResponseModel? register,
@@ -36,6 +43,7 @@ class ApiState {
       profileData ?? this.profileData,
       token: token ?? this.token,
       nutritions: nutritions ?? this.nutritions,
+      nutrition: nutrition ?? this.nutrition,
       todo: todo ?? this.todo,
       message: message ?? this.message,
     );
@@ -154,26 +162,41 @@ class ApiService extends AsyncNotifier<ApiState> {
 
   /// ================= NUTRITIONS =================
   Future<List<Nutrition>> getNutritions() async {
-    if (state.value!.nutritions != null) return state.value!.nutritions!;
+    if (state.value?.nutritions != null) {
+      return state.value!.nutritions!;
+    }
 
     try {
       final res = await client.get(_url(Config.nutritionAPI));
 
       if (res.statusCode == 200) {
-        final jsonBody = jsonDecode(res.body);
-        final data = NutritionResponse.fromJson(jsonBody).data;
-        state = AsyncValue.data(state.value!.copyWith(
-          nutritions: data,
-        ));
+        final responseData = NutritionResponse.fromJson(json.decode(res.body));
+        print('response from nutrition --> ${responseData.data}');
 
-        print('data from nutrition --> $data');
-        return data;
+        // Check if the response has the expected structure
+        if (responseData.data != null) {
+          final data = responseData.data!;
+
+          state = AsyncValue.data(state.value!.copyWith(
+            nutritions: data,
+          ));
+
+          print('Successfully parsed ${data.length} nutrition items');
+          return data;
+        } else {
+          // Handle unexpected response format
+          debugPrint("Unexpected API response format: ${res.body}");
+          return [];
+        }
+      } else {
+        debugPrint("API request failed with status: ${res.statusCode}");
+        return [];
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
       debugPrint("Nutrition error: $e");
+      debugPrint("Stack trace: $stackTrace");
+      return [];
     }
-
-    return [];
   }
 
   /// ================= NUTRITION BY ID =================
@@ -181,18 +204,37 @@ class ApiService extends AsyncNotifier<ApiState> {
     try {
       final preferences = await SharedPreferences.getInstance();
       final token = preferences.getString('token');
+      print("token from getNutritionById --> $token");
+
+      print("id from getNutritionById --> $id");
+
+      if (token == null || token.isEmpty) {
+        debugPrint("No token found");
+      }
 
       final res = await client.get(
-        _url("${Config.detailAPI}$id"),
+        _url(Config.detailAPI + id),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
         },
       );
+      print("response from nutrition by id --> ${res.body}");
 
       if (res.statusCode == 200) {
-        final map = jsonDecode(res.body);
-        return Nutrition.fromJson(map['data'] ?? map);
+        final map = Nutrition.fromJson(json.decode(res.body));
+        print("nutritionMap from getNutritionById --> ${map}");
+
+        // API may return either { data: {...} } or {...} directly
+        final nutritionMap = map;
+
+        state = AsyncValue.data(state.value!.copyWith(
+          nutrition: nutritionMap,
+        ));
+
+        return nutritionMap;
+      } else {
+        debugPrint("Failed to fetch nutrition: ${res.statusCode}");
       }
     } catch (e) {
       debugPrint("Nutrition by id error: $e");
@@ -202,7 +244,7 @@ class ApiService extends AsyncNotifier<ApiState> {
   }
 
   /// ================= TODO =================
-  Future<TodoModel?> getTodo() async {
+  Future<TodoResponse?> getTodo() async {
     try {
       final preferences = await SharedPreferences.getInstance();
       final token = preferences.getString('token');
@@ -215,12 +257,17 @@ class ApiService extends AsyncNotifier<ApiState> {
         },
       );
 
+      print('response from todo --> ${res.body}');
+
       if (res.statusCode == 200) {
         final jsonMap = jsonDecode(res.body);
-        final model = TodoModel.fromJson(jsonMap['data']);
+        print("jsonMap from getTodo --> $jsonMap");
+        final model = TodoResponse.fromJson(jsonMap);
+        print("model from getTodo --> ${model.data}");
         state = AsyncValue.data(state.value!.copyWith(
-          todo: model,
+          todo: model.data,
         ));
+
         return model;
       }
 

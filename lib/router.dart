@@ -159,7 +159,8 @@ final GoRouter appRouter = GoRouter(
 );
 
 // Add this function to save auth data after successful login
-Future<void> saveAuthData(String token, {int expiresIn = 3600}) async {
+// expires in 30 days (2592000 seconds)
+Future<void> saveAuthData(String token, {int expiresIn = 2592000}) async {
   final prefs = await SharedPreferences.getInstance();
   await prefs.setString('token', token);
 
