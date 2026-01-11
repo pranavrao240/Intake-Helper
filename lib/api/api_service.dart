@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
+import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/io_client.dart';
@@ -22,6 +23,9 @@ class ApiState {
   final String? message;
   final LoginResponseModel? register;
   final ProfileData? profileData;
+  final bool isLoading;
+  final String? redirect;
+  final String? addedId;
 
   ApiState(this.profileData,
       {this.token,
@@ -29,7 +33,10 @@ class ApiState {
       this.nutrition,
       this.todo,
       this.message,
-      this.register});
+      this.register,
+      this.isLoading = false,
+      this.redirect,
+      this.addedId});
 
   ApiState copyWith(
       {String? token,
@@ -38,7 +45,10 @@ class ApiState {
       TodoModel? todo,
       String? message,
       LoginResponseModel? register,
-      ProfileData? profileData}) {
+      ProfileData? profileData,
+      bool? isLoading,
+      String? redirect,
+      String? addedId}) {
     return ApiState(
       profileData ?? this.profileData,
       token: token ?? this.token,
@@ -46,6 +56,9 @@ class ApiState {
       nutrition: nutrition ?? this.nutrition,
       todo: todo ?? this.todo,
       message: message ?? this.message,
+      isLoading: isLoading ?? this.isLoading,
+      redirect: redirect ?? this.redirect,
+      addedId: addedId ?? this.addedId,
     );
   }
 }
@@ -64,7 +77,7 @@ class ApiService extends AsyncNotifier<ApiState> {
   }
 
   @override
-  ApiState build() => ApiState(null);
+  ApiState build() => ApiState(null, isLoading: false);
 
   Uri _url(String endpoint) => Uri.parse("${Config.baseUrl}/$endpoint");
 
@@ -240,6 +253,47 @@ class ApiService extends AsyncNotifier<ApiState> {
     }
 
     return null;
+  }
+
+  Future<void> addNutrition({
+    required String name,
+    double? protein,
+    double? carbs,
+    double? calories,
+  }) async {
+    final preferences = await SharedPreferences.getInstance();
+    final token = preferences.getString('token');
+    final dio = Dio();
+
+    try {
+      final response =
+          await dio.post('${Config.baseUrl}/${Config.nutritionDetailAPI}',
+              options: Options(
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': 'Bearer $token',
+                },
+              ),
+              data: jsonEncode({
+                "DishName": name,
+                "Protein": protein,
+                "Carbohydrates": carbs,
+                "Calories": calories,
+              }));
+      print('response from add nutrition --> ${response.data}');
+      print('response from add nutrition --> ${response.data['data']['_id']}');
+
+      await preferences.setString('addedId', response.data['data']['_id']);
+
+      state = AsyncValue.data(state.value!.copyWith(
+        message: "Nutrition added successfully",
+        isLoading: false,
+        redirect: RouteConstants.mealDetails.path,
+        addedId: response.data['data']['_id'],
+      ));
+    } catch (e) {
+      debugPrint("Nutrition added failed $e");
+    }
   }
 
   /// ================= TODO =================

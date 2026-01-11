@@ -47,20 +47,22 @@ Future<bool> isTokenExpired() async {
 Future<bool> isUserLoggedIn() async {
   final prefs = await SharedPreferences.getInstance();
   final token = prefs.getString('token');
+  final expiry = prefs.getInt('token_expiry');
 
-  if (token == null || token.isEmpty) return false;
+  if (token == null || token.isEmpty || expiry == null) {
+    return false;
+  }
 
-  // Check if token is expired
-  final expired = await isTokenExpired();
-  if (expired) {
-    await clearAuthData(); // Clear auth data if token is expired
+  final now = DateTime.now().millisecondsSinceEpoch;
+
+  if (now > expiry) {
+    await clearAuthData();
     return false;
   }
 
   return true;
 }
 
-// Add this function to clear auth data
 Future<void> clearAuthData() async {
   final prefs = await SharedPreferences.getInstance();
   await prefs.remove('token');
@@ -85,24 +87,23 @@ final protectedRoutes = [
 /// ---------- GO ROUTER ----------
 final GoRouter appRouter = GoRouter(
   navigatorKey: navigatorKey,
-  initialLocation: RouteConstants.home.path,
+  initialLocation: RouteConstants.login.path,
   redirect: (context, state) async {
     final loggedIn = await isUserLoggedIn();
-    final path = state.uri.path;
+    final currentPath = state.matchedLocation;
 
-    // If token is expired, redirect to login
-    if (await isTokenExpired()) {
-      await clearAuthData();
+    final isPublic = publicRoutes.contains(currentPath);
+    final isProtected = protectedRoutes.any(
+      (p) => currentPath.startsWith(p),
+    );
+
+    // 🔐 Not logged in → protected page
+    if (!loggedIn && isProtected) {
       return RouteConstants.login.path;
     }
 
-    // Not logged in → protected page
-    if (!loggedIn && protectedRoutes.contains(path)) {
-      return RouteConstants.login.path;
-    }
-
-    // Logged in → auth pages
-    if (loggedIn && publicRoutes.contains(path)) {
+    // ✅ Logged in → auth pages
+    if (loggedIn && isPublic) {
       return RouteConstants.home.path;
     }
 
@@ -111,50 +112,50 @@ final GoRouter appRouter = GoRouter(
   routes: [
     /// ---------- PUBLIC ----------
     GoRoute(
-      name: RouteConstants.login.name,
       path: RouteConstants.login.path,
+      name: RouteConstants.login.name,
       builder: (_, __) => const LoginPage(),
     ),
     GoRoute(
-      name: RouteConstants.register.name,
       path: RouteConstants.register.path,
+      name: RouteConstants.register.name,
       builder: (_, __) => const RegisterPage(),
     ),
 
     /// ---------- PROTECTED ----------
     GoRoute(
-      name: RouteConstants.home.name,
       path: RouteConstants.home.path,
+      name: RouteConstants.home.name,
       builder: (_, __) => const Homepage(),
     ),
     GoRoute(
-      name: RouteConstants.settings.name,
       path: RouteConstants.settings.path,
+      name: RouteConstants.settings.name,
       builder: (_, __) => const SettingsPage(),
     ),
     GoRoute(
-      name: RouteConstants.todo.name,
       path: RouteConstants.todo.path,
+      name: RouteConstants.todo.name,
       builder: (_, __) => const TodolistScreen(),
     ),
     GoRoute(
-      name: RouteConstants.nutrition.name,
       path: RouteConstants.nutrition.path,
+      name: RouteConstants.nutrition.name,
       builder: (_, __) => const NutritionScreen(),
     ),
     GoRoute(
-      name: RouteConstants.aiMealPlanner.name,
       path: RouteConstants.aiMealPlanner.path,
+      name: RouteConstants.aiMealPlanner.name,
       builder: (_, __) => const AiMealPlannerScreen(),
     ),
     GoRoute(
+      path: '${RouteConstants.mealDetails.path}/:id',
       name: RouteConstants.mealDetails.name,
-      path: '${RouteConstants.mealDetails.path}/:id', // Add :id to the path
       builder: (context, state) {
-        final id = state.pathParameters['id'] ?? ''; // Get ID from URL
+        final id = state.pathParameters['id']!;
         return NutritionDetailScreen(id: id);
       },
-    )
+    ),
   ],
 );
 

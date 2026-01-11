@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intake_helper/Providers/openAi_provider.dart';
+import 'package:intake_helper/Providers/providers.dart';
+import 'package:intake_helper/api/api_service.dart';
 import 'package:intake_helper/pages/Ai%20meal%20planner/widgets/ai_bubble.dart';
 import 'package:intake_helper/pages/Ai%20meal%20planner/widgets/chat_input_bar.dart';
 import 'package:intake_helper/pages/Ai%20meal%20planner/widgets/user_bubble.dart';
+import 'package:intake_helper/router.dart';
 import 'package:intake_helper/theme/app_theme.dart';
 import 'package:intake_helper/utils/message_type.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 // Holds the state of the chat messages
 class ChatMessagesNotifier extends StateNotifier<List<ChatMessage>> {
@@ -33,18 +38,15 @@ class MealInfo {
   MealInfo({
     required this.name,
     required this.mealType,
-    this.calories = 0,
-    this.protein = 0,
-    this.carbs = 0,
+    required this.calories,
+    required this.protein,
+    required this.carbs,
   });
 
   @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) return true;
-    return other is MealInfo &&
-        other.name == name &&
-        other.mealType == mealType;
-  }
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is MealInfo && name == other.name && mealType == other.mealType;
 
   @override
   int get hashCode => name.hashCode ^ mealType.hashCode;
@@ -59,6 +61,12 @@ class AiMealPlannerScreen extends HookConsumerWidget {
     final messages = ref.watch(chatMessagesProvider);
 
     final isGenerating = useState(false);
+
+    ref.listen(apiServiceProvider, (prev, next) {
+      if (next.value?.redirect?.isNotEmpty ?? false) {
+        context.push(next.value?.redirect ?? '');
+      }
+    });
 
     Future<void> showMealPlanDialog(List<MealInfo> mealInfos) async {
       final selected = <MealInfo>[];
@@ -108,14 +116,44 @@ class AiMealPlannerScreen extends HookConsumerWidget {
                     ),
                   ),
                   ElevatedButton(
-                    onPressed: () {
-                      print("Selected meals: ${selected.map((e) => {
-                            'name': e.name,
-                            'mealType': e.mealType,
-                            'calories': e.calories,
-                            'protein': e.protein,
-                            'carbs': e.carbs
-                          }).join(', ')}");
+                    onPressed: () async {
+                      final preferences = await SharedPreferences.getInstance();
+                      final addedId = preferences.getString('addedId');
+                      if (selected.isEmpty) {
+                        print('No meals selected');
+                      } else {
+                        for (final meal in selected) {
+                          print(
+                            'Selected Meal → '
+                            'Name: ${meal.name}, '
+                            'Type: ${meal.mealType}, '
+                            'Calories: ${meal.calories}, '
+                            'Protein: ${meal.protein}, '
+                            'Carbs: ${meal.carbs}',
+                          );
+
+                          await ApiService()
+                              .addNutrition(
+                                  name: meal.name,
+                                  protein: meal.protein,
+                                  carbs: meal.carbs,
+                                  calories: meal.calories)
+                              .then((value) async {
+                            final addedId = preferences.getString('addedId');
+
+                            print('addedId from ai meal planner --> $addedId');
+
+                            if (addedId != null) {
+                              context.pushNamed(
+                                RouteConstants.mealDetails.name,
+                                pathParameters: {
+                                  'id': addedId.toString(),
+                                },
+                              );
+                            }
+                          });
+                        }
+                      }
 
                       Navigator.pop(context, selected);
                     },
@@ -142,29 +180,46 @@ class AiMealPlannerScreen extends HookConsumerWidget {
     }
 
     void parseAndShowMealPlan(String response) {
+      final List<MealInfo> mealInfos = [];
+
       String mealName = '';
       String mealType = '';
       double protein = 0.0;
       double calories = 0.0;
       double carbs = 0.0;
 
+      void saveCurrentMeal() {
+        if (mealName.isNotEmpty && mealType.isNotEmpty) {
+          mealInfos.add(
+            MealInfo(
+              name: mealName,
+              mealType: mealType,
+              calories: calories,
+              protein: protein,
+              carbs: carbs,
+            ),
+          );
+        }
+      }
+
       final lines = response.split('\n');
 
       for (final line in lines) {
         final trimmed = line.trim();
 
-        // Meal name
+        // 🔹 New meal starts → save previous
         if (trimmed.startsWith('Meal Name:')) {
+          saveCurrentMeal();
+
+          // Reset for next meal
           mealName = trimmed.replaceFirst('Meal Name:', '').trim();
-        }
-
-        // Meal type
-        else if (trimmed.startsWith('Meal Type:')) {
+          mealType = '';
+          protein = 0.0;
+          calories = 0.0;
+          carbs = 0.0;
+        } else if (trimmed.startsWith('Meal Type:')) {
           mealType = trimmed.replaceFirst('Meal Type:', '').trim();
-        }
-
-        // Nutrition values
-        else if (trimmed.startsWith('Protein:')) {
+        } else if (trimmed.startsWith('Protein:')) {
           protein = double.tryParse(
                 trimmed.replaceFirst('Protein:', '').trim(),
               ) ??
@@ -182,18 +237,10 @@ class AiMealPlannerScreen extends HookConsumerWidget {
         }
       }
 
-      // Safety check
-      if (mealName.isEmpty || mealType.isEmpty) return;
+      // ✅ Save last meal
+      saveCurrentMeal();
 
-      final mealInfos = [
-        MealInfo(
-          name: mealName,
-          mealType: mealType,
-          calories: calories,
-          protein: protein,
-          carbs: carbs,
-        )
-      ];
+      if (mealInfos.isEmpty) return;
 
       showMealPlanDialog(mealInfos);
     }

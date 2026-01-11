@@ -1,34 +1,37 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intake_helper/api/api_service.dart';
 import 'package:intake_helper/models/nutrition_model.dart';
 import 'package:intake_helper/router.dart';
 import 'package:intake_helper/widgets/top_bar.dart';
 
-class NutritionScreen extends ConsumerStatefulWidget {
+class NutritionScreen extends HookConsumerWidget {
   const NutritionScreen({super.key});
 
-  @override
-  ConsumerState<NutritionScreen> createState() => _NutritionScreenState();
-}
-
-class _NutritionScreenState extends ConsumerState<NutritionScreen> {
-  final SearchController _searchController = SearchController();
-  String _searchQuery = "";
-
-  List<Nutrition> _filterData(List<Nutrition> data) {
-    if (_searchQuery.isEmpty) return data;
+  List<Nutrition> _filterData(List<Nutrition> data, String searchQuery) {
+    if (searchQuery.isEmpty) return data;
     return data
         .where((item) =>
-            item.dishName?.toLowerCase().contains(_searchQuery.toLowerCase()) ??
+            item.dishName?.toLowerCase().contains(searchQuery.toLowerCase()) ??
             false)
         .toList();
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final api = ref.read(apiServiceProvider.notifier);
+    final SearchController _searchController = SearchController();
+    final searchQuery = useState('');
+    final nutritions = useState<List<Nutrition>>([]);
+
+    useEffect(() {
+      // Initial data load
+      api.getNutritions().then((value) => nutritions.value = value);
+      return null; // No cleanup needed
+    }, []);
 
     return Scaffold(
       backgroundColor: const Color(0xFF121212),
@@ -70,9 +73,7 @@ class _NutritionScreenState extends ConsumerState<NutritionScreen> {
                   padding: const WidgetStatePropertyAll(
                       EdgeInsets.symmetric(horizontal: 16)),
                   onSubmitted: (value) {
-                    setState(() {
-                      _searchQuery = value;
-                    });
+                    searchQuery.value = value;
                   },
                   leading: const Icon(Icons.search, color: Colors.white),
                 );
@@ -100,7 +101,8 @@ class _NutritionScreenState extends ConsumerState<NutritionScreen> {
                         style: TextStyle(color: Colors.white70)),
                   );
                 } else {
-                  final filteredData = _filterData(snapshot.data!);
+                  final filteredData =
+                      _filterData(snapshot.data!, searchQuery.value);
 
                   if (filteredData.isEmpty) {
                     return const Center(

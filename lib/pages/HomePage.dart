@@ -193,7 +193,7 @@ class Homepage extends HookConsumerWidget {
                             ),
                             _statCard(
                               "Completed Meals",
-                              "${completedTasks.value.length}/${todoData.value!.meals.length}",
+                              "${completedTasks.value.length}/${todoData.value?.meals.length ?? 0}",
                               [Colors.green, Colors.teal],
                               onTap: () => context.push('/todo'),
                             ),
