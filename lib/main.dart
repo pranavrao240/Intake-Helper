@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intake_helper/pages/Settings_page.dart';
 import 'package:intake_helper/router.dart';
 import 'package:intake_helper/theme/app_theme.dart';
 import 'package:intake_helper/utility/notification.dart';
+import 'package:dotenv/dotenv.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
@@ -44,6 +44,7 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
+    dotenv.load(fileName: ".env");
     return Consumer(
       builder: (context, ref, _) {
         return MaterialApp.router(
