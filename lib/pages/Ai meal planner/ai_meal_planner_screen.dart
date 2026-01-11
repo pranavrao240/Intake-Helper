@@ -224,6 +224,7 @@ class AiMealPlannerScreen extends HookConsumerWidget {
     }
 
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       backgroundColor: const Color(0xFF121212),
       appBar: AppBar(
         backgroundColor: Colors.black,
@@ -234,9 +235,33 @@ class AiMealPlannerScreen extends HookConsumerWidget {
       ),
       body: messages.isEmpty
           ? const Center(
-              child: Text(
-                'Generate Your Meal Plan',
-                style: TextStyle(color: Colors.white, fontSize: 18),
+              child: Center(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      '💪 Build Your Perfect',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 0.4,
+                      ),
+                    ),
+                    Text(
+                      '  Meal Plan 🥗',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 0.4,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             )
           : Column(
@@ -268,12 +293,19 @@ class AiMealPlannerScreen extends HookConsumerWidget {
                     padding: EdgeInsets.all(8.0),
                     child: CircularProgressIndicator(),
                   ),
-                ChatInputBar(
-                  controller: promptController,
-                  onSend: sendMessage,
-                ),
               ],
             ),
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom, // 👈 KEY LINE
+          ),
+          child: ChatInputBar(
+            controller: promptController,
+            onSend: sendMessage,
+          ),
+        ),
+      ),
     );
   }
 }

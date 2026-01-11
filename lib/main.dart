@@ -44,7 +44,6 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    dotenv.load(fileName: ".env");
     return Consumer(
       builder: (context, ref, _) {
         return MaterialApp.router(

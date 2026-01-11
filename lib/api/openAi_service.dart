@@ -5,7 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:intake_helper/Config/Config.dart';
 import 'package:intake_helper/models/openAi/api_model.dart';
-import 'package:dotenv/dotenv.dart';
 part 'openAi_service.freezed.dart';
 part 'openAi_service.g.dart';
 
@@ -24,7 +23,8 @@ abstract class OpenAiState with _$OpenAiState {
 
 class OpenAiService extends AsyncNotifier<OpenAiState> {
   final dio = Dio();
-  final token = dotenv.env['OPENAI_API_KEY'];
+  final token =
+      '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';
   Options get _options => Options(
         headers: {
           'Content-Type': 'application/json',
