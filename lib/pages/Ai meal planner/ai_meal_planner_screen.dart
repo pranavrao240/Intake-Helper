@@ -151,6 +151,9 @@ class AiMealPlannerScreen extends HookConsumerWidget {
                                 },
                               );
                             }
+                            await ref
+                                .read(apiServiceProvider.notifier)
+                                .getNutritions();
                           });
                         }
                       }
@@ -252,7 +255,7 @@ class AiMealPlannerScreen extends HookConsumerWidget {
       ref.read(chatMessagesProvider.notifier).addMessage(userMessage);
       isGenerating.value = true;
 
-      final openAiService = ref.read(openAiProvider.notifier);
+      final openAiService = await ref.read(openAiProvider.notifier);
       await openAiService.postOpenAiResponse(
         prompt: promptController.text,
       );

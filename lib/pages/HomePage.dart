@@ -141,7 +141,8 @@ class Homepage extends HookConsumerWidget {
               child: GestureDetector(
                 child: const Text('Search Meal Plans',
                     style: TextStyle(color: Colors.white)),
-                onTap: () => context.push(RouteConstants.nutrition.path),
+                onTap: () async =>
+                    await context.push(RouteConstants.nutrition.path),
               ),
             ),
             PopupMenuItem<String>(

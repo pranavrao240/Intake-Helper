@@ -347,6 +347,8 @@ mixin _$Nutrition {
   String? get localId;
   @JsonKey(name: 'DishName')
   String? get dishName;
+  @JsonKey(name: 'QuantityRequired')
+  String? get quantityRequired;
   @JsonKey(name: 'Calories', fromJson: _numToDouble)
   double? get calories;
   @JsonKey(name: 'Protein', fromJson: _numToDouble)
@@ -395,6 +397,8 @@ mixin _$Nutrition {
             (identical(other.localId, localId) || other.localId == localId) &&
             (identical(other.dishName, dishName) ||
                 other.dishName == dishName) &&
+            (identical(other.quantityRequired, quantityRequired) ||
+                other.quantityRequired == quantityRequired) &&
             (identical(other.calories, calories) ||
                 other.calories == calories) &&
             (identical(other.protein, protein) || other.protein == protein) &&
@@ -421,6 +425,7 @@ mixin _$Nutrition {
       nutritionId,
       localId,
       dishName,
+      quantityRequired,
       calories,
       protein,
       carbohydrates,
@@ -437,7 +442,7 @@ mixin _$Nutrition {
 
   @override
   String toString() {
-    return 'Nutrition(id: $id, nutritionId: $nutritionId, localId: $localId, dishName: $dishName, calories: $calories, protein: $protein, carbohydrates: $carbohydrates, fats: $fats, fibre: $fibre, sugar: $sugar, sodium: $sodium, iron: $iron, calcium: $calcium, type: $type, time: $time, day: $day, selected: $selected)';
+    return 'Nutrition(id: $id, nutritionId: $nutritionId, localId: $localId, dishName: $dishName, quantityRequired: $quantityRequired, calories: $calories, protein: $protein, carbohydrates: $carbohydrates, fats: $fats, fibre: $fibre, sugar: $sugar, sodium: $sodium, iron: $iron, calcium: $calcium, type: $type, time: $time, day: $day, selected: $selected)';
   }
 }
 
@@ -451,6 +456,7 @@ abstract mixin class $NutritionCopyWith<$Res> {
       @JsonKey(fromJson: _anyToString) String? nutritionId,
       @JsonKey(name: '_id', fromJson: _anyToString) String? localId,
       @JsonKey(name: 'DishName') String? dishName,
+      @JsonKey(name: 'QuantityRequired') String? quantityRequired,
       @JsonKey(name: 'Calories', fromJson: _numToDouble) double? calories,
       @JsonKey(name: 'Protein', fromJson: _numToDouble) double? protein,
       @JsonKey(name: 'Carbohydrates', fromJson: _numToDouble)
@@ -483,6 +489,7 @@ class _$NutritionCopyWithImpl<$Res> implements $NutritionCopyWith<$Res> {
     Object? nutritionId = freezed,
     Object? localId = freezed,
     Object? dishName = freezed,
+    Object? quantityRequired = freezed,
     Object? calories = freezed,
     Object? protein = freezed,
     Object? carbohydrates = freezed,
@@ -513,6 +520,10 @@ class _$NutritionCopyWithImpl<$Res> implements $NutritionCopyWith<$Res> {
       dishName: freezed == dishName
           ? _self.dishName
           : dishName // ignore: cast_nullable_to_non_nullable
+              as String?,
+      quantityRequired: freezed == quantityRequired
+          ? _self.quantityRequired
+          : quantityRequired // ignore: cast_nullable_to_non_nullable
               as String?,
       calories: freezed == calories
           ? _self.calories
@@ -668,6 +679,7 @@ extension NutritionPatterns on Nutrition {
             @JsonKey(fromJson: _anyToString) String? nutritionId,
             @JsonKey(name: '_id', fromJson: _anyToString) String? localId,
             @JsonKey(name: 'DishName') String? dishName,
+            @JsonKey(name: 'QuantityRequired') String? quantityRequired,
             @JsonKey(name: 'Calories', fromJson: _numToDouble) double? calories,
             @JsonKey(name: 'Protein', fromJson: _numToDouble) double? protein,
             @JsonKey(name: 'Carbohydrates', fromJson: _numToDouble)
@@ -693,6 +705,7 @@ extension NutritionPatterns on Nutrition {
             _that.nutritionId,
             _that.localId,
             _that.dishName,
+            _that.quantityRequired,
             _that.calories,
             _that.protein,
             _that.carbohydrates,
@@ -731,6 +744,7 @@ extension NutritionPatterns on Nutrition {
             @JsonKey(fromJson: _anyToString) String? nutritionId,
             @JsonKey(name: '_id', fromJson: _anyToString) String? localId,
             @JsonKey(name: 'DishName') String? dishName,
+            @JsonKey(name: 'QuantityRequired') String? quantityRequired,
             @JsonKey(name: 'Calories', fromJson: _numToDouble) double? calories,
             @JsonKey(name: 'Protein', fromJson: _numToDouble) double? protein,
             @JsonKey(name: 'Carbohydrates', fromJson: _numToDouble)
@@ -755,6 +769,7 @@ extension NutritionPatterns on Nutrition {
             _that.nutritionId,
             _that.localId,
             _that.dishName,
+            _that.quantityRequired,
             _that.calories,
             _that.protein,
             _that.carbohydrates,
@@ -792,6 +807,7 @@ extension NutritionPatterns on Nutrition {
             @JsonKey(fromJson: _anyToString) String? nutritionId,
             @JsonKey(name: '_id', fromJson: _anyToString) String? localId,
             @JsonKey(name: 'DishName') String? dishName,
+            @JsonKey(name: 'QuantityRequired') String? quantityRequired,
             @JsonKey(name: 'Calories', fromJson: _numToDouble) double? calories,
             @JsonKey(name: 'Protein', fromJson: _numToDouble) double? protein,
             @JsonKey(name: 'Carbohydrates', fromJson: _numToDouble)
@@ -816,6 +832,7 @@ extension NutritionPatterns on Nutrition {
             _that.nutritionId,
             _that.localId,
             _that.dishName,
+            _that.quantityRequired,
             _that.calories,
             _that.protein,
             _that.carbohydrates,
@@ -843,6 +860,7 @@ class _Nutrition implements Nutrition {
       @JsonKey(fromJson: _anyToString) this.nutritionId,
       @JsonKey(name: '_id', fromJson: _anyToString) this.localId,
       @JsonKey(name: 'DishName') this.dishName,
+      @JsonKey(name: 'QuantityRequired') this.quantityRequired,
       @JsonKey(name: 'Calories', fromJson: _numToDouble) this.calories,
       @JsonKey(name: 'Protein', fromJson: _numToDouble) this.protein,
       @JsonKey(name: 'Carbohydrates', fromJson: _numToDouble)
@@ -875,6 +893,9 @@ class _Nutrition implements Nutrition {
   @override
   @JsonKey(name: 'DishName')
   final String? dishName;
+  @override
+  @JsonKey(name: 'QuantityRequired')
+  final String? quantityRequired;
   @override
   @JsonKey(name: 'Calories', fromJson: _numToDouble)
   final double? calories;
@@ -965,6 +986,8 @@ class _Nutrition implements Nutrition {
             (identical(other.localId, localId) || other.localId == localId) &&
             (identical(other.dishName, dishName) ||
                 other.dishName == dishName) &&
+            (identical(other.quantityRequired, quantityRequired) ||
+                other.quantityRequired == quantityRequired) &&
             (identical(other.calories, calories) ||
                 other.calories == calories) &&
             (identical(other.protein, protein) || other.protein == protein) &&
@@ -991,6 +1014,7 @@ class _Nutrition implements Nutrition {
       nutritionId,
       localId,
       dishName,
+      quantityRequired,
       calories,
       protein,
       carbohydrates,
@@ -1007,7 +1031,7 @@ class _Nutrition implements Nutrition {
 
   @override
   String toString() {
-    return 'Nutrition(id: $id, nutritionId: $nutritionId, localId: $localId, dishName: $dishName, calories: $calories, protein: $protein, carbohydrates: $carbohydrates, fats: $fats, fibre: $fibre, sugar: $sugar, sodium: $sodium, iron: $iron, calcium: $calcium, type: $type, time: $time, day: $day, selected: $selected)';
+    return 'Nutrition(id: $id, nutritionId: $nutritionId, localId: $localId, dishName: $dishName, quantityRequired: $quantityRequired, calories: $calories, protein: $protein, carbohydrates: $carbohydrates, fats: $fats, fibre: $fibre, sugar: $sugar, sodium: $sodium, iron: $iron, calcium: $calcium, type: $type, time: $time, day: $day, selected: $selected)';
   }
 }
 
@@ -1024,6 +1048,7 @@ abstract mixin class _$NutritionCopyWith<$Res>
       @JsonKey(fromJson: _anyToString) String? nutritionId,
       @JsonKey(name: '_id', fromJson: _anyToString) String? localId,
       @JsonKey(name: 'DishName') String? dishName,
+      @JsonKey(name: 'QuantityRequired') String? quantityRequired,
       @JsonKey(name: 'Calories', fromJson: _numToDouble) double? calories,
       @JsonKey(name: 'Protein', fromJson: _numToDouble) double? protein,
       @JsonKey(name: 'Carbohydrates', fromJson: _numToDouble)
@@ -1056,6 +1081,7 @@ class __$NutritionCopyWithImpl<$Res> implements _$NutritionCopyWith<$Res> {
     Object? nutritionId = freezed,
     Object? localId = freezed,
     Object? dishName = freezed,
+    Object? quantityRequired = freezed,
     Object? calories = freezed,
     Object? protein = freezed,
     Object? carbohydrates = freezed,
@@ -1086,6 +1112,10 @@ class __$NutritionCopyWithImpl<$Res> implements _$NutritionCopyWith<$Res> {
       dishName: freezed == dishName
           ? _self.dishName
           : dishName // ignore: cast_nullable_to_non_nullable
+              as String?,
+      quantityRequired: freezed == quantityRequired
+          ? _self.quantityRequired
+          : quantityRequired // ignore: cast_nullable_to_non_nullable
               as String?,
       calories: freezed == calories
           ? _self.calories

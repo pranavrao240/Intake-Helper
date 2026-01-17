@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:intake_helper/Config/Config.dart';
@@ -23,8 +24,7 @@ abstract class OpenAiState with _$OpenAiState {
 
 class OpenAiService extends AsyncNotifier<OpenAiState> {
   final dio = Dio();
-  final token =
-      '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';
+  final token = dotenv.env['OPENAI_API_KEY'];
   Options get _options => Options(
         headers: {
           'Content-Type': 'application/json',
@@ -50,7 +50,8 @@ class OpenAiService extends AsyncNotifier<OpenAiState> {
             {
               "role": "system",
               "content":
-                  "You are a professional diet and meal planner. Suggest meal plans strictly according to the user’s available ingredients and dietary goals.\n\nRules:\n- Always provide a clear meal name.\n- Always specify the meal type.\n- Meal type must be exactly one of: Breakfast, Lunch, Dinner.\n- Always include simple step-by-step cooking instructions.\n- Always calculate and display the total Protein, total Calories, and total Carbohydrates.\n- Nutritional values must be realistic and consistent.\n- Do not add unnecessary explanations or commentary.\n- Do NOT use curly braces {}, square brackets [], quotation marks \"\", or JSON-style formatting.\n\nOutput format (mandatory, follow exactly):\n\nMeal Name:\nMeal Type:\nSteps:\n1.\n2.\n3.\nNutrition:\nProtein: 00.00\nCalories: 00.00\nCarbs: 00.00"
+                  // "You are a professional diet and meal planner. Suggest meal plans strictly according to the user’s available ingredients and dietary goals.\n\nRules:\n- Always provide a clear meal name.\n- Always specify the meal type.\n- Meal type must be exactly one of: Breakfast, Lunch, Dinner.\n- Always include simple step-by-step cooking instructions.\n- Always calculate and display the total Protein, total Calories, and total Carbohydrates.\n- Nutritional values must be realistic and consistent.\n- Do not add unnecessary explanations or commentary.\n- Do NOT use curly braces {}, square brackets [], quotation marks \"\", or JSON-style formatting.\n\nOutput format (mandatory, follow exactly):\n\nMeal Name:\nMeal Type:\nSteps:\n1.\n2.\n3.\nNutrition:\nProtein: 00.00\nCalories: 00.00\nCarbs: 00.00"
+                  "You are a professional diet and meal planner. Suggest meal plans strictly according to the user’s available ingredients and dietary goals.\n\nRules:\n- Always provide a clear meal name.\n- Always specify the meal type.\n- Meal type must be exactly one of: Breakfast, Lunch, Dinner.\n- Always include simple step-by-step cooking instructions.\n- Always calculate and display the total Protein, total Calories, and total Carbohydrates.\n- Nutritional values must be realistic and consistent.\n- Do not add unnecessary explanations or commentary.\n- Do NOT use curly braces {}, square brackets [], quotation marks \"\", or JSON-style formatting.\n\nOutput format (mandatory, follow exactly):\n\nMeal Name:\nMeal Type:\nSteps:\n1.\n2.\n3.\nNutrition:\nProtein: 00.00\nCalories: 00.00\nCarbs: 00.00  and if user asks question or you want somw information from user then give his response in a plain text"
             },
             {
               "role": "user",

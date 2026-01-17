@@ -43,7 +43,10 @@ class _NutritionDetailScreenState extends ConsumerState<NutritionDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: customAppbar(context, title: "Nutrition Details"),
+      appBar: customAppbar(
+        context,
+        title: "Nutrition Details",
+      ),
       body: SingleChildScrollView(
         child: _mealDetails(ref),
       ),
@@ -107,13 +110,26 @@ class _NutritionDetailScreenState extends ConsumerState<NutritionDetailScreen> {
         children: [
           const SizedBox(height: 20),
           Center(
-            child: Text(
-              model.dishName ?? '',
-              style: const TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  model.dishName ?? '',
+                  style: const TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+                Text(
+                  ' (${model.quantityRequired ?? ''})',
+                  style: const TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+              ],
             ),
           ),
           const SizedBox(height: 16),

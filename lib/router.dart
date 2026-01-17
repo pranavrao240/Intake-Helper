@@ -45,28 +45,19 @@ Future<bool> isTokenExpired() async {
 
 // Update the isUserLoggedIn function
 Future<bool> isUserLoggedIn() async {
-  final prefs = await SharedPreferences.getInstance();
-  final token = prefs.getString('token');
-  final expiry = prefs.getInt('token_expiry');
+  try {
+    final preferences = await SharedPreferences.getInstance();
+    final token = preferences.getString('token');
 
-  if (token == null || token.isEmpty || expiry == null) {
+    // Check if token exists and isn't empty
+    if (token == null || token.isEmpty) {
+      return false;
+    }
+
+    return true;
+  } on Exception {
     return false;
   }
-
-  final now = DateTime.now().millisecondsSinceEpoch;
-
-  if (now > expiry) {
-    await clearAuthData();
-    return false;
-  }
-
-  return true;
-}
-
-Future<void> clearAuthData() async {
-  final prefs = await SharedPreferences.getInstance();
-  await prefs.remove('token');
-  await prefs.remove('token_expiry');
 }
 
 /// ---------- ROUTE GROUPS ----------
@@ -89,21 +80,15 @@ final GoRouter appRouter = GoRouter(
   navigatorKey: navigatorKey,
   initialLocation: RouteConstants.login.path,
   redirect: (context, state) async {
-    final loggedIn = await isUserLoggedIn();
-    final currentPath = state.matchedLocation;
+    final isLoggedIn = await isUserLoggedIn();
+    final path = state.uri.path;
 
-    final isPublic = publicRoutes.contains(currentPath);
-    final isProtected = protectedRoutes.any(
-      (p) => currentPath.startsWith(p),
-    );
-
-    // 🔐 Not logged in → protected page
-    if (!loggedIn && isProtected) {
+    // Redirect unauthenticated users from protected routes
+    if (!isLoggedIn && protectedRoutes.contains(path)) {
       return RouteConstants.login.path;
     }
 
-    // ✅ Logged in → auth pages
-    if (loggedIn && isPublic) {
+    if (isLoggedIn && publicRoutes.contains(path)) {
       return RouteConstants.home.path;
     }
 
@@ -164,8 +149,4 @@ final GoRouter appRouter = GoRouter(
 Future<void> saveAuthData(String token, {int expiresIn = 2592000}) async {
   final prefs = await SharedPreferences.getInstance();
   await prefs.setString('token', token);
-
-  // Set expiry time (current time + expiresIn seconds)
-  final expiryTime = DateTime.now().millisecondsSinceEpoch + (expiresIn * 1000);
-  await prefs.setInt('token_expiry', expiryTime);
 }

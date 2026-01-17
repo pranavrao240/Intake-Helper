@@ -19,3 +19,9 @@ final NutritionDetailsProvider =
 final appProvider = AsyncNotifierProvider<ApiService, ApiState>(
   ApiService.new,
 );
+
+final nutritionsProvider =
+    FutureProvider.autoDispose<List<Nutrition>>((ref) async {
+  final api = ref.read(apiServiceProvider.notifier);
+  return api.getNutritions();
+});
