@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intake_helper/theme/app_theme.dart';
 
 Widget userBubble(String text, {required VoidCallback onEdit}) {
   return Align(
@@ -11,7 +12,7 @@ Widget userBubble(String text, {required VoidCallback onEdit}) {
           margin: const EdgeInsets.only(bottom: 6),
           constraints: const BoxConstraints(maxWidth: 280),
           decoration: BoxDecoration(
-            color: Colors.deepOrange,
+            color: AppTheme.primaryGreen,
             borderRadius: BorderRadius.circular(14),
           ),
           child: Text(text, style: const TextStyle(color: Colors.white)),

@@ -193,7 +193,6 @@ class LoginPage extends HookConsumerWidget {
                                               Config.appName,
                                               "Logged in Successfully",
                                               "OK", () {
-                                            print('Login successful');
                                             Navigator.of(context).pop();
                                             context
                                                 .go(RouteConstants.home.path);

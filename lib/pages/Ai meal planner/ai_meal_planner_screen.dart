@@ -3,7 +3,6 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intake_helper/Providers/openAi_provider.dart';
-import 'package:intake_helper/Providers/providers.dart';
 import 'package:intake_helper/api/api_service.dart';
 import 'package:intake_helper/pages/Ai%20meal%20planner/widgets/ai_bubble.dart';
 import 'package:intake_helper/pages/Ai%20meal%20planner/widgets/chat_input_bar.dart';
@@ -11,6 +10,7 @@ import 'package:intake_helper/pages/Ai%20meal%20planner/widgets/user_bubble.dart
 import 'package:intake_helper/router.dart';
 import 'package:intake_helper/theme/app_theme.dart';
 import 'package:intake_helper/utils/message_type.dart';
+import 'package:intake_helper/widgets/top_bar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 // Holds the state of the chat messages
@@ -120,18 +120,9 @@ class AiMealPlannerScreen extends HookConsumerWidget {
                       final preferences = await SharedPreferences.getInstance();
                       final addedId = preferences.getString('addedId');
                       if (selected.isEmpty) {
-                        print('No meals selected');
+                        debugPrint('No meals selected');
                       } else {
                         for (final meal in selected) {
-                          print(
-                            'Selected Meal → '
-                            'Name: ${meal.name}, '
-                            'Type: ${meal.mealType}, '
-                            'Calories: ${meal.calories}, '
-                            'Protein: ${meal.protein}, '
-                            'Carbs: ${meal.carbs}',
-                          );
-
                           await ApiService()
                               .addNutrition(
                                   name: meal.name,
@@ -140,8 +131,6 @@ class AiMealPlannerScreen extends HookConsumerWidget {
                                   calories: meal.calories)
                               .then((value) async {
                             final addedId = preferences.getString('addedId');
-
-                            print('addedId from ai meal planner --> $addedId');
 
                             if (addedId != null) {
                               context.pushNamed(
@@ -276,42 +265,35 @@ class AiMealPlannerScreen extends HookConsumerWidget {
     return Scaffold(
       resizeToAvoidBottomInset: true,
       backgroundColor: const Color(0xFF121212),
-      appBar: AppBar(
-        backgroundColor: Colors.black,
-        title: const Text('AI Meal Planner',
-            style: TextStyle(color: Colors.white)),
-        centerTitle: true,
-        elevation: 0,
-      ),
+      appBar: customAppbar(title: 'AI Meal Planner', context),
       body: messages.isEmpty
-          ? const Center(
-              child: Center(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      '💪 Build Your Perfect',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                        letterSpacing: 0.4,
-                      ),
+          ? Center(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: const [
+                  Text(
+                    'BUILD YOUR PERFECT',
+                    style: TextStyle(
+                      fontFamily: 'Montserrat',
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 2,
+                      color: Colors.grey,
                     ),
-                    Text(
-                      '  Meal Plan 🥗',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                        letterSpacing: 0.4,
-                      ),
+                  ),
+                  SizedBox(height: 6),
+                  Text(
+                    'MEAL PLAN 🥗',
+                    style: TextStyle(
+                      fontFamily: 'Montserrat',
+                      fontSize: 28,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 1.5,
+                      color: Colors.white,
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             )
           : Column(

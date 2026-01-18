@@ -97,68 +97,95 @@ class Homepage extends HookConsumerWidget {
     return Scaffold(
       backgroundColor: const Color(0xFF121212),
       appBar: AppBar(
-        leading: const SizedBox.shrink(),
-        backgroundColor: Colors.black,
-        title: const Text("Gym Intake Tracker",
-            style: TextStyle(color: Colors.white)),
+        backgroundColor: const Color(0xFF121212),
+        elevation: 0,
+        title: const Text(
+          "Gym Intake Tracker",
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh, color: Colors.orange),
+            icon: const Icon(Icons.refresh, color: Color(0xFF00FFAA)),
             onPressed: loadAll,
           ),
           IconButton(
-            icon: const Icon(Icons.settings, color: Colors.orange),
-            onPressed: () => context.push('/settings'),
+            icon: const Icon(Icons.settings, color: Color(0xFF00FFAA)),
+            onPressed: () => context.push(RouteConstants.settings.path),
           ),
         ],
       ),
 
       // ---------------- FAB MENU ----------------
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.deepOrange,
-        onPressed: () {},
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(50),
+      floatingActionButton: Container(
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          gradient: const LinearGradient(
+            colors: [Color(0xFF00FFAA), Color(0xFF00C896)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.5),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
+            ),
+          ],
         ),
-        tooltip: "Ask AI to generate a meal plan",
         child: PopupMenuButton<String>(
-          color: Colors.black,
-          icon: const Icon(Icons.question_answer, color: Colors.white),
-          onSelected: (value) {},
-          itemBuilder: (BuildContext context) => [
-            // in progress :-
-            PopupMenuItem<String>(
-              value: 'AI Meal Planner',
-              child: GestureDetector(
-                child: Text('AI Meal Planner',
-                    style: TextStyle(color: Colors.white)),
-                onTap: () async =>
-                    await context.push(RouteConstants.aiMealPlanner.path),
+          tooltip: "Ask AI to generate a meal plan",
+          color: const Color(0xFF1A1A1A),
+          icon: const Icon(Icons.question_answer, color: Colors.black),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
+          onSelected: (value) async {
+            switch (value) {
+              case 'AI':
+                await context.push(RouteConstants.aiMealPlanner.path);
+                break;
+              case 'Nutrition':
+                await context.push(RouteConstants.nutrition.path);
+                break;
+              case 'Settings':
+                context.pushReplacement(RouteConstants.settings.path);
+                break;
+              case 'Logout':
+                final pref = await SharedPreferences.getInstance();
+                pref.remove('token');
+                await pref.clear();
+                context.go('/login');
+                break;
+            }
+          },
+          itemBuilder: (context) => [
+            PopupMenuItem(
+              value: 'AI',
+              child: _FabMenuItem(
+                icon: Icons.auto_awesome,
+                text: 'AI Meal Planner',
               ),
             ),
-            PopupMenuItem<String>(
-              value: 'Search Meal Plans',
-              child: GestureDetector(
-                child: const Text('Search Meal Plans',
-                    style: TextStyle(color: Colors.white)),
-                onTap: () async =>
-                    await context.push(RouteConstants.nutrition.path),
+            PopupMenuItem(
+              value: 'Nutrition',
+              child: _FabMenuItem(
+                icon: Icons.search,
+                text: 'Search Meal Plans',
               ),
             ),
-            PopupMenuItem<String>(
+            PopupMenuItem(
               value: 'Settings',
-              child:
-                  const Text('Settings', style: TextStyle(color: Colors.white)),
-              onTap: () => {context.push(RouteConstants.settings.path)},
+              child: _FabMenuItem(
+                icon: Icons.settings,
+                text: 'Settings',
+              ),
             ),
-            PopupMenuItem<String>(
+            PopupMenuItem(
               value: 'Logout',
-              child:
-                  const Text('LogOut', style: TextStyle(color: Colors.white)),
-              onTap: () => {
-                SharedPreferences.getInstance().then((pref) => pref.clear()),
-                context.push('/login'),
-              },
+              child: _FabMenuItem(
+                icon: Icons.logout,
+                text: 'Logout',
+              ),
             ),
           ],
         ),
@@ -190,12 +217,10 @@ class Homepage extends HookConsumerWidget {
                             _statCard(
                               "Completed Protein",
                               macros.value['protein']!.toStringAsFixed(2),
-                              gradientColors,
                             ),
                             _statCard(
                               "Completed Meals",
                               "${completedTasks.value.length}/${todoData.value?.meals.length ?? 0}",
-                              [Colors.green, Colors.teal],
                               onTap: () => context.push('/todo'),
                             ),
                           ],
@@ -211,13 +236,13 @@ class Homepage extends HookConsumerWidget {
                             "Carbs": macros.value['carbs']!,
                             "Calories": macros.value['calories']!,
                           },
-                          chartRadius: MediaQuery.of(context).size.width / 2.5,
+                          chartRadius: MediaQuery.of(context).size.width / 2.6,
                           chartType: ChartType.ring,
-                          chartLegendSpacing: 32,
+                          ringStrokeWidth: 18,
                           colorList: const [
-                            Colors.redAccent,
-                            Colors.amber,
-                            Colors.lightBlueAccent,
+                            Color(0xFF00FFAA),
+                            Color(0xFFFFC107),
+                            Color(0xFF03A9F4),
                           ],
                           legendOptions: const LegendOptions(
                             legendPosition: LegendPosition.bottom,
@@ -270,26 +295,47 @@ class Homepage extends HookConsumerWidget {
                           itemCount: filtered.length,
                           itemBuilder: (context, index) {
                             final meal = filtered[index];
-                            return Card(
-                              color: Colors.black87,
-                              child: ListTile(
-                                  title: Text(meal.dishName ?? '',
-                                      style:
-                                          const TextStyle(color: Colors.white)),
-                                  subtitle: Text(
-                                    "Calories: ${meal.calories ?? 0}, Protein: ${meal.protein ?? 0}g",
-                                    style:
-                                        const TextStyle(color: Colors.white70),
+                            return Container(
+                              margin: const EdgeInsets.symmetric(vertical: 6),
+                              decoration: BoxDecoration(
+                                gradient: const LinearGradient(
+                                  colors: [
+                                    Color(0xFF2D2D2D),
+                                    Color(0xFF1A1A1A)
+                                  ],
+                                ),
+                                borderRadius: BorderRadius.circular(12),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.4),
+                                    blurRadius: 5,
+                                    offset: const Offset(0, 3),
                                   ),
-                                  onTap: () => {
-                                        if (meal.id != null)
-                                          {
-                                            context.pushNamed(
-                                              RouteConstants.mealDetails.name,
-                                              pathParameters: {'id': meal.id!},
-                                            )
-                                          }
-                                      }),
+                                ],
+                              ),
+                              child: ListTile(
+                                title: Text(
+                                  meal.dishName ?? '',
+                                  style: const TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                                subtitle: Text(
+                                  "Calories: ${meal.calories ?? 0} • Protein: ${meal.protein ?? 0}g",
+                                  style: const TextStyle(
+                                      color: Color(0xFF00FFAA), fontSize: 13),
+                                ),
+                                trailing: const Icon(Icons.fitness_center,
+                                    color: Colors.white),
+                                onTap: () {
+                                  if (meal.id != null) {
+                                    context.pushNamed(
+                                      RouteConstants.mealDetails.name,
+                                      pathParameters: {'id': meal.id!},
+                                    );
+                                  }
+                                },
+                              ),
                             );
                           },
                         ),
@@ -303,31 +349,38 @@ class Homepage extends HookConsumerWidget {
 // ---------------- WIDGETS ----------------
   Widget _statCard(
     String title,
-    String value,
-    List<Color> colors, {
+    String value, {
     VoidCallback? onTap,
   }) {
     final card = Container(
       width: 160,
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        gradient: LinearGradient(colors: colors),
-        borderRadius: BorderRadius.circular(12),
+        gradient: const LinearGradient(
+          colors: [Color(0xFF2D2D2D), Color(0xFF1A1A1A)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(14),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.5),
+            blurRadius: 6,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
-        mainAxisSize: MainAxisSize.min,
         children: [
-          Text(
-            title,
-            textAlign: TextAlign.center,
-            style: const TextStyle(color: Colors.white),
-          ),
-          const SizedBox(height: 6),
+          Text(title,
+              textAlign: TextAlign.center,
+              style: const TextStyle(color: Colors.white70)),
+          const SizedBox(height: 8),
           Text(
             value,
             style: const TextStyle(
-              color: Colors.white,
-              fontSize: 18,
+              color: Color(0xFF00FFAA),
+              fontSize: 20,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -335,12 +388,7 @@ class Homepage extends HookConsumerWidget {
       ),
     );
 
-    return onTap == null
-        ? card
-        : GestureDetector(
-            onTap: onTap,
-            child: card,
-          );
+    return onTap == null ? card : GestureDetector(onTap: onTap, child: card);
   }
 
   Widget _sectionTitle(String title) {
@@ -349,6 +397,30 @@ class Homepage extends HookConsumerWidget {
       child: Text(title,
           style: const TextStyle(
               fontSize: 20, color: Colors.white, fontWeight: FontWeight.bold)),
+    );
+  }
+}
+
+class _FabMenuItem extends StatelessWidget {
+  final IconData icon;
+  final String text;
+
+  const _FabMenuItem({
+    required this.icon,
+    required this.text,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Icon(icon, color: const Color(0xFF00FFAA), size: 20),
+        const SizedBox(width: 12),
+        Text(
+          text,
+          style: const TextStyle(color: Colors.white),
+        ),
+      ],
     );
   }
 }

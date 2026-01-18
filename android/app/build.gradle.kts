@@ -33,8 +33,8 @@ android {
         applicationId = "com.pranavrao.intake_helper"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
-        versionCode = flutter.versionCode
-        versionName = flutter.versionName
+        versionCode = 2               // increment integer each release
+        versionName = "1.0.1"
     }
 
     signingConfigs {

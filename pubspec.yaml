@@ -63,6 +63,7 @@ dependencies:
   dio: ^5.9.0
   dotenv: ^4.2.0
   flutter_dotenv: ^6.0.0
+  flutter_svg: ^2.2.3
   
 
 dev_dependencies:
@@ -104,6 +105,11 @@ flutter:
   assets:
     - lib/assets/images/
     - .env
+  fonts:
+    - family: Montserrat
+      fonts:
+        - asset: lib/assets/fonts/Montserrat-Italic-VariableFont_wght.ttf
+        - asset: lib/assets/fonts/Montserrat-VariableFont_wght.ttf
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

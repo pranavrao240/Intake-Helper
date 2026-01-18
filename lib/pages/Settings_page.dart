@@ -3,6 +3,8 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intake_helper/api/api_service.dart';
+import 'package:intake_helper/pages/settings/add_details.dart';
+import 'package:intake_helper/widgets/top_bar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 final themeModeProvider =
@@ -35,149 +37,119 @@ class SettingsPage extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // ---- Hooks state ----
-    final weight = useState('');
-    final height = useState('');
-    final dob = useState('');
-    final age = useState('');
-
-    // ---- Load user details once ----
     useEffect(() {
       Future.microtask(() async {
-        SharedPreferences preferences = await SharedPreferences.getInstance();
-        final token = preferences.getString('token');
+        final pref = await SharedPreferences.getInstance();
+        final token = pref.getString('token');
         if (token != null) {
           await ref.read(apiServiceProvider.notifier).getProfile(token);
         }
       });
       return null;
     }, []);
-    // Watch for changes in the API state
+
     final userState = ref.watch(apiServiceProvider);
 
-    // Extract user data from the state
-    final String userName = userState.maybeWhen(
-      data: (data) => data.profileData?.fullName ?? 'Guest',
-      orElse: () => "Guest",
-    );
-    final String email = userState.maybeWhen(
-      data: (data) => data.profileData?.email ?? 'Guest',
-      orElse: () => "Guest",
+// Safely handle null values
+    final weight = useState(
+      userState.value?.profileData?.weight != null
+          ? "${userState.value!.profileData!.weight} "
+          : '',
     );
 
-    Future<void> showAddDetailsSheet() async {
-      await showModalBottomSheet(
-        context: context,
-        isScrollControlled: true,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-        ),
-        builder: (_) => const AddDetails(),
-      );
+    final height = useState(
+      userState.value?.profileData?.height != null
+          ? "${userState.value!.profileData!.height} "
+          : '',
+    );
 
-      // reload after bottom sheet closes
-      final pref = await SharedPreferences.getInstance();
-      age.value = pref.getString('age') ?? '';
-      weight.value = pref.getString('weight') ?? '';
-      height.value = pref.getString('height') ?? '';
-      dob.value = pref.getString('dob') ?? '';
-    }
+    final dob = useState(
+      userState.value?.profileData?.dateOfBirth ?? '',
+    );
 
-    // ---- Providers ----
-    final textColor = Colors.black87;
+    final age = useState(
+      userState.value?.profileData?.age?.toString() ?? '',
+    );
+
+    final userName = userState.maybeWhen(
+      data: (d) => d.profileData?.fullName ?? 'Guest',
+      orElse: () => 'Guest',
+    );
+
+    final email = userState.maybeWhen(
+      data: (d) => d.profileData?.email ?? 'Guest',
+      orElse: () => 'Guest',
+    );
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Settings"),
-        centerTitle: true,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.pop(),
-        ),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              const CircleAvatar(
-                radius: 60,
-                backgroundImage: AssetImage('lib/assets/images/baki.jpg'),
+      backgroundColor: const Color(0xFF121212),
+      appBar: customAppbar(context, title: "Settings"),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          children: [
+            const CircleAvatar(
+              radius: 55,
+              backgroundImage: AssetImage('lib/assets/images/baki.jpg'),
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              'Intake Helper',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
               ),
-              const SizedBox(height: 16),
-              Text(
-                'Intake Helper',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: textColor,
+            ),
+            const SizedBox(height: 24),
+            _darkInfoCard(Icons.person, "Name", userName),
+            _darkInfoCard(Icons.email, "Email", email),
+            GestureDetector(
+              onTap: () => _showAddDetails(context),
+              child: _darkInfoCard(
+                Icons.edit,
+                "Add Details",
+                "Tap to update your info",
+              ),
+            ),
+            const SizedBox(height: 20),
+            GridView(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                crossAxisSpacing: 12,
+                mainAxisSpacing: 12,
+              ),
+              children: [
+                _darkStatCard(Icons.cake, "Age", age.value),
+                _darkStatCard(Icons.monitor_weight, "Weight",
+                    weight.value.isEmpty ? '' : "${weight.value} kg"),
+                _darkStatCard(Icons.height, "Height",
+                    height.value.isEmpty ? '' : "${height.value} cm"),
+                _darkStatCard(Icons.calendar_today, "DOB", dob.value),
+              ],
+            ),
+            const SizedBox(height: 30),
+            ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF00FFAA),
+                foregroundColor: Colors.black,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
                 ),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
               ),
-              const SizedBox(height: 30),
-              _buildInfoCard(
-                icon: Icons.person,
-                title: "Name:",
-                value: userName,
-              ),
-              _buildInfoCard(
-                icon: Icons.email,
-                title: "Email Id:",
-                value: email,
-              ),
-              GestureDetector(
-                onTap: showAddDetailsSheet,
-                child: _buildInfoCard(
-                  icon: Icons.edit,
-                  title: "Add details",
-                  value: "Click to add details",
-                ),
-              ),
-              const SizedBox(height: 20),
-              GridView(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 12,
-                  mainAxisSpacing: 12,
-                ),
-                children: [
-                  _buildSelfDetailCard(
-                    icon: Icons.cake,
-                    title: "Age:",
-                    value: age.value.isEmpty ? "Not set" : age.value,
-                  ),
-                  _buildSelfDetailCard(
-                    icon: Icons.monitor_weight,
-                    title: "Weight:",
-                    value:
-                        weight.value.isEmpty ? "Not set" : "${weight.value} kg",
-                  ),
-                  _buildSelfDetailCard(
-                    icon: Icons.height,
-                    title: "Height:",
-                    value:
-                        height.value.isEmpty ? "Not set" : "${height.value} cm",
-                  ),
-                  _buildSelfDetailCard(
-                    icon: Icons.calendar_today,
-                    title: "Date of Birth:",
-                    value: dob.value.isEmpty ? "Not set" : dob.value,
-                  ),
-                ],
-              ),
-              const SizedBox(height: 30),
-              ElevatedButton.icon(
-                onPressed: () async {
-                  final pref = await SharedPreferences.getInstance();
-                  await pref.clear();
-                  context.go('/login');
-                },
-                icon: const Icon(Icons.logout),
-                label: const Text('Logout'),
-              ),
-            ],
-          ),
+              onPressed: () async {
+                final pref = await SharedPreferences.getInstance();
+                await pref.clear();
+                context.go('/login');
+              },
+              icon: const Icon(Icons.logout),
+              label: const Text("Logout"),
+            ),
+          ],
         ),
       ),
     );
@@ -227,104 +199,70 @@ class SettingsPage extends HookConsumerWidget {
   }
 }
 
-class AddDetails extends ConsumerStatefulWidget {
-  const AddDetails({super.key});
-
-  @override
-  ConsumerState<AddDetails> createState() => _AddDetailsState();
+void _showAddDetails(BuildContext context) {
+  showModalBottomSheet(
+    context: context,
+    isScrollControlled: true,
+    backgroundColor: const Color(0xFF1A1A1A),
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+    ),
+    builder: (_) => const AddDetails(),
+  );
 }
 
-class _AddDetailsState extends ConsumerState<AddDetails> {
-  final _ageController = TextEditingController();
-  final _weightController = TextEditingController();
-  final _heightController = TextEditingController();
-  final _dobController = TextEditingController();
-
-  @override
-  void initState() {
-    super.initState();
-    _loadSavedData();
-  }
-
-  Future<void> _loadSavedData() async {
-    final pref = await SharedPreferences.getInstance();
-    _ageController.text = pref.getString('age') ?? '';
-    _weightController.text = pref.getString('weight') ?? '';
-    _heightController.text = pref.getString('height') ?? '';
-    _dobController.text = pref.getString('dob') ?? '';
-  }
-
-  Future<void> _saveData() async {
-    final pref = await SharedPreferences.getInstance();
-    await pref.setString('age', _ageController.text);
-    await pref.setString('weight', _weightController.text);
-    await pref.setString('height', _heightController.text);
-    await pref.setString('dob', _dobController.text);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Container(
-        padding: EdgeInsets.only(
-          left: 16,
-          right: 16,
-          top: 20,
-          bottom: MediaQuery.of(context).viewInsets.bottom + 16,
-        ),
-        decoration: BoxDecoration(
-          color: Theme.of(context).scaffoldBackgroundColor,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-        ),
-        child: Column(
-          children: [
-            const Text(
-              "Add Details",
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 20),
-            _buildTextField(_ageController, "Enter your Age", Icons.cake),
-            const SizedBox(height: 16),
-            _buildTextField(_weightController, "Enter your Weight (kg)",
-                Icons.monitor_weight),
-            const SizedBox(height: 16),
-            _buildTextField(
-                _heightController, "Enter your Height (cm)", Icons.height),
-            const SizedBox(height: 16),
-            _buildTextField(
-                _dobController, "Enter DOB (DD/MM/YYYY)", Icons.calendar_today),
-            const SizedBox(height: 30),
-            ElevatedButton(
-              onPressed: () async {
-                await _saveData();
-                if (context.mounted) Navigator.pop(context);
-              },
-              child: const Text("Save"),
-            ),
-          ],
-        ),
+Widget _darkInfoCard(IconData icon, String title, String value) {
+  return Container(
+    margin: const EdgeInsets.symmetric(vertical: 8),
+    decoration: _darkCardDecoration(),
+    child: ListTile(
+      leading: Icon(icon, color: const Color(0xFF00FFAA)),
+      title: Text(title, style: const TextStyle(color: Colors.white70)),
+      subtitle: Text(
+        value,
+        style:
+            const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
       ),
-    );
-  }
+    ),
+  );
+}
 
-  Widget _buildTextField(
-      TextEditingController controller, String label, IconData icon) {
-    return TextField(
-      controller: controller,
-      decoration: InputDecoration(
-        labelText: label,
-        prefixIcon: Icon(icon),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+Widget _darkStatCard(IconData icon, String title, String value) {
+  return Container(
+    decoration: _darkCardDecoration(),
+    padding: const EdgeInsets.all(12),
+    child: Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Icon(icon, color: const Color(0xFF00FFAA), size: 30),
+        const SizedBox(height: 12),
+        Text(title,
+            style: const TextStyle(color: Colors.white70, fontSize: 13)),
+        const SizedBox(height: 6),
+        Text(
+          value.isEmpty ? "Not set" : value,
+          style:
+              const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
+      ],
+    ),
+  );
+}
+
+BoxDecoration _darkCardDecoration() {
+  return BoxDecoration(
+    gradient: const LinearGradient(
+      colors: [Color(0xFF2D2D2D), Color(0xFF1A1A1A)],
+      begin: Alignment.topLeft,
+      end: Alignment.bottomRight,
+    ),
+    borderRadius: BorderRadius.circular(14),
+    boxShadow: [
+      BoxShadow(
+        color: Colors.black.withOpacity(0.5),
+        blurRadius: 6,
+        offset: const Offset(0, 4),
       ),
-    );
-  }
-
-  @override
-  void dispose() {
-    _ageController.dispose();
-    _weightController.dispose();
-    _heightController.dispose();
-    _dobController.dispose();
-    super.dispose();
-  }
+    ],
+  );
 }

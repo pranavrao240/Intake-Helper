@@ -170,83 +170,88 @@ class _TodolistScreenState extends ConsumerState<TodolistScreen> {
                       final isCompleted = completedIds.contains(item.id);
 
                       return Card(
-                        color: isCompleted ? Colors.grey[300] : Colors.white,
-                        margin: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 6),
-                        child: ListTile(
-                          enabled: !isCompleted,
-                          title: Text(
-                            item.dishName ?? '',
-                            style: TextStyle(
-                              decoration: isCompleted
-                                  ? TextDecoration.lineThrough
-                                  : TextDecoration.none,
-                              color: isCompleted ? Colors.grey : Colors.black,
-                            ),
+                          color: isCompleted
+                              ? const Color(0xFF1A1A1A)
+                              : const Color(0xFF1E1E1E),
+                          elevation: 4,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
                           ),
-                          subtitle: Text(
-                            "Calories: ${item.calories ?? 0}, Protein: ${item.protein ?? 0}\nTime: ${item.time ?? 'N/A'}",
-                            style: TextStyle(
-                              color: isCompleted ? Colors.grey : Colors.black54,
+                          margin: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 8),
+                          child: ListTile(
+                            enabled: !isCompleted,
+                            title: Text(
+                              item.dishName ?? '',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                decoration: isCompleted
+                                    ? TextDecoration.lineThrough
+                                    : TextDecoration.none,
+                                color: isCompleted ? Colors.grey : Colors.white,
+                              ),
                             ),
-                          ),
-                          leading: Checkbox(
-                            value: isCheckedList[index],
-                            activeColor: Colors.green, // ✔ checked background
-                            checkColor: Colors.white, // ✔ tick color
-                            side: const BorderSide(
-                              // ✔ border when unchecked
-                              color: Colors.black,
-                              width: 1.5,
+                            subtitle: Text(
+                              "Calories: ${item.calories ?? 0} | Protein: ${item.protein ?? 0}g\n⏰ ${item.time ?? 'N/A'}",
+                              style: TextStyle(
+                                fontSize: 13,
+                                color:
+                                    isCompleted ? Colors.grey : Colors.white70,
+                              ),
                             ),
-                            onChanged: isCompleted
-                                ? null
-                                : (bool? value) {
-                                    setState(() {
-                                      isCheckedList[index] = value ?? false;
-                                    });
-                                  },
-                          ),
-                          trailing: IconButton(
-                            icon: const Icon(Icons.delete),
-                            color: Colors.red,
-                            onPressed: isCompleted
+                            leading: Checkbox(
+                              value: isCheckedList[index],
+                              activeColor: Colors.deepOrange,
+                              checkColor: Colors.white,
+                              side: const BorderSide(color: Colors.white54),
+                              onChanged: isCompleted
+                                  ? null
+                                  : (value) {
+                                      setState(() {
+                                        isCheckedList[index] = value ?? false;
+                                      });
+                                    },
+                            ),
+                            trailing: IconButton(
+                              icon: const Icon(Icons.delete_outline),
+                              color: Colors.redAccent,
+                              onPressed: isCompleted
+                                  ? null
+                                  : () {
+                                      api
+                                          .deleteTodoItem(item.id ?? "")
+                                          .then((success) {
+                                        if (success == true) {
+                                          setState(() {});
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            const SnackBar(
+                                                content: Text(
+                                                    "Item deleted successfully!")),
+                                          );
+                                        } else {
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            const SnackBar(
+                                                content: Text(
+                                                    "Failed to delete item.")),
+                                          );
+                                        }
+                                      });
+                                    },
+                            ),
+                            onTap: isCompleted
                                 ? null
                                 : () {
-                                    api
-                                        .deleteTodoItem(item.id ?? "")
-                                        .then((success) {
-                                      if (success == true) {
-                                        setState(() {});
-                                        ScaffoldMessenger.of(context)
-                                            .showSnackBar(
-                                          const SnackBar(
-                                              content: Text(
-                                                  "Item deleted successfully!")),
-                                        );
-                                      } else {
-                                        ScaffoldMessenger.of(context)
-                                            .showSnackBar(
-                                          const SnackBar(
-                                              content: Text(
-                                                  "Failed to delete item.")),
-                                        );
-                                      }
-                                    });
+                                    if (item.id != null) {
+                                      context.pushNamed(
+                                        RouteConstants.mealDetails.name,
+                                        pathParameters: {'id': item.id!},
+                                      );
+                                    }
                                   },
-                          ),
-                          onTap: isCompleted
-                              ? null
-                              : () {
-                                  if (item.id != null) {
-                                    context.pushNamed(
-                                      RouteConstants.mealDetails.name,
-                                      pathParameters: {'id': item.id!},
-                                    );
-                                  }
-                                },
-                        ),
-                      );
+                          ));
                     },
                   );
                 }
@@ -260,15 +265,41 @@ class _TodolistScreenState extends ConsumerState<TodolistScreen> {
                 padding: const EdgeInsets.only(bottom: 48.0),
                 child: CupertinoButton(
                   child: Container(
-                    width: 100,
-                    height: 50,
+                    width: 140,
+                    height: 52,
                     decoration: BoxDecoration(
-                      color: Colors.blue,
-                      borderRadius: BorderRadius.circular(8.0),
+                      gradient: const LinearGradient(
+                        colors: [Colors.deepOrange, Colors.orangeAccent],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.circular(14),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Colors.black54,
+                          blurRadius: 8,
+                          offset: Offset(0, 4),
+                        ),
+                      ],
                     ),
                     child: const Center(
-                      child: Text("Complete",
-                          style: TextStyle(color: Colors.white, fontSize: 18)),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.check_circle,
+                              color: Colors.white, size: 20),
+                          SizedBox(width: 8),
+                          Text(
+                            "Complete",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 0.6,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                   onPressed: () async {
@@ -310,27 +341,43 @@ class _TodolistScreenState extends ConsumerState<TodolistScreen> {
               ),
               // const Spacer(),
               Padding(
-                padding: const EdgeInsets.only(bottom: 48.0),
-                child: CupertinoButton(
-                    onPressed: () async {
-                      SharedService.clearCompletedTasks();
-                      await resetTodo(ref);
-                      setState(() {});
-                    },
-                    child: Container(
-                      width: 100,
-                      height: 50,
-                      decoration: BoxDecoration(
-                        color: Colors.red,
-                        borderRadius: BorderRadius.circular(8.0),
-                      ),
-                      child: const Center(
-                        child: Text("Reset",
-                            style:
-                                TextStyle(color: Colors.white, fontSize: 18)),
-                      ),
-                    )),
-              )
+                  padding: const EdgeInsets.only(bottom: 48.0),
+                  child: CupertinoButton(
+                      onPressed: () async {
+                        SharedService.clearCompletedTasks();
+                        await resetTodo(ref);
+                        setState(() {});
+                      },
+                      child: Container(
+                          width: 140,
+                          height: 52,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF1E1E1E),
+                            borderRadius: BorderRadius.circular(14),
+                            border: Border.all(
+                              color: Colors.redAccent,
+                              width: 1.5,
+                            ),
+                          ),
+                          child: const Center(
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(Icons.refresh_rounded,
+                                    color: Colors.redAccent, size: 20),
+                                SizedBox(width: 8),
+                                Text(
+                                  "Reset",
+                                  style: TextStyle(
+                                    color: Colors.redAccent,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                    letterSpacing: 0.5,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ))))
             ],
           )
         ],

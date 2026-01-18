@@ -15,8 +15,8 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$ProfileResponse {
   bool get success;
-  String get message;
-  ProfileData get data;
+  ProfileData? get data; // made nullable because JSON might not include it
+  String? get message;
 
   /// Create a copy of ProfileResponse
   /// with the given fields replaced by the non-null parameter values.
@@ -35,17 +35,17 @@ mixin _$ProfileResponse {
         (other.runtimeType == runtimeType &&
             other is ProfileResponse &&
             (identical(other.success, success) || other.success == success) &&
-            (identical(other.message, message) || other.message == message) &&
-            (identical(other.data, data) || other.data == data));
+            (identical(other.data, data) || other.data == data) &&
+            (identical(other.message, message) || other.message == message));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, success, message, data);
+  int get hashCode => Object.hash(runtimeType, success, data, message);
 
   @override
   String toString() {
-    return 'ProfileResponse(success: $success, message: $message, data: $data)';
+    return 'ProfileResponse(success: $success, data: $data, message: $message)';
   }
 }
 
@@ -55,9 +55,9 @@ abstract mixin class $ProfileResponseCopyWith<$Res> {
           ProfileResponse value, $Res Function(ProfileResponse) _then) =
       _$ProfileResponseCopyWithImpl;
   @useResult
-  $Res call({bool success, String message, ProfileData data});
+  $Res call({bool success, ProfileData? data, String? message});
 
-  $ProfileDataCopyWith<$Res> get data;
+  $ProfileDataCopyWith<$Res>? get data;
 }
 
 /// @nodoc
@@ -74,22 +74,22 @@ class _$ProfileResponseCopyWithImpl<$Res>
   @override
   $Res call({
     Object? success = null,
-    Object? message = null,
-    Object? data = null,
+    Object? data = freezed,
+    Object? message = freezed,
   }) {
     return _then(_self.copyWith(
       success: null == success
           ? _self.success
           : success // ignore: cast_nullable_to_non_nullable
               as bool,
-      message: null == message
-          ? _self.message
-          : message // ignore: cast_nullable_to_non_nullable
-              as String,
-      data: null == data
+      data: freezed == data
           ? _self.data
           : data // ignore: cast_nullable_to_non_nullable
-              as ProfileData,
+              as ProfileData?,
+      message: freezed == message
+          ? _self.message
+          : message // ignore: cast_nullable_to_non_nullable
+              as String?,
     ));
   }
 
@@ -97,8 +97,12 @@ class _$ProfileResponseCopyWithImpl<$Res>
   /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
-  $ProfileDataCopyWith<$Res> get data {
-    return $ProfileDataCopyWith<$Res>(_self.data, (value) {
+  $ProfileDataCopyWith<$Res>? get data {
+    if (_self.data == null) {
+      return null;
+    }
+
+    return $ProfileDataCopyWith<$Res>(_self.data!, (value) {
       return _then(_self.copyWith(data: value));
     });
   }
@@ -197,14 +201,14 @@ extension ProfileResponsePatterns on ProfileResponse {
 
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>(
-    TResult Function(bool success, String message, ProfileData data)?
+    TResult Function(bool success, ProfileData? data, String? message)?
         $default, {
     required TResult orElse(),
   }) {
     final _that = this;
     switch (_that) {
       case _ProfileResponse() when $default != null:
-        return $default(_that.success, _that.message, _that.data);
+        return $default(_that.success, _that.data, _that.message);
       case _:
         return orElse();
     }
@@ -225,12 +229,12 @@ extension ProfileResponsePatterns on ProfileResponse {
 
   @optionalTypeArgs
   TResult when<TResult extends Object?>(
-    TResult Function(bool success, String message, ProfileData data) $default,
+    TResult Function(bool success, ProfileData? data, String? message) $default,
   ) {
     final _that = this;
     switch (_that) {
       case _ProfileResponse():
-        return $default(_that.success, _that.message, _that.data);
+        return $default(_that.success, _that.data, _that.message);
       case _:
         throw StateError('Unexpected subclass');
     }
@@ -250,12 +254,13 @@ extension ProfileResponsePatterns on ProfileResponse {
 
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>(
-    TResult? Function(bool success, String message, ProfileData data)? $default,
+    TResult? Function(bool success, ProfileData? data, String? message)?
+        $default,
   ) {
     final _that = this;
     switch (_that) {
       case _ProfileResponse() when $default != null:
-        return $default(_that.success, _that.message, _that.data);
+        return $default(_that.success, _that.data, _that.message);
       case _:
         return null;
     }
@@ -265,17 +270,17 @@ extension ProfileResponsePatterns on ProfileResponse {
 /// @nodoc
 @JsonSerializable()
 class _ProfileResponse implements ProfileResponse {
-  const _ProfileResponse(
-      {required this.success, required this.message, required this.data});
+  const _ProfileResponse({required this.success, this.data, this.message});
   factory _ProfileResponse.fromJson(Map<String, dynamic> json) =>
       _$ProfileResponseFromJson(json);
 
   @override
   final bool success;
   @override
-  final String message;
+  final ProfileData? data;
+// made nullable because JSON might not include it
   @override
-  final ProfileData data;
+  final String? message;
 
   /// Create a copy of ProfileResponse
   /// with the given fields replaced by the non-null parameter values.
@@ -298,17 +303,17 @@ class _ProfileResponse implements ProfileResponse {
         (other.runtimeType == runtimeType &&
             other is _ProfileResponse &&
             (identical(other.success, success) || other.success == success) &&
-            (identical(other.message, message) || other.message == message) &&
-            (identical(other.data, data) || other.data == data));
+            (identical(other.data, data) || other.data == data) &&
+            (identical(other.message, message) || other.message == message));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, success, message, data);
+  int get hashCode => Object.hash(runtimeType, success, data, message);
 
   @override
   String toString() {
-    return 'ProfileResponse(success: $success, message: $message, data: $data)';
+    return 'ProfileResponse(success: $success, data: $data, message: $message)';
   }
 }
 
@@ -320,10 +325,10 @@ abstract mixin class _$ProfileResponseCopyWith<$Res>
       __$ProfileResponseCopyWithImpl;
   @override
   @useResult
-  $Res call({bool success, String message, ProfileData data});
+  $Res call({bool success, ProfileData? data, String? message});
 
   @override
-  $ProfileDataCopyWith<$Res> get data;
+  $ProfileDataCopyWith<$Res>? get data;
 }
 
 /// @nodoc
@@ -340,22 +345,22 @@ class __$ProfileResponseCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   $Res call({
     Object? success = null,
-    Object? message = null,
-    Object? data = null,
+    Object? data = freezed,
+    Object? message = freezed,
   }) {
     return _then(_ProfileResponse(
       success: null == success
           ? _self.success
           : success // ignore: cast_nullable_to_non_nullable
               as bool,
-      message: null == message
-          ? _self.message
-          : message // ignore: cast_nullable_to_non_nullable
-              as String,
-      data: null == data
+      data: freezed == data
           ? _self.data
           : data // ignore: cast_nullable_to_non_nullable
-              as ProfileData,
+              as ProfileData?,
+      message: freezed == message
+          ? _self.message
+          : message // ignore: cast_nullable_to_non_nullable
+              as String?,
     ));
   }
 
@@ -363,8 +368,12 @@ class __$ProfileResponseCopyWithImpl<$Res>
   /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
-  $ProfileDataCopyWith<$Res> get data {
-    return $ProfileDataCopyWith<$Res>(_self.data, (value) {
+  $ProfileDataCopyWith<$Res>? get data {
+    if (_self.data == null) {
+      return null;
+    }
+
+    return $ProfileDataCopyWith<$Res>(_self.data!, (value) {
       return _then(_self.copyWith(data: value));
     });
   }
@@ -372,12 +381,17 @@ class __$ProfileResponseCopyWithImpl<$Res>
 
 /// @nodoc
 mixin _$ProfileData {
+  @JsonKey(name: "_id")
   String get id;
-  String get fullName;
-  String get email;
-  DateTime get createdAt;
-  DateTime get updatedAt;
-  int get v;
+  String? get fullName;
+  String? get email;
+  int? get age;
+  double? get height; // corrected type
+  double? get weight; // corrected type
+  @JsonKey(name: "dateOfBirth")
+  String? get dateOfBirth;
+  DateTime? get createdAt;
+  DateTime? get updatedAt;
 
   /// Create a copy of ProfileData
   /// with the given fields replaced by the non-null parameter values.
@@ -398,21 +412,25 @@ mixin _$ProfileData {
             (identical(other.fullName, fullName) ||
                 other.fullName == fullName) &&
             (identical(other.email, email) || other.email == email) &&
+            (identical(other.age, age) || other.age == age) &&
+            (identical(other.height, height) || other.height == height) &&
+            (identical(other.weight, weight) || other.weight == weight) &&
+            (identical(other.dateOfBirth, dateOfBirth) ||
+                other.dateOfBirth == dateOfBirth) &&
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt) &&
             (identical(other.updatedAt, updatedAt) ||
-                other.updatedAt == updatedAt) &&
-            (identical(other.v, v) || other.v == v));
+                other.updatedAt == updatedAt));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, id, fullName, email, createdAt, updatedAt, v);
+  int get hashCode => Object.hash(runtimeType, id, fullName, email, age, height,
+      weight, dateOfBirth, createdAt, updatedAt);
 
   @override
   String toString() {
-    return 'ProfileData(id: $id, fullName: $fullName, email: $email, createdAt: $createdAt, updatedAt: $updatedAt, v: $v)';
+    return 'ProfileData(id: $id, fullName: $fullName, email: $email, age: $age, height: $height, weight: $weight, dateOfBirth: $dateOfBirth, createdAt: $createdAt, updatedAt: $updatedAt)';
   }
 }
 
@@ -423,12 +441,15 @@ abstract mixin class $ProfileDataCopyWith<$Res> {
       _$ProfileDataCopyWithImpl;
   @useResult
   $Res call(
-      {String id,
-      String fullName,
-      String email,
-      DateTime createdAt,
-      DateTime updatedAt,
-      int v});
+      {@JsonKey(name: "_id") String id,
+      String? fullName,
+      String? email,
+      int? age,
+      double? height,
+      double? weight,
+      @JsonKey(name: "dateOfBirth") String? dateOfBirth,
+      DateTime? createdAt,
+      DateTime? updatedAt});
 }
 
 /// @nodoc
@@ -444,37 +465,52 @@ class _$ProfileDataCopyWithImpl<$Res> implements $ProfileDataCopyWith<$Res> {
   @override
   $Res call({
     Object? id = null,
-    Object? fullName = null,
-    Object? email = null,
-    Object? createdAt = null,
-    Object? updatedAt = null,
-    Object? v = null,
+    Object? fullName = freezed,
+    Object? email = freezed,
+    Object? age = freezed,
+    Object? height = freezed,
+    Object? weight = freezed,
+    Object? dateOfBirth = freezed,
+    Object? createdAt = freezed,
+    Object? updatedAt = freezed,
   }) {
     return _then(_self.copyWith(
       id: null == id
           ? _self.id
           : id // ignore: cast_nullable_to_non_nullable
               as String,
-      fullName: null == fullName
+      fullName: freezed == fullName
           ? _self.fullName
           : fullName // ignore: cast_nullable_to_non_nullable
-              as String,
-      email: null == email
+              as String?,
+      email: freezed == email
           ? _self.email
           : email // ignore: cast_nullable_to_non_nullable
-              as String,
-      createdAt: null == createdAt
+              as String?,
+      age: freezed == age
+          ? _self.age
+          : age // ignore: cast_nullable_to_non_nullable
+              as int?,
+      height: freezed == height
+          ? _self.height
+          : height // ignore: cast_nullable_to_non_nullable
+              as double?,
+      weight: freezed == weight
+          ? _self.weight
+          : weight // ignore: cast_nullable_to_non_nullable
+              as double?,
+      dateOfBirth: freezed == dateOfBirth
+          ? _self.dateOfBirth
+          : dateOfBirth // ignore: cast_nullable_to_non_nullable
+              as String?,
+      createdAt: freezed == createdAt
           ? _self.createdAt
           : createdAt // ignore: cast_nullable_to_non_nullable
-              as DateTime,
-      updatedAt: null == updatedAt
+              as DateTime?,
+      updatedAt: freezed == updatedAt
           ? _self.updatedAt
           : updatedAt // ignore: cast_nullable_to_non_nullable
-              as DateTime,
-      v: null == v
-          ? _self.v
-          : v // ignore: cast_nullable_to_non_nullable
-              as int,
+              as DateTime?,
     ));
   }
 }
@@ -572,16 +608,32 @@ extension ProfileDataPatterns on ProfileData {
 
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>(
-    TResult Function(String id, String fullName, String email,
-            DateTime createdAt, DateTime updatedAt, int v)?
+    TResult Function(
+            @JsonKey(name: "_id") String id,
+            String? fullName,
+            String? email,
+            int? age,
+            double? height,
+            double? weight,
+            @JsonKey(name: "dateOfBirth") String? dateOfBirth,
+            DateTime? createdAt,
+            DateTime? updatedAt)?
         $default, {
     required TResult orElse(),
   }) {
     final _that = this;
     switch (_that) {
       case _ProfileData() when $default != null:
-        return $default(_that.id, _that.fullName, _that.email, _that.createdAt,
-            _that.updatedAt, _that.v);
+        return $default(
+            _that.id,
+            _that.fullName,
+            _that.email,
+            _that.age,
+            _that.height,
+            _that.weight,
+            _that.dateOfBirth,
+            _that.createdAt,
+            _that.updatedAt);
       case _:
         return orElse();
     }
@@ -602,15 +654,31 @@ extension ProfileDataPatterns on ProfileData {
 
   @optionalTypeArgs
   TResult when<TResult extends Object?>(
-    TResult Function(String id, String fullName, String email,
-            DateTime createdAt, DateTime updatedAt, int v)
+    TResult Function(
+            @JsonKey(name: "_id") String id,
+            String? fullName,
+            String? email,
+            int? age,
+            double? height,
+            double? weight,
+            @JsonKey(name: "dateOfBirth") String? dateOfBirth,
+            DateTime? createdAt,
+            DateTime? updatedAt)
         $default,
   ) {
     final _that = this;
     switch (_that) {
       case _ProfileData():
-        return $default(_that.id, _that.fullName, _that.email, _that.createdAt,
-            _that.updatedAt, _that.v);
+        return $default(
+            _that.id,
+            _that.fullName,
+            _that.email,
+            _that.age,
+            _that.height,
+            _that.weight,
+            _that.dateOfBirth,
+            _that.createdAt,
+            _that.updatedAt);
       case _:
         throw StateError('Unexpected subclass');
     }
@@ -630,15 +698,31 @@ extension ProfileDataPatterns on ProfileData {
 
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>(
-    TResult? Function(String id, String fullName, String email,
-            DateTime createdAt, DateTime updatedAt, int v)?
+    TResult? Function(
+            @JsonKey(name: "_id") String id,
+            String? fullName,
+            String? email,
+            int? age,
+            double? height,
+            double? weight,
+            @JsonKey(name: "dateOfBirth") String? dateOfBirth,
+            DateTime? createdAt,
+            DateTime? updatedAt)?
         $default,
   ) {
     final _that = this;
     switch (_that) {
       case _ProfileData() when $default != null:
-        return $default(_that.id, _that.fullName, _that.email, _that.createdAt,
-            _that.updatedAt, _that.v);
+        return $default(
+            _that.id,
+            _that.fullName,
+            _that.email,
+            _that.age,
+            _that.height,
+            _that.weight,
+            _that.dateOfBirth,
+            _that.createdAt,
+            _that.updatedAt);
       case _:
         return null;
     }
@@ -649,27 +733,40 @@ extension ProfileDataPatterns on ProfileData {
 @JsonSerializable()
 class _ProfileData implements ProfileData {
   const _ProfileData(
-      {required this.id,
-      required this.fullName,
-      required this.email,
-      required this.createdAt,
-      required this.updatedAt,
-      required this.v});
+      {@JsonKey(name: "_id") required this.id,
+      this.fullName,
+      this.email,
+      this.age,
+      this.height,
+      this.weight,
+      @JsonKey(name: "dateOfBirth") this.dateOfBirth,
+      this.createdAt,
+      this.updatedAt});
   factory _ProfileData.fromJson(Map<String, dynamic> json) =>
       _$ProfileDataFromJson(json);
 
   @override
+  @JsonKey(name: "_id")
   final String id;
   @override
-  final String fullName;
+  final String? fullName;
   @override
-  final String email;
+  final String? email;
   @override
-  final DateTime createdAt;
+  final int? age;
   @override
-  final DateTime updatedAt;
+  final double? height;
+// corrected type
   @override
-  final int v;
+  final double? weight;
+// corrected type
+  @override
+  @JsonKey(name: "dateOfBirth")
+  final String? dateOfBirth;
+  @override
+  final DateTime? createdAt;
+  @override
+  final DateTime? updatedAt;
 
   /// Create a copy of ProfileData
   /// with the given fields replaced by the non-null parameter values.
@@ -695,21 +792,25 @@ class _ProfileData implements ProfileData {
             (identical(other.fullName, fullName) ||
                 other.fullName == fullName) &&
             (identical(other.email, email) || other.email == email) &&
+            (identical(other.age, age) || other.age == age) &&
+            (identical(other.height, height) || other.height == height) &&
+            (identical(other.weight, weight) || other.weight == weight) &&
+            (identical(other.dateOfBirth, dateOfBirth) ||
+                other.dateOfBirth == dateOfBirth) &&
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt) &&
             (identical(other.updatedAt, updatedAt) ||
-                other.updatedAt == updatedAt) &&
-            (identical(other.v, v) || other.v == v));
+                other.updatedAt == updatedAt));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, id, fullName, email, createdAt, updatedAt, v);
+  int get hashCode => Object.hash(runtimeType, id, fullName, email, age, height,
+      weight, dateOfBirth, createdAt, updatedAt);
 
   @override
   String toString() {
-    return 'ProfileData(id: $id, fullName: $fullName, email: $email, createdAt: $createdAt, updatedAt: $updatedAt, v: $v)';
+    return 'ProfileData(id: $id, fullName: $fullName, email: $email, age: $age, height: $height, weight: $weight, dateOfBirth: $dateOfBirth, createdAt: $createdAt, updatedAt: $updatedAt)';
   }
 }
 
@@ -722,12 +823,15 @@ abstract mixin class _$ProfileDataCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {String id,
-      String fullName,
-      String email,
-      DateTime createdAt,
-      DateTime updatedAt,
-      int v});
+      {@JsonKey(name: "_id") String id,
+      String? fullName,
+      String? email,
+      int? age,
+      double? height,
+      double? weight,
+      @JsonKey(name: "dateOfBirth") String? dateOfBirth,
+      DateTime? createdAt,
+      DateTime? updatedAt});
 }
 
 /// @nodoc
@@ -743,37 +847,52 @@ class __$ProfileDataCopyWithImpl<$Res> implements _$ProfileDataCopyWith<$Res> {
   @pragma('vm:prefer-inline')
   $Res call({
     Object? id = null,
-    Object? fullName = null,
-    Object? email = null,
-    Object? createdAt = null,
-    Object? updatedAt = null,
-    Object? v = null,
+    Object? fullName = freezed,
+    Object? email = freezed,
+    Object? age = freezed,
+    Object? height = freezed,
+    Object? weight = freezed,
+    Object? dateOfBirth = freezed,
+    Object? createdAt = freezed,
+    Object? updatedAt = freezed,
   }) {
     return _then(_ProfileData(
       id: null == id
           ? _self.id
           : id // ignore: cast_nullable_to_non_nullable
               as String,
-      fullName: null == fullName
+      fullName: freezed == fullName
           ? _self.fullName
           : fullName // ignore: cast_nullable_to_non_nullable
-              as String,
-      email: null == email
+              as String?,
+      email: freezed == email
           ? _self.email
           : email // ignore: cast_nullable_to_non_nullable
-              as String,
-      createdAt: null == createdAt
+              as String?,
+      age: freezed == age
+          ? _self.age
+          : age // ignore: cast_nullable_to_non_nullable
+              as int?,
+      height: freezed == height
+          ? _self.height
+          : height // ignore: cast_nullable_to_non_nullable
+              as double?,
+      weight: freezed == weight
+          ? _self.weight
+          : weight // ignore: cast_nullable_to_non_nullable
+              as double?,
+      dateOfBirth: freezed == dateOfBirth
+          ? _self.dateOfBirth
+          : dateOfBirth // ignore: cast_nullable_to_non_nullable
+              as String?,
+      createdAt: freezed == createdAt
           ? _self.createdAt
           : createdAt // ignore: cast_nullable_to_non_nullable
-              as DateTime,
-      updatedAt: null == updatedAt
+              as DateTime?,
+      updatedAt: freezed == updatedAt
           ? _self.updatedAt
           : updatedAt // ignore: cast_nullable_to_non_nullable
-              as DateTime,
-      v: null == v
-          ? _self.v
-          : v // ignore: cast_nullable_to_non_nullable
-              as int,
+              as DateTime?,
     ));
   }
 }

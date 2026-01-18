@@ -61,11 +61,8 @@ class OpenAiService extends AsyncNotifier<OpenAiState> {
         }),
       );
 
-      print('openai response: ${response.data}');
-
       if (response.statusCode == 200) {
         final openAiModel = ApiModel.fromJson(response.data);
-        print('openAiModel: $openAiModel');
         state = AsyncValue.data(
           state.value!.copyWith(
             isLoading: false,
@@ -82,7 +79,6 @@ class OpenAiService extends AsyncNotifier<OpenAiState> {
         );
       }
     } on DioException catch (e) {
-      print('DioException: $e');
       state = AsyncValue.data(
         state.value!.copyWith(
           isLoading: false,
@@ -90,7 +86,6 @@ class OpenAiService extends AsyncNotifier<OpenAiState> {
         ),
       );
     } on Exception catch (e) {
-      print('Exception: $e');
       state = AsyncValue.data(
         state.value!.copyWith(
           isLoading: false,
