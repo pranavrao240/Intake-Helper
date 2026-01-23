@@ -230,22 +230,15 @@ class ApiService extends AsyncNotifier<ApiState> {
 
       if (res.statusCode == 200) {
         final responseData = NutritionResponse.fromJson(json.decode(res.body));
-        print('response from nutrition --> ${responseData.data}');
 
         // Check if the response has the expected structure
-        if (responseData.data != null) {
-          final data = responseData.data!;
+        final data = responseData.data;
 
-          state = AsyncValue.data(state.value!.copyWith(
-            nutritions: data,
-          ));
+        state = AsyncValue.data(state.value!.copyWith(
+          nutritions: data,
+        ));
 
-          return data;
-        } else {
-          // Handle unexpected response format
-          debugPrint("Unexpected API response format: ${res.body}");
-          return [];
-        }
+        return data;
       } else {
         debugPrint("API request failed with status: ${res.statusCode}");
         return [];
@@ -295,12 +288,12 @@ class ApiService extends AsyncNotifier<ApiState> {
     return null;
   }
 
-  Future<void> addNutrition({
-    required String name,
-    double? protein,
-    double? carbs,
-    double? calories,
-  }) async {
+  Future<void> addNutrition(
+      {required String name,
+      double? protein,
+      double? carbs,
+      double? calories,
+      String? quantity}) async {
     final preferences = await SharedPreferences.getInstance();
     final token = preferences.getString('token');
     final dio = Dio();
@@ -314,12 +307,13 @@ class ApiService extends AsyncNotifier<ApiState> {
                   'Authorization': 'Bearer $token',
                 },
               ),
-              data: jsonEncode({
-                "DishName": name,
-                "Protein": protein,
-                "Carbohydrates": carbs,
-                "Calories": calories,
-              }));
+              data: {
+            "DishName": name,
+            "Protein": protein,
+            "Carbohydrates": carbs,
+            "Calories": calories,
+            "QuantityRequired": quantity,
+          });
 
       await preferences.setString('addedId', response.data['data']['_id']);
 

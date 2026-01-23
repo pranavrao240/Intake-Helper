@@ -109,27 +109,18 @@ class _NutritionDetailScreenState extends ConsumerState<NutritionDetailScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 20),
-          Center(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  model.dishName ?? '',
-                  style: const TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-                Text(
-                  ' (${model.quantityRequired ?? ''})',
-                  style: const TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-              ],
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Text(
+              model.dishName ?? '',
+              textAlign: TextAlign.center,
+              maxLines: 2, // 👈 allows wrapping
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
             ),
           ),
           const SizedBox(height: 16),
@@ -195,6 +186,17 @@ class _NutritionDetailScreenState extends ConsumerState<NutritionDetailScreen> {
               _nutritionTile("Calories", "${model.calories} kcal"),
               _nutritionTile("Protein", "${model.protein} g"),
               _nutritionTile("Carbohydrates", "${model.carbohydrates} g"),
+              quantityTile("Quantity", model.quantityRequired ?? ''),
+              if (model.selected != null &&
+                  model.selected!.isNotEmpty &&
+                  model.selected != "Not Selected")
+                _nutritionTile("Selected", model.selected!),
+              if (model.type != null && model.type!.isNotEmpty)
+                _nutritionTile("Type", model.type!.join(", ")),
+              if (model.time != null && model.time!.isNotEmpty)
+                _nutritionTile("Time", model.time!.join(", ")),
+              if (model.day != null && model.day!.isNotEmpty)
+                _nutritionTile("Day", model.day!.join(", ")),
               const SizedBox(height: 16),
               Wrap(
                 spacing: 12, // horizontal gap
@@ -254,8 +256,6 @@ class _NutritionDetailScreenState extends ConsumerState<NutritionDetailScreen> {
                       "${selectedTime.hour}:${selectedTime.minute.toString().padLeft(2, '0')}";
 
                   ScaffoldMessenger.of(context).showSnackBar(
-                    // here should i put
-
                     SnackBar(
                       content: Text(
                         "Added for ${selectedDays.join(', ')} at $formattedTime",
@@ -347,6 +347,40 @@ class _NutritionDetailScreenState extends ConsumerState<NutritionDetailScreen> {
           fontSize: 18,
           color: Colors.white,
         ),
+      ),
+    );
+  }
+
+  Widget quantityTile(String title, String value) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(8.0),
+        border: Border.all(color: Colors.white, width: 1.5),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min, // 👈 KEY LINE
+        children: [
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            value,
+            style: const TextStyle(
+              fontSize: 14,
+              color: Colors.white70,
+              height: 1.4, // better line spacing
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -31,6 +31,7 @@ final chatMessagesProvider =
 class MealInfo {
   final String name;
   final String mealType;
+  final String quantity;
   final double calories;
   final double protein;
   final double carbs;
@@ -38,6 +39,7 @@ class MealInfo {
   MealInfo({
     required this.name,
     required this.mealType,
+    required this.quantity,
     required this.calories,
     required this.protein,
     required this.carbs,
@@ -118,17 +120,18 @@ class AiMealPlannerScreen extends HookConsumerWidget {
                   ElevatedButton(
                     onPressed: () async {
                       final preferences = await SharedPreferences.getInstance();
-                      final addedId = preferences.getString('addedId');
                       if (selected.isEmpty) {
                         debugPrint('No meals selected');
                       } else {
                         for (final meal in selected) {
                           await ApiService()
                               .addNutrition(
-                                  name: meal.name,
-                                  protein: meal.protein,
-                                  carbs: meal.carbs,
-                                  calories: meal.calories)
+                            name: meal.name,
+                            protein: meal.protein,
+                            carbs: meal.carbs,
+                            calories: meal.calories,
+                            quantity: meal.quantity,
+                          )
                               .then((value) async {
                             final addedId = preferences.getString('addedId');
 
@@ -147,7 +150,7 @@ class AiMealPlannerScreen extends HookConsumerWidget {
                         }
                       }
 
-                      Navigator.pop(context, selected);
+                      // Navigator.pop(context, selected);
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppTheme.primaryGreen,
@@ -176,9 +179,13 @@ class AiMealPlannerScreen extends HookConsumerWidget {
 
       String mealName = '';
       String mealType = '';
+      String quantity = '';
       double protein = 0.0;
       double calories = 0.0;
       double carbs = 0.0;
+
+      bool isReadingQuantity = false;
+      bool isReadingNutrition = false;
 
       void saveCurrentMeal() {
         if (mealName.isNotEmpty && mealType.isNotEmpty) {
@@ -186,6 +193,7 @@ class AiMealPlannerScreen extends HookConsumerWidget {
             MealInfo(
               name: mealName,
               mealType: mealType,
+              quantity: quantity.trim(),
               calories: calories,
               protein: protein,
               carbs: carbs,
@@ -199,42 +207,55 @@ class AiMealPlannerScreen extends HookConsumerWidget {
       for (final line in lines) {
         final trimmed = line.trim();
 
-        // 🔹 New meal starts → save previous
         if (trimmed.startsWith('Meal Name:')) {
           saveCurrentMeal();
 
-          // Reset for next meal
           mealName = trimmed.replaceFirst('Meal Name:', '').trim();
           mealType = '';
-          protein = 0.0;
-          calories = 0.0;
-          carbs = 0.0;
+          quantity = '';
+          protein = 0;
+          calories = 0;
+          carbs = 0;
+          isReadingQuantity = false;
+          isReadingNutrition = false;
         } else if (trimmed.startsWith('Meal Type:')) {
           mealType = trimmed.replaceFirst('Meal Type:', '').trim();
-        } else if (trimmed.startsWith('Protein:')) {
-          protein = double.tryParse(
-                trimmed.replaceFirst('Protein:', '').trim(),
-              ) ??
-              0.0;
-        } else if (trimmed.startsWith('Calories:')) {
-          calories = double.tryParse(
-                trimmed.replaceFirst('Calories:', '').trim(),
-              ) ??
-              0.0;
-        } else if (trimmed.startsWith('Carbs:')) {
-          carbs = double.tryParse(
-                trimmed.replaceFirst('Carbs:', '').trim(),
-              ) ??
-              0.0;
+        } else if (trimmed.startsWith('Quantity:')) {
+          isReadingQuantity = true;
+          isReadingNutrition = false;
+          quantity = '';
+        } else if (trimmed.startsWith('Steps:')) {
+          isReadingQuantity = false;
+        } else if (trimmed.startsWith('Nutrition:')) {
+          isReadingNutrition = true;
+          isReadingQuantity = false;
+        } else if (isReadingQuantity && trimmed.isNotEmpty) {
+          quantity += '$trimmed\n';
+        } else if (isReadingNutrition) {
+          if (trimmed.startsWith('Protein:')) {
+            protein = double.tryParse(
+                  trimmed.replaceFirst('Protein:', '').trim(),
+                ) ??
+                0;
+          } else if (trimmed.startsWith('Calories:')) {
+            calories = double.tryParse(
+                  trimmed.replaceFirst('Calories:', '').trim(),
+                ) ??
+                0;
+          } else if (trimmed.startsWith('Carbs:')) {
+            carbs = double.tryParse(
+                  trimmed.replaceFirst('Carbs:', '').trim(),
+                ) ??
+                0;
+          }
         }
       }
 
-      // ✅ Save last meal
       saveCurrentMeal();
 
-      if (mealInfos.isEmpty) return;
-
-      showMealPlanDialog(mealInfos);
+      if (mealInfos.isNotEmpty) {
+        showMealPlanDialog(mealInfos);
+      }
     }
 
     Future<void> sendMessage() async {
@@ -356,28 +377,119 @@ class SelectableMealCard extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 8),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: const Color(0xFF2D2D2D),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(14),
         border: isSelected
             ? Border.all(color: AppTheme.primaryGreen, width: 2)
-            : null,
+            : Border.all(color: Colors.white12),
       ),
-      child: ListTile(
-        title: Text(
-          mealInfo.name,
-          style:
-              const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-        ),
-        subtitle: Text(
-          '${mealInfo.mealType}\n'
-          'Calories: ${mealInfo.calories.toInt()} \u2022 Protein: ${mealInfo.protein.toInt()}g \u2022 Carbs: ${mealInfo.carbs.toInt()}g',
-          style: const TextStyle(color: Color(0xFF00FFAA), fontSize: 13),
-        ),
-        trailing: isSelected
-            ? const Icon(Icons.check_circle, color: AppTheme.primaryGreen)
-            : const Icon(Icons.circle_outlined, color: Colors.grey),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Meal Name
+                Text(
+                  mealInfo.name,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+
+                const SizedBox(height: 4),
+
+                // Meal Type
+                Text(
+                  mealInfo.mealType,
+                  style: const TextStyle(
+                    color: Colors.grey,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+
+                const SizedBox(height: 6),
+
+                // Quantity
+                Text(
+                  mealInfo.quantity,
+                  style: const TextStyle(
+                    color: Color(0xFFB0B0B0),
+                    fontSize: 13,
+                  ),
+                ),
+
+                const SizedBox(height: 10),
+
+                // Nutrition Row
+                Wrap(
+                  spacing: 10,
+                  runSpacing: 8,
+                  children: [
+                    _nutritionChip(
+                      'Calories',
+                      '${mealInfo.calories.toStringAsFixed(0)} kcal',
+                    ),
+                    _nutritionChip(
+                      'Protein',
+                      '${mealInfo.protein.toStringAsFixed(1)} g',
+                    ),
+                    _nutritionChip(
+                      'Carbs',
+                      '${mealInfo.carbs.toStringAsFixed(1)} g',
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+
+          // Selection Icon
+          Icon(
+            isSelected ? Icons.check_circle : Icons.circle_outlined,
+            color: isSelected ? AppTheme.primaryGreen : Colors.grey,
+            size: 22,
+          ),
+        ],
       ),
     );
   }
+}
+
+Widget _nutritionChip(String label, String value) {
+  return Container(
+    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+    decoration: BoxDecoration(
+      color: const Color(0xFF1F1F1F),
+      borderRadius: BorderRadius.circular(22),
+      border: Border.all(color: Colors.white12),
+    ),
+    child: RichText(
+      text: TextSpan(
+        children: [
+          TextSpan(
+            text: '$label\n',
+            style: const TextStyle(
+              color: Colors.grey,
+              fontSize: 11,
+            ),
+          ),
+          TextSpan(
+            text: value,
+            style: const TextStyle(
+              color: AppTheme.primaryGreen,
+              fontSize: 13,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
 }
