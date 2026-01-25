@@ -148,7 +148,7 @@ class Homepage extends HookConsumerWidget {
                 await context.push(RouteConstants.nutrition.path);
                 break;
               case 'Settings':
-                context.pushReplacement(RouteConstants.settings.path);
+                await context.push(RouteConstants.settings.path);
                 break;
               case 'Logout':
                 final pref = await SharedPreferences.getInstance();

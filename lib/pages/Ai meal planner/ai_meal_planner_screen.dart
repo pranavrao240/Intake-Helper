@@ -184,6 +184,7 @@ class AiMealPlannerScreen extends HookConsumerWidget {
       double calories = 0.0;
       double carbs = 0.0;
 
+      String? pendingField; // 👈 handles multi-line values
       bool isReadingQuantity = false;
       bool isReadingNutrition = false;
 
@@ -191,8 +192,8 @@ class AiMealPlannerScreen extends HookConsumerWidget {
         if (mealName.isNotEmpty && mealType.isNotEmpty) {
           mealInfos.add(
             MealInfo(
-              name: mealName,
-              mealType: mealType,
+              name: mealName.trim(),
+              mealType: mealType.trim(),
               quantity: quantity.trim(),
               calories: calories,
               protein: protein,
@@ -204,13 +205,16 @@ class AiMealPlannerScreen extends HookConsumerWidget {
 
       final lines = response.split('\n');
 
-      for (final line in lines) {
-        final trimmed = line.trim();
+      for (final raw in lines) {
+        final line = raw.trim();
+        if (line.isEmpty) continue;
 
-        if (trimmed.startsWith('Meal Name:')) {
+        // ---- HEADERS ----
+        if (line.startsWith('Meal Name:')) {
           saveCurrentMeal();
+          mealName = line.replaceFirst('Meal Name:', '').trim();
+          pendingField = mealName.isEmpty ? 'name' : null;
 
-          mealName = trimmed.replaceFirst('Meal Name:', '').trim();
           mealType = '';
           quantity = '';
           protein = 0;
@@ -218,33 +222,52 @@ class AiMealPlannerScreen extends HookConsumerWidget {
           carbs = 0;
           isReadingQuantity = false;
           isReadingNutrition = false;
-        } else if (trimmed.startsWith('Meal Type:')) {
-          mealType = trimmed.replaceFirst('Meal Type:', '').trim();
-        } else if (trimmed.startsWith('Quantity:')) {
+        } else if (line.startsWith('Meal Type:')) {
+          mealType = line.replaceFirst('Meal Type:', '').trim();
+          pendingField = mealType.isEmpty ? 'type' : null;
+        } else if (line.startsWith('Quantity:')) {
+          quantity = '';
           isReadingQuantity = true;
           isReadingNutrition = false;
-          quantity = '';
-        } else if (trimmed.startsWith('Steps:')) {
+          pendingField = null;
+        } else if (line.startsWith('Steps:')) {
           isReadingQuantity = false;
-        } else if (trimmed.startsWith('Nutrition:')) {
+          pendingField = null;
+        } else if (line.startsWith('Nutrition:')) {
           isReadingNutrition = true;
           isReadingQuantity = false;
-        } else if (isReadingQuantity && trimmed.isNotEmpty) {
-          quantity += '$trimmed\n';
-        } else if (isReadingNutrition) {
-          if (trimmed.startsWith('Protein:')) {
+          pendingField = null;
+        }
+
+        // ---- MULTI-LINE FIELD VALUES ----
+        else if (pendingField == 'name') {
+          mealName = line;
+          pendingField = null;
+        } else if (pendingField == 'type') {
+          mealType = line;
+          pendingField = null;
+        }
+
+        // ---- QUANTITY BLOCK ----
+        else if (isReadingQuantity) {
+          quantity += '$line\n';
+        }
+
+        // ---- NUTRITION BLOCK ----
+        else if (isReadingNutrition) {
+          if (line.startsWith('Protein:')) {
             protein = double.tryParse(
-                  trimmed.replaceFirst('Protein:', '').trim(),
+                  line.replaceFirst('Protein:', '').trim(),
                 ) ??
                 0;
-          } else if (trimmed.startsWith('Calories:')) {
+          } else if (line.startsWith('Calories:')) {
             calories = double.tryParse(
-                  trimmed.replaceFirst('Calories:', '').trim(),
+                  line.replaceFirst('Calories:', '').trim(),
                 ) ??
                 0;
-          } else if (trimmed.startsWith('Carbs:')) {
+          } else if (line.startsWith('Carbs:')) {
             carbs = double.tryParse(
-                  trimmed.replaceFirst('Carbs:', '').trim(),
+                  line.replaceFirst('Carbs:', '').trim(),
                 ) ??
                 0;
           }
@@ -255,6 +278,8 @@ class AiMealPlannerScreen extends HookConsumerWidget {
 
       if (mealInfos.isNotEmpty) {
         showMealPlanDialog(mealInfos);
+      } else {
+        debugPrint('❌ No meals parsed from AI response');
       }
     }
 
@@ -336,7 +361,7 @@ class AiMealPlannerScreen extends HookConsumerWidget {
                               msg.text,
                               context,
                               onSave: (response) =>
-                                  parseAndShowMealPlan(response),
+                                  {parseAndShowMealPlan(response)},
                             );
                     },
                   ),
