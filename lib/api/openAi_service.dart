@@ -25,6 +25,7 @@ abstract class OpenAiState with _$OpenAiState {
 class OpenAiService extends AsyncNotifier<OpenAiState> {
   final dio = Dio();
   final token = const String.fromEnvironment('OPENAI_API_KEY');
+
   Options get _options => Options(
         headers: {
           'Content-Type': 'application/json',
