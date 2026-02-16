@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intake_helper/pages/Settings_page.dart';
 import 'package:intake_helper/router.dart';
 import 'package:intake_helper/theme/app_theme.dart';
 import 'package:intake_helper/utility/notification.dart';
@@ -13,6 +13,7 @@ final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(fileName: ".env");
 
   // Initialize notifications
   await CustomNotification().init();

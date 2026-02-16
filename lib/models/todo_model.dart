@@ -5,8 +5,19 @@ part 'todo_model.freezed.dart';
 part 'todo_model.g.dart';
 
 @freezed
+abstract class TodoResponse with _$TodoResponse {
+  const factory TodoResponse({
+    required String message,
+    required TodoModel? data,
+  }) = _TodoResponse;
+
+  factory TodoResponse.fromJson(Map<String, dynamic> json) =>
+      _$TodoResponseFromJson(json);
+}
+
+@freezed
 abstract class TodoModel with _$TodoModel {
-  factory TodoModel({
+  const factory TodoModel({
     String? userId,
     String? mealId,
     @Default([]) List<Meal> meals,
@@ -18,8 +29,11 @@ abstract class TodoModel with _$TodoModel {
 
 @freezed
 abstract class Meal with _$Meal {
-  factory Meal({
-    @JsonKey(name: '_id') String? id,
+  const factory Meal({
+    @JsonKey(
+      name: '_id',
+    )
+    required String id,
     required Nutrition nutrition,
   }) = _Meal;
 

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
+import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/io_client.dart';
@@ -17,27 +18,47 @@ import 'package:shared_preferences/shared_preferences.dart';
 class ApiState {
   final String? token;
   final List<Nutrition>? nutritions;
+  final Nutrition? nutrition;
   final TodoModel? todo;
   final String? message;
   final LoginResponseModel? register;
   final ProfileData? profileData;
+  final bool isLoading;
+  final String? redirect;
+  final String? addedId;
 
   ApiState(this.profileData,
-      {this.token, this.nutritions, this.todo, this.message, this.register});
+      {this.token,
+      this.nutritions,
+      this.nutrition,
+      this.todo,
+      this.message,
+      this.register,
+      this.isLoading = false,
+      this.redirect,
+      this.addedId});
 
   ApiState copyWith(
       {String? token,
       List<Nutrition>? nutritions,
+      Nutrition? nutrition,
       TodoModel? todo,
       String? message,
       LoginResponseModel? register,
-      ProfileData? profileData}) {
+      ProfileData? profileData,
+      bool? isLoading,
+      String? redirect,
+      String? addedId}) {
     return ApiState(
       profileData ?? this.profileData,
       token: token ?? this.token,
       nutritions: nutritions ?? this.nutritions,
+      nutrition: nutrition ?? this.nutrition,
       todo: todo ?? this.todo,
       message: message ?? this.message,
+      isLoading: isLoading ?? this.isLoading,
+      redirect: redirect ?? this.redirect,
+      addedId: addedId ?? this.addedId,
     );
   }
 }
@@ -56,7 +77,7 @@ class ApiService extends AsyncNotifier<ApiState> {
   }
 
   @override
-  ApiState build() => ApiState(null);
+  ApiState build() => ApiState(null, isLoading: false);
 
   Uri _url(String endpoint) => Uri.parse("${Config.baseUrl}/$endpoint");
 
@@ -104,8 +125,6 @@ class ApiService extends AsyncNotifier<ApiState> {
         }),
       );
 
-      print('response from login --> ${res.body}');
-
       if (res.statusCode == 200) {
         final model = loginResponseJson(res.body);
         final preferences = await SharedPreferences.getInstance();
@@ -127,8 +146,6 @@ class ApiService extends AsyncNotifier<ApiState> {
   }
 
   Future<void> getProfile(String token) async {
-    print('enters in getprofile');
-
     final response = await client.get(
       _url(Config.profileAPI),
       headers: {
@@ -137,41 +154,100 @@ class ApiService extends AsyncNotifier<ApiState> {
       },
     );
 
-    print('response from profile --> ${response.body}');
     try {
       if (response.statusCode == 200) {
-        print('response from profile enters success');
-        final jsonBody = jsonDecode(response.body);
-        final data = ProfileResponse.fromJson(jsonBody).data;
-        print('data from profile --> $data');
+        // final jsonBody = jsonDecode(response.body);
+        final data = ProfileResponse.fromJson(jsonDecode(response.body));
 
-        state = AsyncValue.data(state.value!.copyWith(profileData: data));
+        state = AsyncValue.data(state.value!.copyWith(profileData: data.data));
       }
     } catch (e) {
       log('Profile error: $e');
     }
   }
 
+  Future<void> updateProfile({
+    int? age,
+    double? height,
+    double? weight,
+    String? dateOfBirth,
+  }) async {
+    final Map<String, dynamic> payload = {};
+    final preferences = await SharedPreferences.getInstance();
+    final token = preferences.getString('token');
+    final dio = Dio();
+
+    if (age != null) payload['age'] = age;
+    if (height != null) payload['height'] = height;
+    if (weight != null) payload['weight'] = weight;
+    if (dateOfBirth != null) payload['dateOfBirth'] = dateOfBirth;
+
+    if (payload.isEmpty) {
+      debugPrint('No profile fields to update');
+      return;
+    }
+
+    try {
+      final response = await dio.put(
+        '${Config.baseUrl}/${Config.profileAPI}',
+        options: Options(
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $token',
+          },
+        ),
+        data: payload,
+      );
+
+      if (response.statusCode == 200) {
+        final profileModel =
+            ProfileResponse.fromJson(jsonDecode(response.data));
+        state = AsyncValue.data(
+          state.value!.copyWith(
+              profileData: profileModel.data, message: profileModel.message),
+        );
+      } else {
+        state = AsyncValue.data(
+          state.value!.copyWith(message: "Failed to update profile"),
+        );
+      }
+    } catch (e) {
+      debugPrint("Update profile error: $e");
+      state = AsyncValue.data(
+        state.value!.copyWith(message: "Failed to update profile"),
+      );
+    }
+  }
+
   /// ================= NUTRITIONS =================
   Future<List<Nutrition>> getNutritions() async {
-    if (state.value!.nutritions != null) return state.value!.nutritions!;
+    if (state.value?.nutritions != null) {
+      return state.value!.nutritions!;
+    }
 
     try {
       final res = await client.get(_url(Config.nutritionAPI));
 
       if (res.statusCode == 200) {
-        final jsonBody = jsonDecode(res.body);
-        final data = NutritionResponse.fromJson(jsonBody).data;
+        final responseData = NutritionResponse.fromJson(json.decode(res.body));
+
+        // Check if the response has the expected structure
+        final data = responseData.data;
+
         state = AsyncValue.data(state.value!.copyWith(
           nutritions: data,
         ));
-        return data;
-      }
-    } catch (e) {
-      debugPrint("Nutrition error: $e");
-    }
 
-    return [];
+        return data;
+      } else {
+        debugPrint("API request failed with status: ${res.statusCode}");
+        return [];
+      }
+    } catch (e, stackTrace) {
+      debugPrint("Nutrition error: $e");
+      debugPrint("Stack trace: $stackTrace");
+      return [];
+    }
   }
 
   /// ================= NUTRITION BY ID =================
@@ -180,8 +256,12 @@ class ApiService extends AsyncNotifier<ApiState> {
       final preferences = await SharedPreferences.getInstance();
       final token = preferences.getString('token');
 
+      if (token == null || token.isEmpty) {
+        debugPrint("No token found");
+      }
+
       final res = await client.get(
-        _url("${Config.detailAPI}$id"),
+        _url(Config.detailAPI + id),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
@@ -189,8 +269,17 @@ class ApiService extends AsyncNotifier<ApiState> {
       );
 
       if (res.statusCode == 200) {
-        final map = jsonDecode(res.body);
-        return Nutrition.fromJson(map['data'] ?? map);
+        final map = Nutrition.fromJson(json.decode(res.body));
+
+        final nutritionMap = map;
+
+        state = AsyncValue.data(state.value!.copyWith(
+          nutrition: nutritionMap,
+        ));
+
+        return nutritionMap;
+      } else {
+        debugPrint("Failed to fetch nutrition: ${res.statusCode}");
       }
     } catch (e) {
       debugPrint("Nutrition by id error: $e");
@@ -199,8 +288,48 @@ class ApiService extends AsyncNotifier<ApiState> {
     return null;
   }
 
+  Future<void> addNutrition(
+      {required String name,
+      double? protein,
+      double? carbs,
+      double? calories,
+      String? quantity}) async {
+    final preferences = await SharedPreferences.getInstance();
+    final token = preferences.getString('token');
+    final dio = Dio();
+
+    try {
+      final response =
+          await dio.post('${Config.baseUrl}/${Config.nutritionDetailAPI}',
+              options: Options(
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': 'Bearer $token',
+                },
+              ),
+              data: {
+            "DishName": name,
+            "Protein": protein,
+            "Carbohydrates": carbs,
+            "Calories": calories,
+            "QuantityRequired": quantity,
+          });
+
+      await preferences.setString('addedId', response.data['data']['_id']);
+
+      state = AsyncValue.data(state.value!.copyWith(
+        message: "Nutrition added successfully",
+        isLoading: false,
+        redirect: RouteConstants.mealDetails.path,
+        addedId: response.data['data']['_id'],
+      ));
+    } catch (e) {
+      debugPrint("Nutrition added failed $e");
+    }
+  }
+
   /// ================= TODO =================
-  Future<TodoModel?> getTodo() async {
+  Future<TodoResponse?> getTodo() async {
     try {
       final preferences = await SharedPreferences.getInstance();
       final token = preferences.getString('token');
@@ -215,10 +344,11 @@ class ApiService extends AsyncNotifier<ApiState> {
 
       if (res.statusCode == 200) {
         final jsonMap = jsonDecode(res.body);
-        final model = TodoModel.fromJson(jsonMap['data']);
+        final model = TodoResponse.fromJson(jsonMap);
         state = AsyncValue.data(state.value!.copyWith(
-          todo: model,
+          todo: model.data,
         ));
+
         return model;
       }
 

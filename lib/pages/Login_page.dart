@@ -7,6 +7,7 @@ import 'package:intake_helper/Config/Config.dart';
 import 'package:intake_helper/api/api_service.dart';
 import 'package:intake_helper/components/custom_textfield.dart';
 import 'package:intake_helper/pages/register_page.dart';
+import 'package:intake_helper/router.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:snippet_coder_utils/FormHelper.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -192,7 +193,9 @@ class LoginPage extends HookConsumerWidget {
                                               Config.appName,
                                               "Logged in Successfully",
                                               "OK", () {
-                                            context.go("/home");
+                                            Navigator.of(context).pop();
+                                            context
+                                                .go(RouteConstants.home.path);
                                           });
                                         } else {
                                           FormHelper.showSimpleAlertDialog(

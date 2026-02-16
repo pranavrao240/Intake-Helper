@@ -1,4 +1,5 @@
 import 'package:go_router/go_router.dart';
+import 'package:intake_helper/pages/Ai%20meal%20planner/ai_meal_planner_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../main.dart';
@@ -28,6 +29,8 @@ class RouteConstants {
   static const nutrition = AppRoute(path: '/nutrition', name: 'nutrition');
   static const mealDetails =
       AppRoute(path: '/meal-details', name: 'meal-details');
+  static const aiMealPlanner =
+      AppRoute(path: '/ai-meal-planner', name: 'ai-meal-planner');
 }
 
 // Add this function to check if token is expired
@@ -42,26 +45,19 @@ Future<bool> isTokenExpired() async {
 
 // Update the isUserLoggedIn function
 Future<bool> isUserLoggedIn() async {
-  final prefs = await SharedPreferences.getInstance();
-  final token = prefs.getString('token');
+  try {
+    final preferences = await SharedPreferences.getInstance();
+    final token = preferences.getString('token');
 
-  if (token == null || token.isEmpty) return false;
+    // Check if token exists and isn't empty
+    if (token == null || token.isEmpty) {
+      return false;
+    }
 
-  // Check if token is expired
-  final expired = await isTokenExpired();
-  if (expired) {
-    await clearAuthData(); // Clear auth data if token is expired
+    return true;
+  } on Exception {
     return false;
   }
-
-  return true;
-}
-
-// Add this function to clear auth data
-Future<void> clearAuthData() async {
-  final prefs = await SharedPreferences.getInstance();
-  await prefs.remove('token');
-  await prefs.remove('token_expiry');
 }
 
 /// ---------- ROUTE GROUPS ----------
@@ -76,6 +72,7 @@ final protectedRoutes = [
   RouteConstants.todo.path,
   RouteConstants.nutrition.path,
   RouteConstants.mealDetails.path,
+  RouteConstants.aiMealPlanner.path,
 ];
 
 /// ---------- GO ROUTER ----------
@@ -83,22 +80,15 @@ final GoRouter appRouter = GoRouter(
   navigatorKey: navigatorKey,
   initialLocation: RouteConstants.login.path,
   redirect: (context, state) async {
-    final loggedIn = await isUserLoggedIn();
+    final isLoggedIn = await isUserLoggedIn();
     final path = state.uri.path;
 
-    // If token is expired, redirect to login
-    if (await isTokenExpired()) {
-      await clearAuthData();
+    // Redirect unauthenticated users from protected routes
+    if (!isLoggedIn && protectedRoutes.contains(path)) {
       return RouteConstants.login.path;
     }
 
-    // Not logged in → protected page
-    if (!loggedIn && protectedRoutes.contains(path)) {
-      return RouteConstants.login.path;
-    }
-
-    // Logged in → auth pages
-    if (loggedIn && publicRoutes.contains(path)) {
+    if (isLoggedIn && publicRoutes.contains(path)) {
       return RouteConstants.home.path;
     }
 
@@ -107,54 +97,56 @@ final GoRouter appRouter = GoRouter(
   routes: [
     /// ---------- PUBLIC ----------
     GoRoute(
-      name: RouteConstants.login.name,
       path: RouteConstants.login.path,
+      name: RouteConstants.login.name,
       builder: (_, __) => const LoginPage(),
     ),
     GoRoute(
-      name: RouteConstants.register.name,
       path: RouteConstants.register.path,
+      name: RouteConstants.register.name,
       builder: (_, __) => const RegisterPage(),
     ),
 
     /// ---------- PROTECTED ----------
     GoRoute(
-      name: RouteConstants.home.name,
       path: RouteConstants.home.path,
+      name: RouteConstants.home.name,
       builder: (_, __) => const Homepage(),
     ),
     GoRoute(
-      name: RouteConstants.settings.name,
       path: RouteConstants.settings.path,
+      name: RouteConstants.settings.name,
       builder: (_, __) => const SettingsPage(),
     ),
     GoRoute(
-      name: RouteConstants.todo.name,
       path: RouteConstants.todo.path,
+      name: RouteConstants.todo.name,
       builder: (_, __) => const TodolistScreen(),
     ),
     GoRoute(
-      name: RouteConstants.nutrition.name,
       path: RouteConstants.nutrition.path,
+      name: RouteConstants.nutrition.name,
       builder: (_, __) => const NutritionScreen(),
     ),
     GoRoute(
+      path: RouteConstants.aiMealPlanner.path,
+      name: RouteConstants.aiMealPlanner.name,
+      builder: (_, __) => const AiMealPlannerScreen(),
+    ),
+    GoRoute(
+      path: '${RouteConstants.mealDetails.path}/:id',
       name: RouteConstants.mealDetails.name,
-      path: '${RouteConstants.mealDetails.path}/:id', // Add :id to the path
       builder: (context, state) {
-        final id = state.pathParameters['id'] ?? ''; // Get ID from URL
+        final id = state.pathParameters['id']!;
         return NutritionDetailScreen(id: id);
       },
-    )
+    ),
   ],
 );
 
 // Add this function to save auth data after successful login
-Future<void> saveAuthData(String token, {int expiresIn = 3600}) async {
+// expires in 30 days (2592000 seconds)
+Future<void> saveAuthData(String token, {int expiresIn = 2592000}) async {
   final prefs = await SharedPreferences.getInstance();
   await prefs.setString('token', token);
-
-  // Set expiry time (current time + expiresIn seconds)
-  final expiryTime = DateTime.now().millisecondsSinceEpoch + (expiresIn * 1000);
-  await prefs.setInt('token_expiry', expiryTime);
 }

@@ -1,34 +1,36 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intake_helper/api/api_service.dart';
 import 'package:intake_helper/models/nutrition_model.dart';
 import 'package:intake_helper/router.dart';
 import 'package:intake_helper/widgets/top_bar.dart';
 
-class NutritionScreen extends ConsumerStatefulWidget {
+class NutritionScreen extends HookConsumerWidget {
   const NutritionScreen({super.key});
 
-  @override
-  ConsumerState<NutritionScreen> createState() => _NutritionScreenState();
-}
-
-class _NutritionScreenState extends ConsumerState<NutritionScreen> {
-  final SearchController _searchController = SearchController();
-  String _searchQuery = "";
-
-  List<Nutrition> _filterData(List<Nutrition> data) {
-    if (_searchQuery.isEmpty) return data;
+  List<Nutrition> _filterData(List<Nutrition> data, String searchQuery) {
+    if (searchQuery.isEmpty) return data;
     return data
         .where((item) =>
-            item.dishName?.toLowerCase().contains(_searchQuery.toLowerCase()) ??
+            item.dishName?.toLowerCase().contains(searchQuery.toLowerCase()) ??
             false)
         .toList();
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final api = ref.read(apiServiceProvider.notifier);
+    final SearchController _searchController = SearchController();
+    final searchQuery = useState('');
+    final nutritions = useState<List<Nutrition>>([]);
+
+    useEffect(() {
+      // Initial data load
+      api.getNutritions().then((value) => nutritions.value = value);
+      return null; // No cleanup needed
+    }, []);
 
     return Scaffold(
       backgroundColor: const Color(0xFF121212),
@@ -45,7 +47,7 @@ class _NutritionScreenState extends ConsumerState<NutritionScreen> {
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.4),
+                  color: Colors.black.withValues(alpha: 0.4),
                   blurRadius: 8,
                   offset: const Offset(0, 4),
                 ),
@@ -57,23 +59,20 @@ class _NutritionScreenState extends ConsumerState<NutritionScreen> {
                 return SearchBar(
                   controller: controller,
                   hintText: "Search Meals or Nutrients",
-                  elevation: MaterialStateProperty.all(0),
-                  hintStyle: MaterialStateProperty.all(
+                  elevation: WidgetStateProperty.all(0),
+                  hintStyle: WidgetStateProperty.all(
                     const TextStyle(color: Colors.grey),
                   ),
                   backgroundColor:
-                      MaterialStateProperty.all(const Color(0xFF2A2A2A)),
-                  surfaceTintColor:
-                      MaterialStateProperty.all(Colors.transparent),
-                  textStyle: MaterialStateProperty.all(
+                      WidgetStateProperty.all(const Color(0xFF2A2A2A)),
+                  surfaceTintColor: WidgetStateProperty.all(Colors.transparent),
+                  textStyle: WidgetStateProperty.all(
                     const TextStyle(color: Colors.white),
                   ),
-                  padding: const MaterialStatePropertyAll(
+                  padding: const WidgetStatePropertyAll(
                       EdgeInsets.symmetric(horizontal: 16)),
                   onSubmitted: (value) {
-                    setState(() {
-                      _searchQuery = value;
-                    });
+                    searchQuery.value = value;
                   },
                   leading: const Icon(Icons.search, color: Colors.white),
                 );
@@ -85,7 +84,7 @@ class _NutritionScreenState extends ConsumerState<NutritionScreen> {
             ),
           ),
           Expanded(
-            child: FutureBuilder<List<Nutrition>?>(
+            child: FutureBuilder<List<Nutrition>>(
               future: api.getNutritions(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
@@ -101,7 +100,8 @@ class _NutritionScreenState extends ConsumerState<NutritionScreen> {
                         style: TextStyle(color: Colors.white70)),
                   );
                 } else {
-                  final filteredData = _filterData(snapshot.data!);
+                  final filteredData =
+                      _filterData(snapshot.data!, searchQuery.value);
 
                   if (filteredData.isEmpty) {
                     return const Center(
@@ -126,7 +126,7 @@ class _NutritionScreenState extends ConsumerState<NutritionScreen> {
                           borderRadius: BorderRadius.circular(12),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.5),
+                              color: Colors.black.withValues(alpha: 0.5),
                               blurRadius: 6,
                               offset: const Offset(0, 4),
                             ),
@@ -135,9 +135,12 @@ class _NutritionScreenState extends ConsumerState<NutritionScreen> {
                         child: ListTile(
                           title: Text(
                             item.dishName ?? '',
+                            maxLines: 1, // or 2 if you want
+                            overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold),
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                           subtitle: Text(
                             "Calories: ${item.calories}  •  Protein: ${item.protein}g",
