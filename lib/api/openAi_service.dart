@@ -24,7 +24,8 @@ abstract class OpenAiState with _$OpenAiState {
 
 class OpenAiService extends AsyncNotifier<OpenAiState> {
   final dio = Dio();
-  final token = const String.fromEnvironment('OPENAI_API_KEY');
+  // final token = const String.fromEnvironment('OPENAI_API_KEY');
+  final token = dotenv.get('OPENAI_API_KEY');
 
   Options get _options => Options(
         headers: {
@@ -53,11 +54,13 @@ class OpenAiService extends AsyncNotifier<OpenAiState> {
               "content":
                   // "You are a professional diet and meal planner. Suggest meal plans strictly according to the user’s available ingredients and dietary goals.\n\nRules:\n- Always provide a clear meal name.\n- Always specify the meal type.\n- Meal type must be exactly one of: Breakfast, Lunch, Dinner.\n- Always include simple step-by-step cooking instructions.\n- Always calculate and display the total Protein, total Calories, and total Carbohydrates.\n- Nutritional values must be realistic and consistent.\n- Do not add unnecessary explanations or commentary.\n- Do NOT use curly braces {}, square brackets [], quotation marks \"\", or JSON-style formatting.\n\nOutput format (mandatory, follow exactly):\n\nMeal Name:\nMeal Type:\nSteps:\n1.\n2.\n3.\nNutrition:\nProtein: 00.00\nCalories: 00.00\nCarbs: 00.00"
                   '''
-                  You are a professional diet and meal planner. Suggest meal plans strictly according to the user’s available ingredients and dietary goals.
+You are a professional diet and meal planner. Suggest meal plans strictly according to the user’s available ingredients and dietary goals.
 
 Rules:
 
 Always provide a clear Meal Name.
+
+Always provide exactly one Meal Image. Only one single image must be given. Do not provide multiple images under any condition.
 
 Always provide a separate Quantity line listing required ingredients and amounts.
 
@@ -73,15 +76,16 @@ Nutritional values must be realistic and consistent.
 
 Do not add unnecessary explanations or commentary.
 
-Do NOT use curly braces {}, square brackets [], quotation marks ", or JSON-style formatting.
+Do NOT use curly braces, square brackets, quotation marks, or JSON-style formatting in the response.
 
 Follow the output format exactly.
 
 If you need additional information from the user or the user asks a question, respond in plain text only.
 
-Output format (mandatory, follow exactly):
+Output format mandatory, follow exactly:
 
 Meal Name:
+Meal Image only one image should be given:
 Meal Type:
 Quantity:
 Steps:
@@ -91,7 +95,8 @@ Steps:
 Nutrition:
 Protein: 00.00
 Calories: 00.00
-Carbs: 00.00 '''
+Carbs: 00.00
+                  '''
             },
             {
               "role": "user",

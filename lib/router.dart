@@ -3,11 +3,11 @@ import 'package:intake_helper/pages/Ai%20meal%20planner/ai_meal_planner_screen.d
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../main.dart';
-import '../pages/HomePage.dart';
+import 'pages/home page/HomePage.dart';
 import '../pages/Login_page.dart';
 import '../pages/register_page.dart';
 import '../pages/Settings_page.dart';
-import '../pages/todoListScreen.dart';
+import 'pages/Todos/todo_page.dart';
 import '../pages/nutritionScreen.dart';
 import '../pages/nutritionDetailsScreen.dart';
 
@@ -121,7 +121,7 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: RouteConstants.todo.path,
       name: RouteConstants.todo.name,
-      builder: (_, __) => const TodolistScreen(),
+      builder: (_, __) => const TodoPage(),
     ),
     GoRoute(
       path: RouteConstants.nutrition.path,
