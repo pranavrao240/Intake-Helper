@@ -35,6 +35,7 @@ abstract class Meal with _$Meal {
     )
     required String id,
     required Nutrition nutrition,
+    required String status,
   }) = _Meal;
 
   factory Meal.fromJson(Map<String, dynamic> json) => _$MealFromJson(json);

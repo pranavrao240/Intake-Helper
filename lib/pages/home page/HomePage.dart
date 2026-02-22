@@ -5,6 +5,7 @@ import 'package:intake_helper/components/bottom_navbar.dart';
 import 'package:intake_helper/components/videoPlayer_FAB.dart';
 import 'package:intake_helper/components/weekly_chart.dart';
 import 'package:intake_helper/models/todo_model.dart';
+import 'package:intake_helper/pages/Todos/widgets/todo_meal_cards.dart';
 import 'package:intake_helper/pages/home%20page/widgets/hero_section_card.dart';
 import 'package:intake_helper/pages/home%20page/widgets/macros_card.dart';
 import 'package:intake_helper/pages/home%20page/widgets/quick_actions_button.dart';
@@ -22,7 +23,6 @@ class Homepage extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final api = ref.read(apiServiceProvider.notifier);
 
-    // ---------------- STATES ----------------
     final todoData = useState<TodoModel?>(null);
     final completedTasks = useState<List<String>>([]);
     final macros = useState<Map<String, double>>({});
@@ -37,13 +37,12 @@ class Homepage extends HookConsumerWidget {
     final isLoading = useState(true);
     final error = useState<String?>(null);
 
-    // ---------------- HELPERS ----------------
-    void calculateMacros(TodoModel data, List<String> completed) {
+    void calculateMacros(TodoModel data, List<String> completedIds) {
       double protein = 0, carbs = 0, calories = 0;
 
       for (final meal in data.meals) {
-        final n = meal.nutrition;
-        if (completed.contains(n.id)) {
+        if (meal.status == MealStatus.completed.name) {
+          final n = meal.nutrition;
           protein += n.protein ?? 0;
           carbs += n.carbohydrates ?? 0;
           calories += n.calories ?? 0;
@@ -56,6 +55,8 @@ class Homepage extends HookConsumerWidget {
         'calories': calories,
         'fats': macros.value['fats'] ?? 0,
       };
+
+      print("[Macros] Macros: ${macros.value}");
     }
 
     Future<void> loadAll() async {
@@ -90,7 +91,6 @@ class Homepage extends HookConsumerWidget {
       }
     }
 
-    // ---------------- INIT ----------------
     useEffect(() {
       Future.microtask(() async {
         await loadAll();
@@ -102,21 +102,29 @@ class Homepage extends HookConsumerWidget {
     final profileDetailState = ref.watch(appProvider);
     final profile = profileDetailState.value?.profileData;
 
-    final chartData = todoData.value?.meals.expand((item) {
-      final days = (item.nutrition.day?.first ?? '').split(',');
+    final chartData = () {
+      final Map<String, double> proteinByDay = {};
 
-      return days.map((d) => {
-            'day': d.trim(),
-            'protein': item.nutrition.protein ?? 0,
-          });
-    }).toList();
+      for (final item in todoData.value?.meals ?? []) {
+        final days = item.nutrition.day ?? [];
+        for (final d in days) {
+          final day = d.trim();
+          if (day.isEmpty) continue;
+          proteinByDay[day] =
+              (proteinByDay[day] ?? 0) + (item.nutrition.protein ?? 0);
+        }
+      }
 
-    // final chartData2 =
+      const orderedDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+      return orderedDays
+          .where((d) => proteinByDay.containsKey(d))
+          .map((d) => {'day': d, 'protein': proteinByDay[d]!})
+          .toList();
+    }();
 
     final proteinPercent =
         (macros.value['protein'] ?? 0) / (targets.value['protein'] ?? 1) * 100;
 
-    // ---------------- UI ----------------
     return Scaffold(
       backgroundColor: Colors.black,
       body: isLoading.value
@@ -128,36 +136,19 @@ class Homepage extends HookConsumerWidget {
               : SingleChildScrollView(
                   child: Column(
                     children: [
-                      // ---------------- HERO SECTION ----------------
                       buildHeroSection(context, macros.value, targets.value,
                           proteinPercent, profile),
-
                       const SizedBox(height: 100),
-
-                      // ---------------- MACROS CARD ----------------
                       buildMacrosCard(macros.value, targets.value),
-
                       const SizedBox(height: 24),
-
-                      // ---------------- QUICK ACTIONS ----------------
                       buildQuickActions(context),
-
                       const SizedBox(height: 24),
-
-                      // ---------------- SCHEDULED MEALS ----------------
                       buildScheduledMeals(
                           context, todoData.value, completedTasks.value),
-
                       const SizedBox(height: 24),
-
-                      // ---------------- SAVED MEALS ----------------
                       buildSavedMeals(context),
-
                       const SizedBox(height: 24),
-
-                      // ---------------- WEEKLY CHART ----------------
-                      buildWeeklyChart(chartData: chartData ?? []),
-
+                      buildWeeklyChart(chartData: chartData),
                       const SizedBox(height: 40),
                     ],
                   ),
@@ -174,7 +165,6 @@ class Homepage extends HookConsumerWidget {
   }
 }
 
-// ---------------- CUSTOM PAINTER FOR CIRCULAR PROGRESS ----------------
 class CircularProgressPainter extends CustomPainter {
   final double progress;
   final Color color;
@@ -210,7 +200,6 @@ class CircularProgressPainter extends CustomPainter {
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
 
-// ---------------- SHARED SERVICE ----------------
 class SharedService {
   static Future<List<String>> getCompletedTasks() async {
     final prefs = await SharedPreferences.getInstance();

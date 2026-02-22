@@ -14,7 +14,6 @@ import 'package:intake_helper/models/user_model.dart';
 import 'package:intake_helper/router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-/// ================= STATE MODEL =================
 class ApiState {
   final String? token;
   final List<Nutrition>? nutritions;
@@ -63,7 +62,6 @@ class ApiState {
   }
 }
 
-/// ================= PROVIDER =================
 final apiServiceProvider =
     AsyncNotifierProvider<ApiService, ApiState>(() => ApiService());
 
@@ -80,8 +78,9 @@ class ApiService extends AsyncNotifier<ApiState> {
   ApiState build() => ApiState(null, isLoading: false);
 
   Uri _url(String endpoint) => Uri.parse("${Config.baseUrl}/$endpoint");
+  final dio = Dio();
+  final preferences = SharedPreferences.getInstance();
 
-  /// ================= REGISTER =================
   Future<bool> registerUser(
       String fullName, String email, String password) async {
     try {
@@ -113,7 +112,6 @@ class ApiService extends AsyncNotifier<ApiState> {
     return false;
   }
 
-  /// ================= LOGIN =================
   Future<bool> loginUser(String email, String password) async {
     try {
       final res = await client.post(
@@ -130,7 +128,6 @@ class ApiService extends AsyncNotifier<ApiState> {
         final preferences = await SharedPreferences.getInstance();
 
         preferences.setString('token', model.data.token);
-        // After successful login
         await saveAuthData(model.data.token);
         state = AsyncValue.data(state.value!.copyWith(
           token: model.data.token,
@@ -156,7 +153,6 @@ class ApiService extends AsyncNotifier<ApiState> {
 
     try {
       if (response.statusCode == 200) {
-        // final jsonBody = jsonDecode(response.body);
         final data = ProfileResponse.fromJson(jsonDecode(response.body));
 
         state = AsyncValue.data(state.value!.copyWith(profileData: data.data));
@@ -175,7 +171,6 @@ class ApiService extends AsyncNotifier<ApiState> {
     final Map<String, dynamic> payload = {};
     final preferences = await SharedPreferences.getInstance();
     final token = preferences.getString('token');
-    final dio = Dio();
 
     if (age != null) payload['age'] = age;
     if (height != null) payload['height'] = height;
@@ -214,12 +209,53 @@ class ApiService extends AsyncNotifier<ApiState> {
     } catch (e) {
       debugPrint("Update profile error: $e");
       state = AsyncValue.data(
-        state.value!.copyWith(message: "Failed to update profile"),
+        state.value!.copyWith(
+            message: "Failed to update profile",
+            redirect: RouteConstants.todo.name),
       );
     }
   }
 
-  /// ================= NUTRITIONS =================
+  Future<void> updateMealStatus(String mealId, String status) async {
+    print('Updating meal status: $mealId to $status');
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    final response = await client.put(
+      _url('${Config.changeStatusAPI}/$status/$mealId'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+    try {
+      if (response.statusCode == 200) {
+        final jsonMap = jsonDecode(response.body);
+
+        state = AsyncValue.data(
+          state.value!.copyWith(message: jsonMap['message']),
+        );
+
+        await getTodo();
+      } else {
+        print('Failed to update status');
+        state = AsyncValue.data(
+          state.value!.copyWith(message: "Failed to update status"),
+        );
+      }
+    } on DioException catch (e) {
+      print('Dio error: $e');
+      state = AsyncValue.data(
+        state.value!.copyWith(message: "Failed to update status"),
+      );
+    } catch (e) {
+      print('error $e');
+      state = AsyncValue.data(
+        state.value!.copyWith(message: "Failed to update status"),
+      );
+    }
+  }
+
   Future<List<Nutrition>> getNutritions() async {
     if (state.value?.nutritions != null) {
       return state.value!.nutritions!;
@@ -231,7 +267,6 @@ class ApiService extends AsyncNotifier<ApiState> {
       if (res.statusCode == 200) {
         final responseData = NutritionResponse.fromJson(json.decode(res.body));
 
-        // Check if the response has the expected structure
         final data = responseData.data;
 
         state = AsyncValue.data(state.value!.copyWith(
@@ -250,7 +285,6 @@ class ApiService extends AsyncNotifier<ApiState> {
     }
   }
 
-  /// ================= NUTRITION BY ID =================
   Future<Nutrition?> getNutritionById(String id) async {
     try {
       final preferences = await SharedPreferences.getInstance();
@@ -296,7 +330,6 @@ class ApiService extends AsyncNotifier<ApiState> {
       String? quantity}) async {
     final preferences = await SharedPreferences.getInstance();
     final token = preferences.getString('token');
-    final dio = Dio();
 
     try {
       final response =
@@ -328,11 +361,11 @@ class ApiService extends AsyncNotifier<ApiState> {
     }
   }
 
-  /// ================= TODO =================
   Future<TodoResponse?> getTodo() async {
     try {
       final preferences = await SharedPreferences.getInstance();
       final token = preferences.getString('token');
+      state = AsyncValue.loading();
 
       final res = await client.get(
         _url(Config.todoAPI),
@@ -404,6 +437,8 @@ class ApiService extends AsyncNotifier<ApiState> {
         body: jsonEncode({"mealId": mealId}),
       );
 
+      debugPrint('delete todo item response: ${res.body}');
+
       if (res.statusCode == 200) return true;
 
       if (res.statusCode == 401) {
@@ -412,7 +447,7 @@ class ApiService extends AsyncNotifier<ApiState> {
         ));
       }
     } catch (e) {
-      debugPrint(e.toString());
+      debugPrint('error in delete todo item ${e.toString()}');
     }
 
     return null;

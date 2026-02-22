@@ -1,4 +1,3 @@
-// ---------------- QUICK ACTIONS ----------------
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intake_helper/router.dart';
@@ -8,7 +7,6 @@ Widget buildQuickActions(BuildContext context) {
     padding: const EdgeInsets.symmetric(horizontal: 24),
     child: Column(
       children: [
-        // Add Meal Button
         SizedBox(
           width: double.infinity,
           child: ElevatedButton(

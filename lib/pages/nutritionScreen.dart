@@ -27,9 +27,8 @@ class NutritionScreen extends HookConsumerWidget {
     final nutritions = useState<List<Nutrition>>([]);
 
     useEffect(() {
-      // Initial data load
       api.getNutritions().then((value) => nutritions.value = value);
-      return null; // No cleanup needed
+      return null;
     }, []);
 
     return Scaffold(

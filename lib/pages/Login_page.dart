@@ -60,7 +60,6 @@ class LoginPage extends HookConsumerWidget {
                   child: Column(
                     children: [
                       const SizedBox(height: 18),
-                      // Top header: small icon + App title (centered)
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -80,7 +79,6 @@ class LoginPage extends HookConsumerWidget {
                         ],
                       ),
                       const SizedBox(height: 24),
-                      // Center Card
                       Center(
                         child: Container(
                           width: screenWidth > 420 ? 420 : double.infinity,
@@ -125,8 +123,6 @@ class LoginPage extends HookConsumerWidget {
                                 ),
                               ),
                               const SizedBox(height: 18),
-
-                              // Email
                               CommonInputField(
                                 label: "E-mail",
                                 prefixIcon: Icons.email,
@@ -143,8 +139,6 @@ class LoginPage extends HookConsumerWidget {
                                 },
                               ),
                               const SizedBox(height: 12),
-
-                              // Password
                               CommonInputField(
                                 label: "Password",
                                 prefixIcon: Icons.lock,
@@ -164,8 +158,6 @@ class LoginPage extends HookConsumerWidget {
                                 },
                               ),
                               const SizedBox(height: 18),
-
-                              // Login button
                               SizedBox(
                                 width: double.infinity,
                                 child: GestureDetector(
@@ -260,10 +252,7 @@ class LoginPage extends HookConsumerWidget {
                                   ),
                                 ),
                               ),
-
                               const SizedBox(height: 14),
-
-                              // Sign up row
                               Center(
                                 child: Row(children: [
                                   Text(

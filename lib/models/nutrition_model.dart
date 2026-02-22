@@ -47,6 +47,7 @@ abstract class Nutrition with _$Nutrition {
     @JsonKey(fromJson: _anyToString) String? id,
     @JsonKey(fromJson: _anyToString) String? nutritionId,
     @JsonKey(name: '_id', fromJson: _anyToString) String? localId,
+    @JsonKey(name: 'createdAt', fromJson: _anyToString) DateTime? createdAt,
     @JsonKey(name: 'DishName') String? dishName,
     @JsonKey(name: 'QuantityRequired') String? quantityRequired,
     @JsonKey(name: 'Calories', fromJson: _numToDouble) double? calories,

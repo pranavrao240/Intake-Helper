@@ -26,7 +26,7 @@ class CommonInputField extends StatelessWidget {
   Widget build(BuildContext context) {
     return TextFormField(
       style: TextStyle(
-        color: Colors.white, // Text color
+        color: Colors.white,
         fontSize: 16,
       ),
       controller: controller,

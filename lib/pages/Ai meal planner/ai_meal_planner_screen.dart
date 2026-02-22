@@ -13,7 +13,6 @@ import 'package:intake_helper/utils/message_type.dart';
 import 'package:intake_helper/widgets/top_bar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-// Holds the state of the chat messages
 class ChatMessagesNotifier extends StateNotifier<List<ChatMessage>> {
   ChatMessagesNotifier() : super([]);
 
@@ -22,7 +21,6 @@ class ChatMessagesNotifier extends StateNotifier<List<ChatMessage>> {
   }
 }
 
-// Provides the ChatMessagesNotifier to the widget tree
 final chatMessagesProvider =
     StateNotifierProvider<ChatMessagesNotifier, List<ChatMessage>>((ref) {
   return ChatMessagesNotifier();
@@ -184,7 +182,7 @@ class AiMealPlannerScreen extends HookConsumerWidget {
       double calories = 0.0;
       double carbs = 0.0;
 
-      String? pendingField; // 👈 handles multi-line values
+      String? pendingField;
       bool isReadingQuantity = false;
       bool isReadingNutrition = false;
 
@@ -209,7 +207,6 @@ class AiMealPlannerScreen extends HookConsumerWidget {
         final line = raw.trim();
         if (line.isEmpty) continue;
 
-        // ---- HEADERS ----
         if (line.startsWith('Meal Name:')) {
           saveCurrentMeal();
           mealName = line.replaceFirst('Meal Name:', '').trim();
@@ -237,24 +234,15 @@ class AiMealPlannerScreen extends HookConsumerWidget {
           isReadingNutrition = true;
           isReadingQuantity = false;
           pendingField = null;
-        }
-
-        // ---- MULTI-LINE FIELD VALUES ----
-        else if (pendingField == 'name') {
+        } else if (pendingField == 'name') {
           mealName = line;
           pendingField = null;
         } else if (pendingField == 'type') {
           mealType = line;
           pendingField = null;
-        }
-
-        // ---- QUANTITY BLOCK ----
-        else if (isReadingQuantity) {
+        } else if (isReadingQuantity) {
           quantity += '$line\n';
-        }
-
-        // ---- NUTRITION BLOCK ----
-        else if (isReadingNutrition) {
+        } else if (isReadingNutrition) {
           if (line.startsWith('Protein:')) {
             protein = double.tryParse(
                   line.replaceFirst('Protein:', '').trim(),
@@ -376,7 +364,7 @@ class AiMealPlannerScreen extends HookConsumerWidget {
       bottomNavigationBar: SafeArea(
         child: Padding(
           padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom, // 👈 KEY LINE
+            bottom: MediaQuery.of(context).viewInsets.bottom,
           ),
           child: ChatInputBar(
             controller: promptController,
@@ -417,7 +405,6 @@ class SelectableMealCard extends HookConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Meal Name
                 Text(
                   mealInfo.name,
                   style: const TextStyle(
@@ -426,10 +413,7 @@ class SelectableMealCard extends HookConsumerWidget {
                     fontWeight: FontWeight.w700,
                   ),
                 ),
-
                 const SizedBox(height: 4),
-
-                // Meal Type
                 Text(
                   mealInfo.mealType,
                   style: const TextStyle(
@@ -438,10 +422,7 @@ class SelectableMealCard extends HookConsumerWidget {
                     fontWeight: FontWeight.w500,
                   ),
                 ),
-
                 const SizedBox(height: 6),
-
-                // Quantity
                 Text(
                   mealInfo.quantity,
                   style: const TextStyle(
@@ -449,10 +430,7 @@ class SelectableMealCard extends HookConsumerWidget {
                     fontSize: 13,
                   ),
                 ),
-
                 const SizedBox(height: 10),
-
-                // Nutrition Row
                 Wrap(
                   spacing: 10,
                   runSpacing: 8,
@@ -474,8 +452,6 @@ class SelectableMealCard extends HookConsumerWidget {
               ],
             ),
           ),
-
-          // Selection Icon
           Icon(
             isSelected ? Icons.check_circle : Icons.circle_outlined,
             color: isSelected ? AppTheme.primaryGreen : Colors.grey,

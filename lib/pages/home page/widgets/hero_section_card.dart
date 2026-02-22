@@ -1,4 +1,3 @@
-// ---------------- HERO SECTION ----------------
 import 'package:flutter/material.dart';
 import 'package:intake_helper/models/user_model.dart';
 import 'package:intake_helper/pages/home%20page/HomePage.dart';
@@ -55,14 +54,12 @@ Widget buildHeroSection(BuildContext context, Map<String, double> macros,
           ),
         ),
         const SizedBox(height: 32),
-        // Circular Progress
         Center(
           child: SizedBox(
             width: 224,
             height: 224,
             child: Stack(
               children: [
-                // Background Circle
                 CustomPaint(
                   size: const Size(224, 224),
                   painter: CircularProgressPainter(
@@ -71,7 +68,6 @@ Widget buildHeroSection(BuildContext context, Map<String, double> macros,
                     strokeWidth: 14,
                   ),
                 ),
-                // Progress Circle
                 CustomPaint(
                   size: const Size(224, 224),
                   painter: CircularProgressPainter(
@@ -80,7 +76,6 @@ Widget buildHeroSection(BuildContext context, Map<String, double> macros,
                     strokeWidth: 14,
                   ),
                 ),
-                // Center Text
                 Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,

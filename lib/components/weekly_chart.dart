@@ -1,4 +1,3 @@
-// ---------------- WEEKLY CHART ----------------
 import 'dart:math' as math;
 
 import 'package:fl_chart/fl_chart.dart';
@@ -9,20 +8,16 @@ Widget buildWeeklyChart({
 }) {
   print("chartData: $chartData");
 
-  // Define all days in sequence
   final allDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
-  // Create a map of day -> protein value from chartData
   final Map<String, double> dataMap = {};
   for (var item in chartData) {
     final day = item['day'] as String;
     final protein = (item['protein'] as num).toDouble();
 
-    // If multiple entries for same day, use the latest or sum them
-    dataMap[day] = protein; // or: dataMap[day] = (dataMap[day] ?? 0) + protein;
+    dataMap[day] = protein;
   }
 
-  // Create spots only for days that have data
   final List<FlSpot> spots = [];
   for (int i = 0; i < allDays.length; i++) {
     if (dataMap.containsKey(allDays[i])) {
@@ -30,7 +25,6 @@ Widget buildWeeklyChart({
     }
   }
 
-  // Calculate min/max for Y-axis based on available data
   double minY = 100;
   double maxY = 160;
   if (dataMap.isNotEmpty) {
@@ -89,29 +83,31 @@ Widget buildWeeklyChart({
                         bottomTitles: AxisTitles(
                           sideTitles: SideTitles(
                             showTitles: true,
+                            interval: 1,
                             getTitlesWidget: (value, meta) {
                               final index = value.toInt();
-                              if (index >= 0 && index < allDays.length) {
-                                // Highlight days with data
-                                final hasData =
-                                    dataMap.containsKey(allDays[index]);
-                                return Padding(
-                                  padding: const EdgeInsets.only(top: 8),
-                                  child: Text(
-                                    allDays[index],
-                                    style: TextStyle(
-                                      color: hasData
-                                          ? Colors.white
-                                          : const Color(0xFFAAAAAA),
-                                      fontSize: 12,
-                                      fontWeight: hasData
-                                          ? FontWeight.w600
-                                          : FontWeight.normal,
-                                    ),
+                              if (value != index.toDouble())
+                                return const SizedBox();
+                              if (index < 0 || index >= allDays.length)
+                                return const SizedBox();
+
+                              final hasData =
+                                  dataMap.containsKey(allDays[index]);
+                              return Padding(
+                                padding: const EdgeInsets.only(top: 8),
+                                child: Text(
+                                  allDays[index],
+                                  style: TextStyle(
+                                    color: hasData
+                                        ? Colors.white
+                                        : const Color(0xFFAAAAAA),
+                                    fontSize: 12,
+                                    fontWeight: hasData
+                                        ? FontWeight.w600
+                                        : FontWeight.normal,
                                   ),
-                                );
-                              }
-                              return const SizedBox();
+                                ),
+                              );
                             },
                           ),
                         ),
@@ -159,7 +155,7 @@ Widget buildWeeklyChart({
                         ),
                       ],
                       minX: 0,
-                      maxX: 6, // 0-6 for Mon-Sun
+                      maxX: 6,
                       minY: minY,
                       maxY: maxY,
                     ),

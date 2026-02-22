@@ -12,7 +12,7 @@ class TodoAppBar extends HookConsumerWidget {
       decoration: BoxDecoration(
         color: const Color(0xFF0A0A0A),
         border: Border(
-          bottom: BorderSide(color: Colors.white.withOpacity(0.08)),
+          bottom: BorderSide(color: Colors.white.withValues(alpha: 0.08)),
         ),
       ),
       child: Row(
@@ -59,11 +59,17 @@ class TodoAppBar extends HookConsumerWidget {
           ),
           Row(
             children: [
-              _IconBtn(icon: Icons.notifications_outlined),
+              _IconBtn(
+                icon: Icons.notifications_outlined,
+                onTap: () {
+                  //TODO: Implement notification page
+                },
+              ),
               const SizedBox(width: 18),
               _IconBtn(
                   icon: Icons.calendar_today_outlined,
                   onTap: () async {
+                    //TODO: Implement calendar picker
                     final date = await showTodoCalendarPicker(
                       context: context,
                       initialDate: DateTime.now(),

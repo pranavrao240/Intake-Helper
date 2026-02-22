@@ -11,14 +11,12 @@ import 'pages/Todos/todo_page.dart';
 import '../pages/nutritionScreen.dart';
 import '../pages/nutritionDetailsScreen.dart';
 
-/// ---------- ROUTE MODEL ----------
 class AppRoute {
   const AppRoute({required this.path, required this.name});
   final String path;
   final String name;
 }
 
-/// ---------- ROUTE CONSTANTS ----------
 class RouteConstants {
   static const login = AppRoute(path: '/login', name: 'login');
   static const register = AppRoute(path: '/register', name: 'register');
@@ -33,7 +31,6 @@ class RouteConstants {
       AppRoute(path: '/ai-meal-planner', name: 'ai-meal-planner');
 }
 
-// Add this function to check if token is expired
 Future<bool> isTokenExpired() async {
   final prefs = await SharedPreferences.getInstance();
   final expiryTime = prefs.getInt('token_expiry');
@@ -43,13 +40,11 @@ Future<bool> isTokenExpired() async {
   return now > expiryTime;
 }
 
-// Update the isUserLoggedIn function
 Future<bool> isUserLoggedIn() async {
   try {
     final preferences = await SharedPreferences.getInstance();
     final token = preferences.getString('token');
 
-    // Check if token exists and isn't empty
     if (token == null || token.isEmpty) {
       return false;
     }
@@ -60,7 +55,6 @@ Future<bool> isUserLoggedIn() async {
   }
 }
 
-/// ---------- ROUTE GROUPS ----------
 final publicRoutes = [
   RouteConstants.login.path,
   RouteConstants.register.path,
@@ -75,7 +69,6 @@ final protectedRoutes = [
   RouteConstants.aiMealPlanner.path,
 ];
 
-/// ---------- GO ROUTER ----------
 final GoRouter appRouter = GoRouter(
   navigatorKey: navigatorKey,
   initialLocation: RouteConstants.login.path,
@@ -83,7 +76,6 @@ final GoRouter appRouter = GoRouter(
     final isLoggedIn = await isUserLoggedIn();
     final path = state.uri.path;
 
-    // Redirect unauthenticated users from protected routes
     if (!isLoggedIn && protectedRoutes.contains(path)) {
       return RouteConstants.login.path;
     }
@@ -95,7 +87,6 @@ final GoRouter appRouter = GoRouter(
     return null;
   },
   routes: [
-    /// ---------- PUBLIC ----------
     GoRoute(
       path: RouteConstants.login.path,
       name: RouteConstants.login.name,
@@ -106,8 +97,6 @@ final GoRouter appRouter = GoRouter(
       name: RouteConstants.register.name,
       builder: (_, __) => const RegisterPage(),
     ),
-
-    /// ---------- PROTECTED ----------
     GoRoute(
       path: RouteConstants.home.path,
       name: RouteConstants.home.name,
@@ -144,8 +133,6 @@ final GoRouter appRouter = GoRouter(
   ],
 );
 
-// Add this function to save auth data after successful login
-// expires in 30 days (2592000 seconds)
 Future<void> saveAuthData(String token, {int expiresIn = 2592000}) async {
   final prefs = await SharedPreferences.getInstance();
   await prefs.setString('token', token);

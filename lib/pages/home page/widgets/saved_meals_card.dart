@@ -1,4 +1,3 @@
-// ---------------- SAVED MEALS ----------------
 //TODO: CURRENTLY HARDCODED - NEED TO FETCH FROM DATABASE
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';

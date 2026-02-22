@@ -16,14 +16,12 @@ class RegisterPage extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Form key (kept as in your original)
     final GlobalKey<FormState> globalKey =
         useMemoized(() => GlobalKey<FormState>());
 
-    // Local states using hooks (replaces setState)
     final isAsyncCallProcess = useState<bool>(false);
 
-    final hidePassword = useState<bool>(true); // for confirm password field
+    final hidePassword = useState<bool>(true);
     final textPwd = useState<String>("");
     final fullNameController = useTextEditingController();
     final emailController = useTextEditingController();
@@ -31,7 +29,6 @@ class RegisterPage extends HookConsumerWidget {
     final confirmPasswordController = useTextEditingController();
     final hideConfirmPassword = useState(false);
     final registerState = ref.watch(apiServiceProvider);
-    // Helper: validateSave (keeps same behavior)
     Future<bool> validateSave() async {
       final form = globalKey.currentState;
       if (form == null) {
@@ -46,7 +43,6 @@ class RegisterPage extends HookConsumerWidget {
       }
     }
 
-    // Main UI
     final screenWidth = MediaQuery.of(context).size.width;
 
     return SafeArea(
@@ -65,8 +61,6 @@ class RegisterPage extends HookConsumerWidget {
                 child: Column(
                   children: [
                     const SizedBox(height: 18),
-
-                    // Top header: small icon + App title (centered)
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -85,10 +79,7 @@ class RegisterPage extends HookConsumerWidget {
                         )
                       ],
                     ),
-
                     const SizedBox(height: 24),
-
-                    // Center card
                     Center(
                       child: Container(
                         width: screenWidth > 420 ? 420 : double.infinity,
@@ -133,8 +124,6 @@ class RegisterPage extends HookConsumerWidget {
                               ),
                             ),
                             const SizedBox(height: 18),
-
-                            // Full Name
                             CommonInputField(
                               label: "Full Name",
                               prefixIcon: Icons.person,
@@ -147,8 +136,6 @@ class RegisterPage extends HookConsumerWidget {
                               },
                             ),
                             const SizedBox(height: 12),
-
-                            // Email
                             CommonInputField(
                               label: "E-mail",
                               prefixIcon: Icons.email,
@@ -165,8 +152,6 @@ class RegisterPage extends HookConsumerWidget {
                               },
                             ),
                             const SizedBox(height: 12),
-
-                            // Password
                             CommonInputField(
                               label: "Password",
                               prefixIcon: Icons.lock,
@@ -186,8 +171,6 @@ class RegisterPage extends HookConsumerWidget {
                               },
                             ),
                             const SizedBox(height: 12),
-
-                            // Confirm Password
                             CommonInputField(
                               label: "Confirm Password",
                               prefixIcon: Icons.lock,
@@ -208,8 +191,6 @@ class RegisterPage extends HookConsumerWidget {
                               },
                             ),
                             const SizedBox(height: 12),
-
-                            // small helper text
                             Padding(
                               padding:
                                   const EdgeInsets.only(left: 6.0, top: 8.0),
@@ -219,16 +200,12 @@ class RegisterPage extends HookConsumerWidget {
                                     const TextStyle(color: Color(0xFF6AF243)),
                               ),
                             ),
-
                             const SizedBox(height: 18),
-
-                            // CTA button
                             SizedBox(
                               width: double.infinity,
                               child: GestureDetector(
                                 onTap: () async {
                                   if (await validateSave()) {
-                                    // API integration
                                     isAsyncCallProcess.value = true;
                                     try {
                                       await ref
@@ -307,10 +284,7 @@ class RegisterPage extends HookConsumerWidget {
                                 ),
                               ),
                             ),
-
                             const SizedBox(height: 14),
-
-                            // Sign in row
                             Center(
                               child: RichText(
                                   text: TextSpan(
@@ -334,10 +308,7 @@ class RegisterPage extends HookConsumerWidget {
                                             fontWeight: FontWeight.bold))
                                   ])),
                             ),
-
                             const SizedBox(height: 12),
-
-                            // Terms small text
                             const Center(
                               child: Padding(
                                 padding: EdgeInsets.symmetric(horizontal: 6.0),
@@ -353,7 +324,6 @@ class RegisterPage extends HookConsumerWidget {
                         ),
                       ),
                     ),
-
                     const SizedBox(height: 24),
                   ],
                 ),

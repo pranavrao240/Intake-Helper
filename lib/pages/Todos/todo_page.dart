@@ -1,146 +1,228 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:intake_helper/Providers/providers.dart';
 import 'package:intake_helper/components/bottom_navbar.dart';
-import 'package:intake_helper/pages/Todos/widgets/todo_alert_banner.dart';
+import 'package:intake_helper/models/todo_model.dart';
+import 'package:intake_helper/pages/Todos/widgets/meal_action_dialog.dart';
 import 'package:intake_helper/pages/Todos/widgets/todo_app_bar.dart';
 import 'package:intake_helper/pages/Todos/widgets/todo_category_tabs.dart';
 import 'package:intake_helper/pages/Todos/widgets/todo_date_selector.dart';
 import 'package:intake_helper/pages/Todos/widgets/todo_fab.dart';
 import 'package:intake_helper/pages/Todos/widgets/todo_meal_cards.dart';
 import 'package:intake_helper/pages/Todos/widgets/todo_progress_bar.dart';
+import 'package:intake_helper/router.dart';
+import 'package:intl/intl.dart';
 
-// ─────────────────────────────────────────────
-// Sample static data (replace with API data)
-// ─────────────────────────────────────────────
-final List<MealCardData> _sampleMeals = [
-  MealCardData(
-    title: 'Breakfast',
-    time: '8:30 AM',
-    protein: '35g',
-    status: MealStatus.completed,
-  ),
-  MealCardData(
-    title: 'Lunch - Grilled Chicken Bowl',
-    time: '1:30 PM',
-    protein: '35g',
-    calories: '450',
-    status: MealStatus.active,
-  ),
-  MealCardData(
-    title: 'Morning Snack',
-    time: '10:00 AM',
-    status: MealStatus.missed,
-  ),
-  MealCardData(
-    title: 'Dinner',
-    time: '8:00 PM',
-    protein: '40g',
-    calories: '520',
-    status: MealStatus.upcoming,
-  ),
-];
-
-// ─────────────────────────────────────────────
-// TodoPage
-// ─────────────────────────────────────────────
 class TodoPage extends HookConsumerWidget {
   const TodoPage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedCategory = useState('All');
-    final meals = useState<List<MealCardData>>(_sampleMeals);
+    final selectedDate = useState<DateTime>(DateTime.now());
 
-    final completedCount =
-        meals.value.where((m) => m.status == MealStatus.completed).length;
+    final refreshKey = useState(0);
 
-    /// Filter meals by category
-    List<MealCardData> filteredMeals() {
-      if (selectedCategory.value == 'All') return meals.value;
-      return meals.value.where((m) {
-        return m.title
-            .toLowerCase()
-            .contains(selectedCategory.value.toLowerCase());
-      }).toList();
+    final deletedIds = useState<Set<String>>({});
+
+    final todosState = ref.read(appProvider.notifier);
+
+    final mealsFuture = useMemoized<Future<List<Meal>>>(
+      () =>
+          todosState.getTodo().then((value) => value?.data?.meals ?? <Meal>[]),
+      [refreshKey.value],
+    );
+
+    Future<void> markComplete(String mealId, DateTime date) async {
+      selectedDate.value = date;
+      await todosState.updateMealStatus(mealId, 'completed');
+      if (context.mounted) refreshKey.value++;
     }
 
-    Widget buildMealCard(MealCardData meal) {
-      switch (meal.status) {
+    String dayName(DateTime date) {
+      const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+      return days[date.weekday - 1];
+    }
+
+    Future<void> deleteMeal(String mealId) async {
+      deletedIds.value = {...deletedIds.value, mealId};
+      await todosState.deleteTodoItem(mealId);
+      if (context.mounted) {
+        refreshKey.value++;
+      }
+    }
+
+    MealStatus resolveStatus(Meal meal) {
+      return mealStatusFromString(meal.status);
+    }
+
+    Widget buildMealCard(MealCardData cardData, String mealId) {
+      void openDialog() {
+        showMealActionDialog(
+          context: context,
+          meal: cardData,
+          onComplete: (date) => markComplete(mealId, date),
+          onDelete: () => deleteMeal(mealId),
+        );
+      }
+
+      switch (cardData.status) {
         case MealStatus.completed:
-          return CompletedMealCard(data: meal);
+          return CompletedMealCard(data: cardData);
         case MealStatus.active:
           return ActiveMealCard(
-            data: meal,
-            onTap: () => debugPrint('Active meal tapped: ${meal.title}'),
+            data: cardData.copyWith(onTap: openDialog),
+            onTap: openDialog,
           );
         case MealStatus.missed:
-          return MissedMealCard(data: meal);
+          return MissedMealCard(data: cardData);
         case MealStatus.upcoming:
-          return UpcomingMealCard(data: meal);
+          return UpcomingMealCard(
+            data: cardData.copyWith(onTap: openDialog),
+          );
       }
     }
 
     return Scaffold(
       backgroundColor: Colors.black,
-
-      // ── Body ──
       body: Column(
         children: [
-          // App Bar
           const TodoAppBar(),
-
-          // Scrollable content
           Expanded(
             child: SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Date Selector
-                  const TodoDateSelector(),
-
-                  // Category Tabs
+                  TodoDateSelector(
+                    onDateChanged: (date) {
+                      selectedDate.value = date;
+                    },
+                  ),
                   TodoCategoryTabs(
                     onCategoryChanged: (cat) => selectedCategory.value = cat,
                   ),
-
-                  // Smart Alert Banner
-                  const TodoAlertBanner(
-                    message: 'Lunch in 20 minutes',
-                  ),
-
-                  // Meal Cards
                   Padding(
                     padding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
-                    child: Column(
-                      children: filteredMeals()
-                          .map((meal) => Padding(
-                                padding: const EdgeInsets.only(bottom: 14),
-                                child: buildMealCard(meal),
-                              ))
-                          .toList(),
+                    child: FutureBuilder<List<Meal>>(
+                      key: ValueKey(refreshKey.value),
+                      future: mealsFuture,
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const Center(
+                            child: CircularProgressIndicator(),
+                          );
+                        }
+
+                        if (snapshot.hasError) {
+                          return Center(
+                            child: Text('Error: ${snapshot.error}',
+                                style:
+                                    const TextStyle(color: Color(0xFF71717A))),
+                          );
+                        }
+
+                        final meals = (snapshot.data ?? [])
+                            .where((m) =>
+                                !deletedIds.value.contains(m.nutrition.id))
+                            .toList();
+
+                        final dateMealsByDay = meals.where((m) {
+                          final mealDays = m.nutrition.day
+                                  ?.map((d) => d.toLowerCase().trim())
+                                  .toList() ??
+                              [];
+                          return mealDays.contains(
+                              dayName(selectedDate.value).toLowerCase());
+                        }).toList();
+
+                        final filteredMeals = selectedCategory.value == 'All'
+                            ? dateMealsByDay
+                            : dateMealsByDay.where((m) {
+                                final type =
+                                    (m.nutrition.type?.isNotEmpty == true)
+                                        ? m.nutrition.type!.first.toLowerCase()
+                                        : '';
+                                return type ==
+                                    selectedCategory.value.toLowerCase();
+                              }).toList();
+
+                        if (filteredMeals.isEmpty) {
+                          return Center(
+                            child: Padding(
+                              padding: EdgeInsets.only(top: 60),
+                              child: Text(
+                                selectedCategory.value == 'All'
+                                    ? 'No meals planned for this day'
+                                    : 'No ${selectedCategory.value} meals on this day',
+                                style: const TextStyle(
+                                    color: Color(0xFF71717A), fontSize: 14),
+                              ),
+                            ),
+                          );
+                        }
+
+                        return Column(
+                          children: filteredMeals.map((meal) {
+                            final id = meal.nutrition.id ?? '';
+                            final status = resolveStatus(meal);
+                            final cardData = MealCardData(
+                              title: meal.nutrition.dishName ?? '',
+                              time: meal.nutrition.time?.toString() ?? '',
+                              status: status,
+                              isChecked: status == MealStatus.completed,
+                            );
+                            return Padding(
+                              padding: const EdgeInsets.only(bottom: 14),
+                              child: buildMealCard(cardData, id),
+                            );
+                          }).toList(),
+                        );
+                      },
                     ),
                   ),
-
-                  // Bottom padding so content clears the summary bar
                   const SizedBox(height: 100),
                 ],
               ),
             ),
           ),
+          FutureBuilder(
+            key: ValueKey('progress_${refreshKey.value}_${selectedDate.value}'),
+            future: mealsFuture,
+            builder: (context, snapshot) {
+              final allMeals = snapshot.data ?? [];
 
-          // Bottom Progress Bar (fixed at bottom above nav)
-          TodoProgressBar(
-            completed: completedCount,
-            total: meals.value.length,
-            motivationalText: "You're 80% closer to today's goal 💪",
+              final visible = allMeals
+                  .where((m) => !deletedIds.value.contains(m.nutrition.id))
+                  .where((m) {
+                final mealDays = m.nutrition.day
+                        ?.map((d) => d.toLowerCase().trim())
+                        .toList() ??
+                    [];
+                return mealDays
+                    .contains(dayName(selectedDate.value).toLowerCase());
+              }).toList();
+
+              final completed = visible
+                  .where((m) => resolveStatus(m) == MealStatus.completed)
+                  .length;
+              final total = visible.length;
+
+              return TodoProgressBar(
+                completed: completed,
+                total: total,
+                motivationalText: total == 0 || completed == total
+                    ? "All meals done! Great job today 🎉"
+                    : "You're ${((completed / total) * 100).round()}% closer to today's goal 💪",
+              );
+            },
           ),
         ],
       ),
-
-      // ── FAB ──
       floatingActionButton: TodoFAB(
-        onPressed: () => debugPrint('Add meal tapped'),
+        onPressed: () => context.go(RouteConstants.nutrition.path),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       bottomNavigationBar: BottomNavbar(),

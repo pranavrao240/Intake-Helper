@@ -24,6 +24,9 @@ _Nutrition _$NutritionFromJson(Map<String, dynamic> json) => _Nutrition(
       id: _anyToString(json['id']),
       nutritionId: _anyToString(json['nutritionId']),
       localId: _anyToString(json['_id']),
+      createdAt: json['createdAt'] == null
+          ? null
+          : DateTime.parse(json['createdAt'] as String),
       dishName: json['DishName'] as String?,
       quantityRequired: json['QuantityRequired'] as String?,
       calories: _numToDouble(json['Calories']),
@@ -46,6 +49,7 @@ Map<String, dynamic> _$NutritionToJson(_Nutrition instance) =>
       'id': instance.id,
       'nutritionId': instance.nutritionId,
       '_id': instance.localId,
+      'createdAt': instance.createdAt?.toIso8601String(),
       'DishName': instance.dishName,
       'QuantityRequired': instance.quantityRequired,
       'Calories': instance.calories,

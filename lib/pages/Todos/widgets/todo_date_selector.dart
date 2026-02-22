@@ -4,46 +4,64 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class DayItem {
   final String day;
-  final int date;
-  final bool isToday;
+  final DateTime date;
+  const DayItem({required this.day, required this.date});
 
-  const DayItem({required this.day, required this.date, this.isToday = false});
+  bool get isToday {
+    final now = DateTime.now();
+    return date.year == now.year &&
+        date.month == now.month &&
+        date.day == now.day;
+  }
 }
 
-final List<DayItem> _days = [
-  DayItem(day: 'Mon', date: 12),
-  DayItem(day: 'Tue', date: 13),
-  DayItem(day: 'Wed', date: 14, isToday: true),
-  DayItem(day: 'Thu', date: 15),
-  DayItem(day: 'Fri', date: 16),
-  DayItem(day: 'Sat', date: 17),
-  DayItem(day: 'Sun', date: 18),
-];
+List<DayItem> _currentWeekDays() {
+  final now = DateTime.now();
+  final monday = now.subtract(Duration(days: now.weekday - 1));
+
+  const labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+  return List.generate(7, (i) {
+    final day = DateTime(monday.year, monday.month, monday.day + i);
+    return DayItem(day: labels[i], date: day);
+  });
+}
 
 class TodoDateSelector extends HookConsumerWidget {
-  const TodoDateSelector({super.key});
+  final ValueChanged<DateTime>? onDateChanged;
+
+  const TodoDateSelector({super.key, this.onDateChanged});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final selectedDate = useState<int>(14);
+    final days = useMemoized(_currentWeekDays);
+
+    final today = DateTime.now();
+    final selectedDate = useState<DateTime>(
+      DateTime(today.year, today.month, today.day),
+    );
 
     return SizedBox(
       height: 100,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-        itemCount: _days.length,
+        itemCount: days.length,
         separatorBuilder: (_, __) => const SizedBox(width: 10),
         itemBuilder: (context, index) {
-          final item = _days[index];
-          final isSelected = selectedDate.value == item.date;
+          final item = days[index];
+          final isSelected = selectedDate.value.day == item.date.day &&
+              selectedDate.value.month == item.date.month &&
+              selectedDate.value.year == item.date.year;
 
           return GestureDetector(
-            onTap: () => selectedDate.value = item.date,
+            onTap: () {
+              selectedDate.value = item.date;
+              onDateChanged?.call(item.date);
+            },
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 200),
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               decoration: BoxDecoration(
                 gradient: isSelected
                     ? const LinearGradient(
@@ -76,29 +94,33 @@ class TodoDateSelector extends HookConsumerWidget {
                       fontSize: 11,
                       color: isSelected
                           ? Colors.white
-                          : const Color(0xFFA1A1AA),
+                          : item.isToday
+                              ? const Color(
+                                  0xFFEF4444) // red accent for today label
+                              : const Color(0xFFA1A1AA),
                     ),
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    '${item.date}',
+                    '${item.date.day}',
                     style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w600,
-                      color: isSelected ? Colors.white : const Color(0xFFD4D4D8),
+                      color:
+                          isSelected ? Colors.white : const Color(0xFFD4D4D8),
                     ),
                   ),
-                  if (isSelected) ...[
-                    const SizedBox(height: 4),
+                  const SizedBox(height: 4),
+                  if (isSelected || item.isToday)
                     Container(
                       width: 5,
                       height: 5,
-                      decoration: const BoxDecoration(
-                        color: Colors.white,
+                      decoration: BoxDecoration(
+                        color:
+                            isSelected ? Colors.white : const Color(0xFFEF4444),
                         shape: BoxShape.circle,
                       ),
                     ),
-                  ],
                 ],
               ),
             ),

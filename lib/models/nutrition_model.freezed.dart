@@ -345,6 +345,7 @@ mixin _$Nutrition {
   String? get nutritionId;
   @JsonKey(name: '_id', fromJson: _anyToString)
   String? get localId;
+  DateTime? get createdAt;
   @JsonKey(name: 'DishName')
   String? get dishName;
   @JsonKey(name: 'QuantityRequired')
@@ -395,6 +396,8 @@ mixin _$Nutrition {
             (identical(other.nutritionId, nutritionId) ||
                 other.nutritionId == nutritionId) &&
             (identical(other.localId, localId) || other.localId == localId) &&
+            (identical(other.createdAt, createdAt) ||
+                other.createdAt == createdAt) &&
             (identical(other.dishName, dishName) ||
                 other.dishName == dishName) &&
             (identical(other.quantityRequired, quantityRequired) ||
@@ -419,30 +422,32 @@ mixin _$Nutrition {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(
-      runtimeType,
-      id,
-      nutritionId,
-      localId,
-      dishName,
-      quantityRequired,
-      calories,
-      protein,
-      carbohydrates,
-      fats,
-      fibre,
-      sugar,
-      sodium,
-      iron,
-      calcium,
-      const DeepCollectionEquality().hash(type),
-      const DeepCollectionEquality().hash(time),
-      const DeepCollectionEquality().hash(day),
-      selected);
+  int get hashCode => Object.hashAll([
+        runtimeType,
+        id,
+        nutritionId,
+        localId,
+        createdAt,
+        dishName,
+        quantityRequired,
+        calories,
+        protein,
+        carbohydrates,
+        fats,
+        fibre,
+        sugar,
+        sodium,
+        iron,
+        calcium,
+        const DeepCollectionEquality().hash(type),
+        const DeepCollectionEquality().hash(time),
+        const DeepCollectionEquality().hash(day),
+        selected
+      ]);
 
   @override
   String toString() {
-    return 'Nutrition(id: $id, nutritionId: $nutritionId, localId: $localId, dishName: $dishName, quantityRequired: $quantityRequired, calories: $calories, protein: $protein, carbohydrates: $carbohydrates, fats: $fats, fibre: $fibre, sugar: $sugar, sodium: $sodium, iron: $iron, calcium: $calcium, type: $type, time: $time, day: $day, selected: $selected)';
+    return 'Nutrition(id: $id, nutritionId: $nutritionId, localId: $localId, createdAt: $createdAt, dishName: $dishName, quantityRequired: $quantityRequired, calories: $calories, protein: $protein, carbohydrates: $carbohydrates, fats: $fats, fibre: $fibre, sugar: $sugar, sodium: $sodium, iron: $iron, calcium: $calcium, type: $type, time: $time, day: $day, selected: $selected)';
   }
 }
 
@@ -455,6 +460,7 @@ abstract mixin class $NutritionCopyWith<$Res> {
       {@JsonKey(fromJson: _anyToString) String? id,
       @JsonKey(fromJson: _anyToString) String? nutritionId,
       @JsonKey(name: '_id', fromJson: _anyToString) String? localId,
+      DateTime? createdAt,
       @JsonKey(name: 'DishName') String? dishName,
       @JsonKey(name: 'QuantityRequired') String? quantityRequired,
       @JsonKey(name: 'Calories', fromJson: _numToDouble) double? calories,
@@ -488,6 +494,7 @@ class _$NutritionCopyWithImpl<$Res> implements $NutritionCopyWith<$Res> {
     Object? id = freezed,
     Object? nutritionId = freezed,
     Object? localId = freezed,
+    Object? createdAt = freezed,
     Object? dishName = freezed,
     Object? quantityRequired = freezed,
     Object? calories = freezed,
@@ -517,6 +524,10 @@ class _$NutritionCopyWithImpl<$Res> implements $NutritionCopyWith<$Res> {
           ? _self.localId
           : localId // ignore: cast_nullable_to_non_nullable
               as String?,
+      createdAt: freezed == createdAt
+          ? _self.createdAt
+          : createdAt // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
       dishName: freezed == dishName
           ? _self.dishName
           : dishName // ignore: cast_nullable_to_non_nullable
@@ -678,6 +689,7 @@ extension NutritionPatterns on Nutrition {
             @JsonKey(fromJson: _anyToString) String? id,
             @JsonKey(fromJson: _anyToString) String? nutritionId,
             @JsonKey(name: '_id', fromJson: _anyToString) String? localId,
+            DateTime? createdAt,
             @JsonKey(name: 'DishName') String? dishName,
             @JsonKey(name: 'QuantityRequired') String? quantityRequired,
             @JsonKey(name: 'Calories', fromJson: _numToDouble) double? calories,
@@ -704,6 +716,7 @@ extension NutritionPatterns on Nutrition {
             _that.id,
             _that.nutritionId,
             _that.localId,
+            _that.createdAt,
             _that.dishName,
             _that.quantityRequired,
             _that.calories,
@@ -743,6 +756,7 @@ extension NutritionPatterns on Nutrition {
             @JsonKey(fromJson: _anyToString) String? id,
             @JsonKey(fromJson: _anyToString) String? nutritionId,
             @JsonKey(name: '_id', fromJson: _anyToString) String? localId,
+            DateTime? createdAt,
             @JsonKey(name: 'DishName') String? dishName,
             @JsonKey(name: 'QuantityRequired') String? quantityRequired,
             @JsonKey(name: 'Calories', fromJson: _numToDouble) double? calories,
@@ -768,6 +782,7 @@ extension NutritionPatterns on Nutrition {
             _that.id,
             _that.nutritionId,
             _that.localId,
+            _that.createdAt,
             _that.dishName,
             _that.quantityRequired,
             _that.calories,
@@ -806,6 +821,7 @@ extension NutritionPatterns on Nutrition {
             @JsonKey(fromJson: _anyToString) String? id,
             @JsonKey(fromJson: _anyToString) String? nutritionId,
             @JsonKey(name: '_id', fromJson: _anyToString) String? localId,
+            DateTime? createdAt,
             @JsonKey(name: 'DishName') String? dishName,
             @JsonKey(name: 'QuantityRequired') String? quantityRequired,
             @JsonKey(name: 'Calories', fromJson: _numToDouble) double? calories,
@@ -831,6 +847,7 @@ extension NutritionPatterns on Nutrition {
             _that.id,
             _that.nutritionId,
             _that.localId,
+            _that.createdAt,
             _that.dishName,
             _that.quantityRequired,
             _that.calories,
@@ -859,6 +876,7 @@ class _Nutrition implements Nutrition {
       {@JsonKey(fromJson: _anyToString) this.id,
       @JsonKey(fromJson: _anyToString) this.nutritionId,
       @JsonKey(name: '_id', fromJson: _anyToString) this.localId,
+      this.createdAt,
       @JsonKey(name: 'DishName') this.dishName,
       @JsonKey(name: 'QuantityRequired') this.quantityRequired,
       @JsonKey(name: 'Calories', fromJson: _numToDouble) this.calories,
@@ -890,6 +908,8 @@ class _Nutrition implements Nutrition {
   @override
   @JsonKey(name: '_id', fromJson: _anyToString)
   final String? localId;
+  @override
+  final DateTime? createdAt;
   @override
   @JsonKey(name: 'DishName')
   final String? dishName;
@@ -984,6 +1004,8 @@ class _Nutrition implements Nutrition {
             (identical(other.nutritionId, nutritionId) ||
                 other.nutritionId == nutritionId) &&
             (identical(other.localId, localId) || other.localId == localId) &&
+            (identical(other.createdAt, createdAt) ||
+                other.createdAt == createdAt) &&
             (identical(other.dishName, dishName) ||
                 other.dishName == dishName) &&
             (identical(other.quantityRequired, quantityRequired) ||
@@ -1008,30 +1030,32 @@ class _Nutrition implements Nutrition {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(
-      runtimeType,
-      id,
-      nutritionId,
-      localId,
-      dishName,
-      quantityRequired,
-      calories,
-      protein,
-      carbohydrates,
-      fats,
-      fibre,
-      sugar,
-      sodium,
-      iron,
-      calcium,
-      const DeepCollectionEquality().hash(_type),
-      const DeepCollectionEquality().hash(_time),
-      const DeepCollectionEquality().hash(_day),
-      selected);
+  int get hashCode => Object.hashAll([
+        runtimeType,
+        id,
+        nutritionId,
+        localId,
+        createdAt,
+        dishName,
+        quantityRequired,
+        calories,
+        protein,
+        carbohydrates,
+        fats,
+        fibre,
+        sugar,
+        sodium,
+        iron,
+        calcium,
+        const DeepCollectionEquality().hash(_type),
+        const DeepCollectionEquality().hash(_time),
+        const DeepCollectionEquality().hash(_day),
+        selected
+      ]);
 
   @override
   String toString() {
-    return 'Nutrition(id: $id, nutritionId: $nutritionId, localId: $localId, dishName: $dishName, quantityRequired: $quantityRequired, calories: $calories, protein: $protein, carbohydrates: $carbohydrates, fats: $fats, fibre: $fibre, sugar: $sugar, sodium: $sodium, iron: $iron, calcium: $calcium, type: $type, time: $time, day: $day, selected: $selected)';
+    return 'Nutrition(id: $id, nutritionId: $nutritionId, localId: $localId, createdAt: $createdAt, dishName: $dishName, quantityRequired: $quantityRequired, calories: $calories, protein: $protein, carbohydrates: $carbohydrates, fats: $fats, fibre: $fibre, sugar: $sugar, sodium: $sodium, iron: $iron, calcium: $calcium, type: $type, time: $time, day: $day, selected: $selected)';
   }
 }
 
@@ -1047,6 +1071,7 @@ abstract mixin class _$NutritionCopyWith<$Res>
       {@JsonKey(fromJson: _anyToString) String? id,
       @JsonKey(fromJson: _anyToString) String? nutritionId,
       @JsonKey(name: '_id', fromJson: _anyToString) String? localId,
+      DateTime? createdAt,
       @JsonKey(name: 'DishName') String? dishName,
       @JsonKey(name: 'QuantityRequired') String? quantityRequired,
       @JsonKey(name: 'Calories', fromJson: _numToDouble) double? calories,
@@ -1080,6 +1105,7 @@ class __$NutritionCopyWithImpl<$Res> implements _$NutritionCopyWith<$Res> {
     Object? id = freezed,
     Object? nutritionId = freezed,
     Object? localId = freezed,
+    Object? createdAt = freezed,
     Object? dishName = freezed,
     Object? quantityRequired = freezed,
     Object? calories = freezed,
@@ -1109,6 +1135,10 @@ class __$NutritionCopyWithImpl<$Res> implements _$NutritionCopyWith<$Res> {
           ? _self.localId
           : localId // ignore: cast_nullable_to_non_nullable
               as String?,
+      createdAt: freezed == createdAt
+          ? _self.createdAt
+          : createdAt // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
       dishName: freezed == dishName
           ? _self.dishName
           : dishName // ignore: cast_nullable_to_non_nullable

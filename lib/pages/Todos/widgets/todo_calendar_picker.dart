@@ -2,9 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-// ─────────────────────────────────────────────
-// Calendar Picker Widget
-// ─────────────────────────────────────────────
 class TodoCalendarPicker extends HookConsumerWidget {
   final DateTime? initialDate;
   final ValueChanged<DateTime>? onDateSelected;
@@ -22,11 +19,15 @@ class TodoCalendarPicker extends HookConsumerWidget {
     final today = DateTime.now();
     final selectedDate = useState<DateTime>(initialDate ?? today);
     final displayedMonth = useState<DateTime>(
-      DateTime(initialDate?.year ?? today.year, initialDate?.month ?? today.month),
+      DateTime(
+          initialDate?.year ?? today.year, initialDate?.month ?? today.month),
     );
 
     final daysInMonth = _daysInMonth(displayedMonth.value);
-    final firstWeekday = DateTime(displayedMonth.value.year, displayedMonth.value.month, 1).weekday % 7;
+    final firstWeekday =
+        DateTime(displayedMonth.value.year, displayedMonth.value.month, 1)
+                .weekday %
+            7;
 
     void prevMonth() {
       final d = displayedMonth.value;
@@ -64,20 +65,14 @@ class TodoCalendarPicker extends HookConsumerWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // ── Header ──
           _CalendarHeader(
             month: displayedMonth.value,
             onPrev: prevMonth,
             onNext: nextMonth,
             onClose: onClose,
           ),
-
-          // ── Weekday Labels ──
           const _WeekdayLabels(),
-
           const SizedBox(height: 4),
-
-          // ── Day Grid ──
           _DayGrid(
             daysInMonth: daysInMonth,
             firstWeekday: firstWeekday,
@@ -89,17 +84,12 @@ class TodoCalendarPicker extends HookConsumerWidget {
               onDateSelected?.call(date);
             },
           ),
-
           const SizedBox(height: 12),
-
-          // ── Divider ──
           Container(
             height: 1,
             margin: const EdgeInsets.symmetric(horizontal: 20),
             color: Colors.white.withOpacity(0.06),
           ),
-
-          // ── Quick Select Chips ──
           _QuickSelectRow(
             today: today,
             onSelect: (date) {
@@ -108,7 +98,6 @@ class TodoCalendarPicker extends HookConsumerWidget {
               onDateSelected?.call(date);
             },
           ),
-
           const SizedBox(height: 16),
         ],
       ),
@@ -119,9 +108,6 @@ class TodoCalendarPicker extends HookConsumerWidget {
       DateTime(month.year, month.month + 1, 0).day;
 }
 
-// ─────────────────────────────────────────────
-// Header: Month/Year + Nav Arrows + Close
-// ─────────────────────────────────────────────
 class _CalendarHeader extends StatelessWidget {
   final DateTime month;
   final VoidCallback onPrev;
@@ -136,8 +122,18 @@ class _CalendarHeader extends StatelessWidget {
   });
 
   static const _months = [
-    'January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December'
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December'
   ];
 
   @override
@@ -146,7 +142,6 @@ class _CalendarHeader extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 8),
       child: Row(
         children: [
-          // Month + Year
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -170,8 +165,6 @@ class _CalendarHeader extends StatelessWidget {
               ],
             ),
           ),
-
-          // Nav + Close
           Row(
             children: [
               _NavButton(icon: Icons.chevron_left_rounded, onTap: onPrev),
@@ -213,9 +206,6 @@ class _NavButton extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────
-// Weekday Labels Row
-// ─────────────────────────────────────────────
 class _WeekdayLabels extends StatelessWidget {
   const _WeekdayLabels();
 
@@ -248,9 +238,6 @@ class _WeekdayLabels extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────
-// Day Grid
-// ─────────────────────────────────────────────
 class _DayGrid extends HookWidget {
   final int daysInMonth;
   final int firstWeekday;
@@ -314,9 +301,6 @@ class _DayGrid extends HookWidget {
       a.year == b.year && a.month == b.month && a.day == b.day;
 }
 
-// ─────────────────────────────────────────────
-// Individual Day Cell
-// ─────────────────────────────────────────────
 class _DayCell extends HookWidget {
   final int day;
   final bool isSelected;
@@ -349,9 +333,7 @@ class _DayCell extends HookWidget {
                   colors: [Color(0xFFDC2626), Color(0xFF2563EB)],
                 )
               : null,
-          color: isToday && !isSelected
-              ? Colors.white.withOpacity(0.06)
-              : null,
+          color: isToday && !isSelected ? Colors.white.withOpacity(0.06) : null,
           borderRadius: BorderRadius.circular(10),
           border: isToday && !isSelected
               ? Border.all(color: const Color(0xFFEF4444).withOpacity(0.5))
@@ -378,9 +360,8 @@ class _DayCell extends HookWidget {
                           ? const Color(0xFFEF4444)
                           : const Color(0xFFD4D4D8),
               fontSize: 13,
-              fontWeight: isSelected || isToday
-                  ? FontWeight.w700
-                  : FontWeight.w400,
+              fontWeight:
+                  isSelected || isToday ? FontWeight.w700 : FontWeight.w400,
             ),
           ),
         ),
@@ -389,9 +370,6 @@ class _DayCell extends HookWidget {
   }
 }
 
-// ─────────────────────────────────────────────
-// Quick Select Chips: Today / Yesterday / This Week
-// ─────────────────────────────────────────────
 class _QuickSelectRow extends StatelessWidget {
   final DateTime today;
   final ValueChanged<DateTime> onSelect;
@@ -420,8 +398,8 @@ class _QuickSelectRow extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: const Color(0xFF1C1C1E),
                         borderRadius: BorderRadius.circular(20),
-                        border: Border.all(
-                            color: Colors.white.withOpacity(0.07)),
+                        border:
+                            Border.all(color: Colors.white.withOpacity(0.07)),
                       ),
                       child: Text(
                         chip.$1,
@@ -440,9 +418,6 @@ class _QuickSelectRow extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────
-// Helper: Show Calendar as Bottom Sheet
-// ─────────────────────────────────────────────
 Future<DateTime?> showTodoCalendarPicker({
   required BuildContext context,
   DateTime? initialDate,

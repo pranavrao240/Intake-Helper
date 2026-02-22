@@ -50,7 +50,6 @@ class SettingsPage extends HookConsumerWidget {
 
     final userState = ref.watch(apiServiceProvider);
 
-// Safely handle null values
     final weight = useState(
       userState.value?.profileData?.weight != null
           ? "${userState.value!.profileData!.weight} "
@@ -149,49 +148,6 @@ class SettingsPage extends HookConsumerWidget {
               icon: const Icon(Icons.logout),
               label: const Text("Logout"),
             ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // ---- helpers (unchanged) ----
-  static Widget _buildInfoCard({
-    required IconData icon,
-    required String title,
-    required String value,
-  }) {
-    return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      elevation: 4,
-      margin: const EdgeInsets.symmetric(vertical: 8),
-      child: ListTile(
-        leading: Icon(icon, color: Colors.deepPurple),
-        title: Text(title),
-        subtitle:
-            Text(value, style: const TextStyle(fontWeight: FontWeight.bold)),
-      ),
-    );
-  }
-
-  static Widget _buildSelfDetailCard({
-    required IconData icon,
-    required String title,
-    required String value,
-  }) {
-    return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      elevation: 4,
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, size: 32, color: Colors.deepPurple),
-            const SizedBox(height: 12),
-            Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
-            const SizedBox(height: 4),
-            Text(value, style: const TextStyle(fontSize: 16)),
           ],
         ),
       ),

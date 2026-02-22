@@ -8,16 +8,13 @@ class WebmVideoExample extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Create controller once
     final controller = useMemoized(
       () => VideoPlayerController.asset(
           'lib/assets/characters/jimmy_bulking_vdo2.mp4'),
     );
 
-    // Listen to controller changes (important!)
     useListenable(controller);
 
-    // Handle lifecycle
     useEffect(() {
       controller.initialize().then((_) {
         controller

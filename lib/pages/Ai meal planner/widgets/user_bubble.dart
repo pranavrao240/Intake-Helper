@@ -17,8 +17,6 @@ Widget userBubble(String text, {required VoidCallback onEdit}) {
           ),
           child: Text(text, style: const TextStyle(color: Colors.white)),
         ),
-
-        // User Actions
         Row(
           mainAxisSize: MainAxisSize.min,
           children: [

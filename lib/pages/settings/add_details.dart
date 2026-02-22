@@ -13,13 +13,12 @@ class AddDetails extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final userState = ref.watch(apiServiceProvider);
     final profile = userState.value?.profileData;
-    // Controllers using hooks
+
     final ageController = useTextEditingController();
     final weightController = useTextEditingController();
     final heightController = useTextEditingController();
     final dobController = useTextEditingController();
 
-    // Load saved data once when widget is built
     useEffect(() {
       Future.microtask(() async {
         ageController.text =
@@ -34,7 +33,6 @@ class AddDetails extends HookConsumerWidget {
       return null;
     }, []);
 
-    // Date picker
     Future<void> pickDate(BuildContext context) async {
       final picked = await showDatePicker(
         context: context,
@@ -63,7 +61,6 @@ class AddDetails extends HookConsumerWidget {
       }
     }
 
-    // Widgets for text fields
     Widget darkTextField(
         TextEditingController controller, String label, IconData icon) {
       return Container(
@@ -142,11 +139,8 @@ class AddDetails extends HookConsumerWidget {
       );
     }
 
-    // Listen to API provider
     ref.listen(apiServiceProvider, (previous, next) {
-      if (next.isLoading) {
-        // show loading indicator if needed
-      }
+      if (next.isLoading) {}
     });
 
     return SingleChildScrollView(
@@ -204,7 +198,6 @@ class AddDetails extends HookConsumerWidget {
                   ),
                 ),
                 onPressed: () async {
-                  // Safe parsing
                   int? age;
                   double? weight;
                   double? height;

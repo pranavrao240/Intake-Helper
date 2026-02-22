@@ -1,4 +1,3 @@
-// ---------------- SCHEDULED MEALS ----------------
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intake_helper/models/todo_model.dart';
@@ -34,23 +33,29 @@ Widget buildScheduledMeals(
             ),
           ],
         ),
-        const SizedBox(height: 16),
         const SizedBox(height: 12),
         ListView.builder(
           shrinkWrap: true,
-          itemCount: todoData!.meals.length,
+          itemCount: todoData!.meals.length > 3 ? 3 : todoData.meals.length,
           itemBuilder: (context, index) {
-            return _scheduleItem(
-              '${todoData.meals[index].nutrition.type!.first} - ${todoData.meals[index].nutrition.time!.first}',
-              false,
-              true,
-              () {
-                context.pushNamed(
-                  RouteConstants.mealDetails.name,
-                  pathParameters: {'id': todoData.meals[index].nutrition.id!},
-                );
-              },
-              completedTasks.contains(todoData.meals[index].nutrition.id!),
+            return Column(
+              children: [
+                const SizedBox(height: 8),
+                _scheduleItem(
+                  '${todoData.meals[index].nutrition.type!.first} - ${todoData.meals[index].nutrition.time!.first}',
+                  false,
+                  true,
+                  () {
+                    context.pushNamed(
+                      RouteConstants.mealDetails.name,
+                      pathParameters: {
+                        'id': todoData.meals[index].nutrition.id!
+                      },
+                    );
+                  },
+                  completedTasks.contains(todoData.meals[index].nutrition.id!),
+                ),
+              ],
             );
           },
         ),

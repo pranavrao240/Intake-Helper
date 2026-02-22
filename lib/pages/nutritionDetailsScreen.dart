@@ -114,7 +114,7 @@ class _NutritionDetailScreenState extends ConsumerState<NutritionDetailScreen> {
             child: Text(
               model.dishName ?? '',
               textAlign: TextAlign.center,
-              maxLines: 2, // 👈 allows wrapping
+              maxLines: 2,
               overflow: TextOverflow.ellipsis,
               style: const TextStyle(
                 fontSize: 24,
@@ -199,8 +199,8 @@ class _NutritionDetailScreenState extends ConsumerState<NutritionDetailScreen> {
                 _nutritionTile("Day", model.day!.join(", ")),
               const SizedBox(height: 16),
               Wrap(
-                spacing: 12, // horizontal gap
-                runSpacing: 8, // vertical gap
+                spacing: 12,
+                runSpacing: 8,
                 children: List.generate(eatType.length, (index) {
                   return _buildCheckboxTile(eatType[index], index);
                 }),
@@ -361,7 +361,7 @@ class _NutritionDetailScreenState extends ConsumerState<NutritionDetailScreen> {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min, // 👈 KEY LINE
+        mainAxisSize: MainAxisSize.min,
         children: [
           Text(
             title,
@@ -377,7 +377,7 @@ class _NutritionDetailScreenState extends ConsumerState<NutritionDetailScreen> {
             style: const TextStyle(
               fontSize: 14,
               color: Colors.white70,
-              height: 1.4, // better line spacing
+              height: 1.4,
             ),
           ),
         ],

@@ -22,8 +22,6 @@ Widget aiBubble(
           ),
           child: Text(text, style: const TextStyle(color: Colors.white)),
         ),
-
-        // AI Actions
         Row(
           children: [
             IconButton(
