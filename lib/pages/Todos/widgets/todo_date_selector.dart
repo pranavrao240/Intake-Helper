@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:intl/intl.dart';
 
 class DayItem {
   final String day;
   final DateTime date;
-  const DayItem({required this.day, required this.date});
+
+  DayItem({required this.day, required this.date});
 
   bool get isToday {
     final now = DateTime.now();
@@ -15,75 +16,69 @@ class DayItem {
   }
 }
 
-List<DayItem> _currentWeekDays() {
-  final now = DateTime.now();
+List<DayItem> _getWeekDays(DateTime selectedDate) {
+  final now = selectedDate;
   final monday = now.subtract(Duration(days: now.weekday - 1));
-
-  const labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-
+  final labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
   return List.generate(7, (i) {
-    final day = DateTime(monday.year, monday.month, monday.day + i);
-    return DayItem(day: labels[i], date: day);
+    final date = DateTime(monday.year, monday.month, monday.day + i);
+    return DayItem(day: labels[i], date: date);
   });
 }
 
-class TodoDateSelector extends HookConsumerWidget {
-  final ValueChanged<DateTime>? onDateChanged;
+class TodoDateSelector extends HookWidget {
+  final ValueChanged<DateTime> onDateChanged;
+  final DateTime initialDate;
 
-  const TodoDateSelector({super.key, this.onDateChanged});
+  const TodoDateSelector({
+    super.key,
+    required this.onDateChanged,
+    required this.initialDate,
+  });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final days = useMemoized(_currentWeekDays);
+  Widget build(BuildContext context) {
+    final selectedDate = useState(initialDate);
+    final weekDays = useMemoized(() => _getWeekDays(selectedDate.value), [
+      selectedDate.value.year,
+      selectedDate.value.month,
+      selectedDate.value.day
+    ]);
 
-    final today = DateTime.now();
-    final selectedDate = useState<DateTime>(
-      DateTime(today.year, today.month, today.day),
-    );
-
-    return SizedBox(
-      height: 100,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-        itemCount: days.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 10),
-        itemBuilder: (context, index) {
-          final item = days[index];
-          final isSelected = selectedDate.value.day == item.date.day &&
-              selectedDate.value.month == item.date.month &&
-              selectedDate.value.year == item.date.year;
-
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: weekDays.map((item) {
+          final isSelected = selectedDate.value.day == item.date.day;
           return GestureDetector(
             onTap: () {
               selectedDate.value = item.date;
-              onDateChanged?.call(item.date);
+              onDateChanged(item.date);
             },
             child: AnimatedContainer(
-              duration: const Duration(milliseconds: 200),
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              duration: const Duration(milliseconds: 300),
+              width: 48,
+              padding: const EdgeInsets.symmetric(vertical: 12),
               decoration: BoxDecoration(
-                gradient: isSelected
-                    ? const LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [Color(0xFFDC2626), Color(0xFF2563EB)],
-                      )
-                    : null,
-                color: isSelected ? null : const Color(0xFF18181B),
-                borderRadius: BorderRadius.circular(18),
-                border: isSelected
-                    ? null
-                    : Border.all(color: const Color(0xFF27272A)),
+                color: isSelected
+                    ? const Color(0xFF6D28D9)
+                    : Colors.white.withOpacity(0.05),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: isSelected
+                      ? Colors.transparent
+                      : Colors.white.withOpacity(0.1),
+                ),
                 boxShadow: isSelected
                     ? [
                         BoxShadow(
-                          color: const Color(0xFFDC2626).withOpacity(0.3),
-                          blurRadius: 12,
+                          color: const Color(0xFFDC2626).withOpacity(0.4),
+                          blurRadius: 16,
                           offset: const Offset(0, 4),
                         ),
                       ]
-                    : null,
+                    : [],
               ),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -91,33 +86,33 @@ class TodoDateSelector extends HookConsumerWidget {
                   Text(
                     item.day,
                     style: TextStyle(
-                      fontSize: 11,
+                      fontSize: 10,
+                      fontWeight: FontWeight.w900,
                       color: isSelected
                           ? Colors.white
-                          : item.isToday
-                              ? const Color(
-                                  0xFFEF4444) // red accent for today label
-                              : const Color(0xFFA1A1AA),
+                          : Colors.white.withOpacity(0.4),
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 6),
                   Text(
                     '${item.date.day}',
                     style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                      color:
-                          isSelected ? Colors.white : const Color(0xFFD4D4D8),
+                      fontSize: 16,
+                      fontWeight: FontWeight.w900,
+                      color: isSelected
+                          ? Colors.white
+                          : Colors.white.withOpacity(0.9),
                     ),
                   ),
                   const SizedBox(height: 4),
-                  if (isSelected || item.isToday)
+                  if (item.isToday)
                     Container(
                       width: 5,
                       height: 5,
                       decoration: BoxDecoration(
-                        color:
-                            isSelected ? Colors.white : const Color(0xFFEF4444),
+                        color: isSelected
+                            ? Colors.white.withOpacity(0.8)
+                            : const Color(0xFFDC2626),
                         shape: BoxShape.circle,
                       ),
                     ),
@@ -125,7 +120,7 @@ class TodoDateSelector extends HookConsumerWidget {
               ),
             ),
           );
-        },
+        }).toList(),
       ),
     );
   }

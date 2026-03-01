@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:intake_helper/Providers/providers.dart';
 import 'package:intake_helper/api/api_service.dart';
 import 'package:intake_helper/components/bottom_navbar.dart';
-import 'package:intake_helper/components/videoPlayer_FAB.dart';
 import 'package:intake_helper/components/weekly_chart.dart';
 import 'package:intake_helper/models/todo_model.dart';
 import 'package:intake_helper/pages/Todos/widgets/todo_meal_cards.dart';
@@ -127,6 +126,8 @@ class Homepage extends HookConsumerWidget {
 
     return Scaffold(
       backgroundColor: Colors.black,
+      // In your Homepage build() method, replace the SingleChildScrollView body with this:
+
       body: isLoading.value
           ? const Center(child: CircularProgressIndicator())
           : error.value != null
@@ -136,11 +137,25 @@ class Homepage extends HookConsumerWidget {
               : SingleChildScrollView(
                   child: Column(
                     children: [
-                      buildHeroSection(context, macros.value, targets.value,
-                          proteinPercent, profile),
-                      const SizedBox(height: 100),
-                      buildMacrosCard(macros.value, targets.value),
-                      const SizedBox(height: 24),
+                      Stack(
+                        clipBehavior: Clip.none,
+                        children: [
+                          buildHeroSection(
+                            context,
+                            macros.value,
+                            targets.value,
+                            proteinPercent,
+                            profile,
+                          ),
+                          Positioned(
+                            bottom: -250,
+                            left: 0,
+                            right: 0,
+                            child: buildMacrosCard(macros.value, targets.value),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 280),
                       buildQuickActions(context),
                       const SizedBox(height: 24),
                       buildScheduledMeals(
@@ -154,13 +169,6 @@ class Homepage extends HookConsumerWidget {
                   ),
                 ),
       bottomNavigationBar: BottomNavbar(),
-      resizeToAvoidBottomInset: false,
-      floatingActionButton: Container(
-        color: Colors.transparent,
-        width: 120,
-        height: 120,
-        child: VideoPlayerFAB(),
-      ),
     );
   }
 }

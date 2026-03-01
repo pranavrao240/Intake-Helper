@@ -69,8 +69,8 @@ class BottomNavbar extends HookConsumerWidget {
                   icon: Icons.person_rounded,
                   label: 'Profile',
                   path: '/profile',
-                  isActive: isActive(RouteConstants.settings.path),
-                  onTap: () => context.go(RouteConstants.settings.path),
+                  isActive: isActive(RouteConstants.profile.path),
+                  onTap: () => context.go(RouteConstants.profile.path),
                 ),
               ],
             ),
@@ -114,9 +114,9 @@ class _NavItem extends HookWidget {
 
     final colorAnimation = useAnimation(
       ColorTween(
-        begin: const Color(0xFF71717A), // zinc-400
-        end: const Color(0xFFEF4444), // red-500
-      ).animate(animationController),
+              begin: const Color(0xFF71717A), // zinc-400
+              end: const Color(0xFF6D28D9))
+          .animate(animationController),
     );
 
     useEffect(() {
@@ -165,11 +165,11 @@ class _NavItem extends HookWidget {
                 width: 8,
                 height: 8,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFEF4444),
+                  color: const Color(0xFF6D28D9),
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xFFEF4444).withOpacity(0.4),
+                      color: const Color(0xFF6D28D9).withValues(alpha: 0.4),
                       blurRadius: 8,
                       spreadRadius: 1,
                     ),

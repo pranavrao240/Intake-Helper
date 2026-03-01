@@ -7,18 +7,18 @@ Widget buildMacrosCard(
     padding: const EdgeInsets.symmetric(horizontal: 24),
     child: Container(
       decoration: BoxDecoration(
-        color: const Color(0xFF18181B),
-        border: Border.all(color: const Color(0xFF27272A)),
+        color: const Color(0xFF111127),
+        border: Border.all(color: Colors.white.withOpacity(0.07)),
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.3),
-            blurRadius: 20,
+            color: Colors.black.withValues(alpha: 0.4),
+            blurRadius: 24,
             offset: const Offset(0, 10),
           ),
         ],
       ),
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.fromLTRB(24, 24, 24, 8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -27,64 +27,142 @@ Widget buildMacrosCard(
             style: TextStyle(
               color: Colors.white,
               fontSize: 20,
-              fontWeight: FontWeight.w600,
+              fontWeight: FontWeight.w800,
+              letterSpacing: -0.3,
             ),
           ),
-          const SizedBox(height: 24),
-          _macroBar('Calories', macros['calories']!, targets['calories']!,
-              'kcal', const [Color(0xFF2563EB), Color(0xFF3B82F6)]),
-          const SizedBox(height: 20),
-          _macroBar('Protein', macros['protein']!, targets['protein']!, 'g',
-              const [Color(0xFFDC2626), Color(0xFFEF4444)]),
-          const SizedBox(height: 20),
-          _macroBar('Carbs', macros['carbs']!, targets['carbs']!, 'g',
-              const [Color(0xFF3B82F6), Color(0xFF60A5FA)]),
-          const SizedBox(height: 20),
-          _macroBar('Fats', macros['fats']!, targets['fats']!, 'g',
-              const [Color(0xFF9CA3AF), Color(0xFFD1D5DB)]),
+          const SizedBox(height: 28),
+          _macroBar(
+            label: 'CALORIES',
+            current: macros['calories']!,
+            target: targets['calories']!,
+            unit: 'kcal',
+            colors: const [Color(0xFF2563EB), Color(0xFF60A5FA)],
+          ),
+          _macroBar(
+            label: 'PROTEIN',
+            current: macros['protein']!,
+            target: targets['protein']!,
+            unit: 'g',
+            colors: const [Color(0xFF7C3AED), Color(0xFFEC4899)],
+          ),
+          _macroBar(
+            label: 'CARBS',
+            current: macros['carbs']!,
+            target: targets['carbs']!,
+            unit: 'g',
+            colors: const [Color(0xFF2563EB), Color(0xFF60A5FA)],
+          ),
+          _macroBar(
+            label: 'FATS',
+            current: macros['fats']!,
+            target: targets['fats']!,
+            unit: 'g',
+            colors: const [Color(0xFF6B7280), Color(0xFF9CA3AF)],
+            isLast: true,
+          ),
         ],
       ),
     ),
   );
 }
 
-Widget _macroBar(String label, double current, double target, String unit,
-    List<Color> colors) {
+Widget _macroBar({
+  required String label,
+  required double current,
+  required double target,
+  required String unit,
+  required List<Color> colors,
+  bool isLast = false,
+}) {
   final percent = (current / target).clamp(0.0, 1.0);
 
-  return Column(
-    children: [
-      Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            label,
-            style: const TextStyle(color: Colors.white, fontSize: 14),
-          ),
-          Text(
-            '${current.toInt()}$unit / ${target.toInt()}$unit',
-            style: const TextStyle(color: Colors.white70, fontSize: 14),
-          ),
-        ],
-      ),
-      const SizedBox(height: 8),
-      Container(
-        height: 12,
-        decoration: BoxDecoration(
-          color: const Color(0xFF27272A),
-          borderRadius: BorderRadius.circular(6),
+  return Padding(
+    padding: EdgeInsets.only(bottom: isLast ? 16 : 24),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text(
+              label,
+              style: TextStyle(
+                color: Colors.white.withOpacity(0.45),
+                fontSize: 10,
+                fontWeight: FontWeight.w800,
+                letterSpacing: 1.4,
+              ),
+            ),
+            RichText(
+              text: TextSpan(
+                children: [
+                  TextSpan(
+                    text: '${current.toInt()}',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  TextSpan(
+                    text: ' / ',
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.25),
+                      fontSize: 13,
+                    ),
+                  ),
+                  TextSpan(
+                    text: '${target.toInt()}',
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.55),
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  TextSpan(
+                    text: ' $unit',
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.3),
+                      fontSize: 11,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
-        child: FractionallySizedBox(
-          alignment: Alignment.centerLeft,
-          widthFactor: percent,
+        const SizedBox(height: 10),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(4),
           child: Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(colors: colors),
-              borderRadius: BorderRadius.circular(6),
+            height: 5,
+            color: Colors.white.withOpacity(0.07),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                return Stack(
+                  children: [
+                    AnimatedContainer(
+                      duration: const Duration(milliseconds: 900),
+                      curve: Curves.easeOutCubic,
+                      width: constraints.maxWidth * percent,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: colors,
+                          begin: Alignment.centerLeft,
+                          end: Alignment.centerRight,
+                        ),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
+                  ],
+                );
+              },
             ),
           ),
         ),
-      ),
-    ],
+      ],
+    ),
   );
 }

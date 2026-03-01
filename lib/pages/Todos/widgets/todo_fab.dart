@@ -1,34 +1,37 @@
 import 'package:flutter/material.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 
-class TodoFAB extends HookConsumerWidget {
+class TodoFAB extends StatelessWidget {
   final VoidCallback? onPressed;
 
   const TodoFAB({super.key, this.onPressed});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return GestureDetector(
-      onTap: onPressed,
-      child: Container(
-        width: 60,
-        height: 60,
-        decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [Color(0xFFDC2626), Color(0xFF2563EB)],
+  Widget build(BuildContext context) {
+    return Transform.translate(
+      offset: const Offset(0, -10),
+      child: GestureDetector(
+        onTap: onPressed,
+        child: Container(
+          width: 56,
+          height: 56,
+          decoration: BoxDecoration(
+            color: Color(0xFF6D28D9),
+            shape: BoxShape.circle,
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFF6D28D9).withValues(alpha: 0.5),
+                blurRadius: 24,
+                offset: const Offset(0, 8),
+              ),
+            ],
           ),
-          shape: BoxShape.circle,
-          boxShadow: [
-            BoxShadow(
-              color: const Color(0xFFDC2626).withOpacity(0.4),
-              blurRadius: 20,
-              offset: const Offset(0, 6),
-            ),
-          ],
+          child: const Icon(
+            LucideIcons.plus,
+            color: Colors.white,
+            size: 24,
+          ),
         ),
-        child: const Icon(Icons.add_rounded, color: Colors.white, size: 30),
       ),
     );
   }

@@ -13,7 +13,6 @@ import 'package:intake_helper/pages/Todos/widgets/todo_fab.dart';
 import 'package:intake_helper/pages/Todos/widgets/todo_meal_cards.dart';
 import 'package:intake_helper/pages/Todos/widgets/todo_progress_bar.dart';
 import 'package:intake_helper/router.dart';
-import 'package:intl/intl.dart';
 
 class TodoPage extends HookConsumerWidget {
   const TodoPage({super.key});
@@ -21,12 +20,9 @@ class TodoPage extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedCategory = useState('All');
-    final selectedDate = useState<DateTime>(DateTime.now());
-
+    final selectedDate = useState(DateTime.now());
     final refreshKey = useState(0);
-
     final deletedIds = useState<Set<String>>({});
-
     final todosState = ref.read(appProvider.notifier);
 
     final mealsFuture = useMemoized<Future<List<Meal>>>(
@@ -36,9 +32,18 @@ class TodoPage extends HookConsumerWidget {
     );
 
     Future<void> markComplete(String mealId, DateTime date) async {
-      selectedDate.value = date;
       await todosState.updateMealStatus(mealId, 'completed');
-      if (context.mounted) refreshKey.value++;
+      refreshKey.value++;
+    }
+
+    Future<void> deleteMeal(String mealId) async {
+      deletedIds.value = {...deletedIds.value, mealId};
+      await todosState.deleteTodoItem(mealId);
+      refreshKey.value++;
+    }
+
+    MealStatus resolveStatus(Meal meal) {
+      return mealStatusFromString(meal.status);
     }
 
     String dayName(DateTime date) {
@@ -46,157 +51,64 @@ class TodoPage extends HookConsumerWidget {
       return days[date.weekday - 1];
     }
 
-    Future<void> deleteMeal(String mealId) async {
-      deletedIds.value = {...deletedIds.value, mealId};
-      await todosState.deleteTodoItem(mealId);
-      if (context.mounted) {
-        refreshKey.value++;
-      }
-    }
-
-    MealStatus resolveStatus(Meal meal) {
-      return mealStatusFromString(meal.status);
-    }
-
-    Widget buildMealCard(MealCardData cardData, String mealId) {
-      void openDialog() {
-        showMealActionDialog(
-          context: context,
-          meal: cardData,
-          onComplete: (date) => markComplete(mealId, date),
-          onDelete: () => deleteMeal(mealId),
-        );
-      }
+    Widget buildMealCard(Meal meal) {
+      final cardData = MealCardData(
+        title: meal.nutrition.dishName ?? '',
+        time: meal.nutrition.time?.toString() ?? '',
+        status: resolveStatus(meal),
+        protein: meal.nutrition.protein.toString(),
+        calories: meal.nutrition.calories.toString(),
+        onTap: () {
+          showMealActionDialog(
+            context: context,
+            meal: MealCardData(
+              title: meal.nutrition.dishName ?? '',
+              time: meal.nutrition.time?.toString() ?? '',
+              status: resolveStatus(meal),
+            ),
+            onComplete: (date) => markComplete(meal.nutrition.id!, date),
+            onDelete: () => deleteMeal(meal.nutrition.id!),
+          );
+        },
+      );
 
       switch (cardData.status) {
         case MealStatus.completed:
           return CompletedMealCard(data: cardData);
         case MealStatus.active:
-          return ActiveMealCard(
-            data: cardData.copyWith(onTap: openDialog),
-            onTap: openDialog,
-          );
+          return ActiveMealCard(data: cardData);
         case MealStatus.missed:
           return MissedMealCard(data: cardData);
         case MealStatus.upcoming:
-          return UpcomingMealCard(
-            data: cardData.copyWith(onTap: openDialog),
-          );
+          return UpcomingMealCard(data: cardData);
       }
     }
 
     return Scaffold(
       backgroundColor: Colors.black,
-      body: Column(
+      body: Stack(
         children: [
-          const TodoAppBar(),
-          Expanded(
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  TodoDateSelector(
-                    onDateChanged: (date) {
-                      selectedDate.value = date;
-                    },
-                  ),
-                  TodoCategoryTabs(
-                    onCategoryChanged: (cat) => selectedCategory.value = cat,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
-                    child: FutureBuilder<List<Meal>>(
-                      key: ValueKey(refreshKey.value),
-                      future: mealsFuture,
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return const Center(
-                            child: CircularProgressIndicator(),
-                          );
-                        }
-
-                        if (snapshot.hasError) {
-                          return Center(
-                            child: Text('Error: ${snapshot.error}',
-                                style:
-                                    const TextStyle(color: Color(0xFF71717A))),
-                          );
-                        }
-
-                        final meals = (snapshot.data ?? [])
-                            .where((m) =>
-                                !deletedIds.value.contains(m.nutrition.id))
-                            .toList();
-
-                        final dateMealsByDay = meals.where((m) {
-                          final mealDays = m.nutrition.day
-                                  ?.map((d) => d.toLowerCase().trim())
-                                  .toList() ??
-                              [];
-                          return mealDays.contains(
-                              dayName(selectedDate.value).toLowerCase());
-                        }).toList();
-
-                        final filteredMeals = selectedCategory.value == 'All'
-                            ? dateMealsByDay
-                            : dateMealsByDay.where((m) {
-                                final type =
-                                    (m.nutrition.type?.isNotEmpty == true)
-                                        ? m.nutrition.type!.first.toLowerCase()
-                                        : '';
-                                return type ==
-                                    selectedCategory.value.toLowerCase();
-                              }).toList();
-
-                        if (filteredMeals.isEmpty) {
-                          return Center(
-                            child: Padding(
-                              padding: EdgeInsets.only(top: 60),
-                              child: Text(
-                                selectedCategory.value == 'All'
-                                    ? 'No meals planned for this day'
-                                    : 'No ${selectedCategory.value} meals on this day',
-                                style: const TextStyle(
-                                    color: Color(0xFF71717A), fontSize: 14),
-                              ),
-                            ),
-                          );
-                        }
-
-                        return Column(
-                          children: filteredMeals.map((meal) {
-                            final id = meal.nutrition.id ?? '';
-                            final status = resolveStatus(meal);
-                            final cardData = MealCardData(
-                              title: meal.nutrition.dishName ?? '',
-                              time: meal.nutrition.time?.toString() ?? '',
-                              status: status,
-                              isChecked: status == MealStatus.completed,
-                            );
-                            return Padding(
-                              padding: const EdgeInsets.only(bottom: 14),
-                              child: buildMealCard(cardData, id),
-                            );
-                          }).toList(),
-                        );
-                      },
-                    ),
-                  ),
-                  const SizedBox(height: 100),
-                ],
-              ),
-            ),
-          ),
-          FutureBuilder(
-            key: ValueKey('progress_${refreshKey.value}_${selectedDate.value}'),
+          FutureBuilder<List<Meal>>(
+            key: ValueKey(refreshKey.value),
             future: mealsFuture,
             builder: (context, snapshot) {
-              final allMeals = snapshot.data ?? [];
+              if (snapshot.connectionState == ConnectionState.waiting &&
+                  !snapshot.hasData) {
+                return const Center(child: CircularProgressIndicator());
+              }
 
-              final visible = allMeals
+              if (snapshot.hasError) {
+                return Center(
+                  child: Text('Error: ${snapshot.error}',
+                      style: const TextStyle(color: Color(0xFF71717A))),
+                );
+              }
+
+              final allMeals = (snapshot.data ?? [])
                   .where((m) => !deletedIds.value.contains(m.nutrition.id))
-                  .where((m) {
+                  .toList();
+
+              final mealsForSelectedDate = allMeals.where((m) {
                 final mealDays = m.nutrition.day
                         ?.map((d) => d.toLowerCase().trim())
                         .toList() ??
@@ -205,26 +117,127 @@ class TodoPage extends HookConsumerWidget {
                     .contains(dayName(selectedDate.value).toLowerCase());
               }).toList();
 
-              final completed = visible
+              final filteredMeals = selectedCategory.value == 'All'
+                  ? mealsForSelectedDate
+                  : mealsForSelectedDate.where((m) {
+                      final type = (m.nutrition.type?.isNotEmpty == true)
+                          ? m.nutrition.type!.first.toLowerCase()
+                          : '';
+                      return type == selectedCategory.value.toLowerCase();
+                    }).toList();
+
+              final completedCount = mealsForSelectedDate
                   .where((m) => resolveStatus(m) == MealStatus.completed)
                   .length;
-              final total = visible.length;
+              final totalCount = mealsForSelectedDate.length;
 
-              return TodoProgressBar(
-                completed: completed,
-                total: total,
-                motivationalText: total == 0 || completed == total
-                    ? "All meals done! Great job today 🎉"
-                    : "You're ${((completed / total) * 100).round()}% closer to today's goal 💪",
+              return CustomScrollView(
+                slivers: [
+                  SliverToBoxAdapter(
+                    child: TodoAppBar(
+                      date: selectedDate.value,
+                      completed: completedCount,
+                      total: totalCount,
+                      streak: 7, // Placeholder for streak
+                    ),
+                  ),
+                  SliverToBoxAdapter(
+                    child: TodoDateSelector(
+                      initialDate: selectedDate.value,
+                      onDateChanged: (date) {
+                        selectedDate.value = date;
+                      },
+                    ),
+                  ),
+                  SliverToBoxAdapter(
+                    child: TodoCategoryTabs(
+                      onCategoryChanged: (cat) => selectedCategory.value = cat,
+                    ),
+                  ),
+                  // const SliverToBoxAdapter(child: TodoAlertBanner()),
+                  if (filteredMeals.isEmpty)
+                    SliverFillRemaining(
+                      child: Center(
+                        child: Padding(
+                          padding: const EdgeInsets.only(top: 60),
+                          child: Text(
+                            selectedCategory.value == 'All'
+                                ? 'No meals planned for this day'
+                                : 'No ${selectedCategory.value} meals on this day',
+                            style: const TextStyle(
+                                color: Color(0xFF71717A), fontSize: 14),
+                          ),
+                        ),
+                      ),
+                    )
+                  else
+                    SliverPadding(
+                      padding: const EdgeInsets.fromLTRB(24, 20, 24, 150),
+                      sliver: SliverList(
+                        delegate: SliverChildBuilderDelegate(
+                          (context, index) => Padding(
+                            padding: const EdgeInsets.only(bottom: 12),
+                            child: buildMealCard(filteredMeals[index]),
+                          ),
+                          childCount: filteredMeals.length,
+                        ),
+                      ),
+                    ),
+                ],
               );
             },
+          ),
+          Positioned(
+            left: 0,
+            right: 60,
+            bottom: 0, // leave space for FAB
+            child: SafeArea(
+              top: false,
+              child: FutureBuilder<List<Meal>>(
+                future: mealsFuture,
+                builder: (context, snapshot) {
+                  final allMeals = snapshot.data ?? [];
+
+                  final mealsForSelectedDate = allMeals.where((m) {
+                    final mealDays = m.nutrition.day
+                            ?.map((d) => d.toLowerCase().trim())
+                            .toList() ??
+                        [];
+                    return mealDays
+                        .contains(dayName(selectedDate.value).toLowerCase());
+                  }).toList();
+
+                  final completedCount = mealsForSelectedDate
+                      .where((m) => resolveStatus(m) == MealStatus.completed)
+                      .length;
+
+                  final totalCount = mealsForSelectedDate.length;
+
+                  final progress =
+                      totalCount > 0 ? completedCount / totalCount : 0;
+
+                  return AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 400),
+                    child: TodoProgressBar(
+                      key: ValueKey(progress),
+                      completed: completedCount,
+                      total: totalCount,
+                      motivationalText: totalCount == 0
+                          ? "No meals scheduled for today 🍽️"
+                          : completedCount == totalCount
+                              ? "All meals done! Great job today 🎉"
+                              : "You're ${(progress * 100).round()}% closer to today's goal 💪",
+                    ),
+                  );
+                },
+              ),
+            ),
           ),
         ],
       ),
       floatingActionButton: TodoFAB(
         onPressed: () => context.go(RouteConstants.nutrition.path),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       bottomNavigationBar: BottomNavbar(),
     );
   }

@@ -62,7 +62,7 @@ Widget buildSavedMeals(BuildContext context) {
                 width: 176,
                 margin: EdgeInsets.only(right: index < 2 ? 16 : 0),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF18181B),
+                  color: const Color(0xFF0B1220),
                   border: Border.all(color: const Color(0xFF27272A)),
                   borderRadius: BorderRadius.circular(24),
                 ),

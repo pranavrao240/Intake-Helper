@@ -8,7 +8,7 @@ Widget buildMealCard(
     decoration: BoxDecoration(
       color: const Color(0xFF2D2D2D),
       borderRadius: BorderRadius.circular(12),
-      border: Border.all(color: AppTheme.primaryGreen.withValues(alpha: 0.3)),
+      border: Border.all(color: AppTheme.primaryBlue.withValues(alpha: 0.3)),
     ),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -16,7 +16,7 @@ Widget buildMealCard(
         Text(
           mealType,
           style: const TextStyle(
-            color: AppTheme.primaryGreen,
+            color: AppTheme.primaryBlue,
             fontWeight: FontWeight.bold,
             fontSize: 16,
           ),

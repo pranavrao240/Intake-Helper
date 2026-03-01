@@ -112,7 +112,7 @@ class AiMealPlannerScreen extends HookConsumerWidget {
                     onPressed: () => Navigator.pop(context),
                     child: const Text(
                       'Close',
-                      style: TextStyle(color: AppTheme.primaryGreen),
+                      style: TextStyle(color: AppTheme.primaryBlue),
                     ),
                   ),
                   ElevatedButton(
@@ -151,7 +151,7 @@ class AiMealPlannerScreen extends HookConsumerWidget {
                       // Navigator.pop(context, selected);
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.primaryGreen,
+                      backgroundColor: AppTheme.primaryBlue,
                     ),
                     child: const Text('Save Selected'),
                   ),
@@ -166,7 +166,7 @@ class AiMealPlannerScreen extends HookConsumerWidget {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('${selectedMeals.length} meals saved!'),
-            backgroundColor: AppTheme.primaryGreen,
+            backgroundColor: AppTheme.primaryBlue,
           ),
         );
       }
@@ -395,7 +395,7 @@ class SelectableMealCard extends HookConsumerWidget {
         color: const Color(0xFF2D2D2D),
         borderRadius: BorderRadius.circular(14),
         border: isSelected
-            ? Border.all(color: AppTheme.primaryGreen, width: 2)
+            ? Border.all(color: AppTheme.primaryBlue, width: 2)
             : Border.all(color: Colors.white12),
       ),
       child: Row(
@@ -454,7 +454,7 @@ class SelectableMealCard extends HookConsumerWidget {
           ),
           Icon(
             isSelected ? Icons.check_circle : Icons.circle_outlined,
-            color: isSelected ? AppTheme.primaryGreen : Colors.grey,
+            color: isSelected ? AppTheme.primaryBlue : Colors.grey,
             size: 22,
           ),
         ],
@@ -484,7 +484,7 @@ Widget _nutritionChip(String label, String value) {
           TextSpan(
             text: value,
             style: const TextStyle(
-              color: AppTheme.primaryGreen,
+              color: AppTheme.primaryBlue,
               fontSize: 13,
               fontWeight: FontWeight.bold,
             ),

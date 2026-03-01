@@ -234,7 +234,7 @@ class AddDetails extends HookConsumerWidget {
                         .getProfile(token!);
 
                     if (context.mounted) {
-                      context.pushReplacement(RouteConstants.settings.path);
+                      context.pushReplacement(RouteConstants.profile.path);
                     }
                   });
                 },

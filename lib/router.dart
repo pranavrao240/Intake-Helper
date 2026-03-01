@@ -6,7 +6,7 @@ import '../main.dart';
 import 'pages/home page/HomePage.dart';
 import '../pages/Login_page.dart';
 import '../pages/register_page.dart';
-import '../pages/Settings_page.dart';
+import 'pages/profile/profile_page.dart';
 import 'pages/Todos/todo_page.dart';
 import '../pages/nutritionScreen.dart';
 import '../pages/nutritionDetailsScreen.dart';
@@ -22,7 +22,7 @@ class RouteConstants {
   static const register = AppRoute(path: '/register', name: 'register');
 
   static const home = AppRoute(path: '/home', name: 'home');
-  static const settings = AppRoute(path: '/settings', name: 'settings');
+  static const profile = AppRoute(path: '/profile', name: 'profile');
   static const todo = AppRoute(path: '/todo', name: 'todo');
   static const nutrition = AppRoute(path: '/nutrition', name: 'nutrition');
   static const mealDetails =
@@ -62,7 +62,7 @@ final publicRoutes = [
 
 final protectedRoutes = [
   RouteConstants.home.path,
-  RouteConstants.settings.path,
+  RouteConstants.profile.path,
   RouteConstants.todo.path,
   RouteConstants.nutrition.path,
   RouteConstants.mealDetails.path,
@@ -103,9 +103,9 @@ final GoRouter appRouter = GoRouter(
       builder: (_, __) => const Homepage(),
     ),
     GoRoute(
-      path: RouteConstants.settings.path,
-      name: RouteConstants.settings.name,
-      builder: (_, __) => const SettingsPage(),
+      path: RouteConstants.profile.path,
+      name: RouteConstants.profile.name,
+      builder: (_, __) => const ProfilePage(),
     ),
     GoRoute(
       path: RouteConstants.todo.path,

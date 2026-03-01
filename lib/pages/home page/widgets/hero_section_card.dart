@@ -1,31 +1,71 @@
 import 'package:flutter/material.dart';
+import 'dart:math' as math;
 import 'package:intake_helper/models/user_model.dart';
-import 'package:intake_helper/pages/home%20page/HomePage.dart';
 
-Widget buildHeroSection(BuildContext context, Map<String, double> macros,
-    Map<String, double> targets, double proteinPercent, ProfileData? profile) {
+class CircularProgressPainter extends CustomPainter {
+  final double progress;
+  final Color color;
+  final double strokeWidth;
+
+  CircularProgressPainter({
+    required this.progress,
+    required this.color,
+    required this.strokeWidth,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final center = Offset(size.width / 2, size.height / 2);
+    final radius = (size.shortestSide - strokeWidth) / 2;
+
+    final paint = Paint()
+      ..color = color
+      ..strokeWidth = strokeWidth
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round;
+
+    canvas.drawArc(
+      Rect.fromCircle(center: center, radius: radius),
+      -math.pi / 2,
+      2 * math.pi * progress.clamp(0.0, 1.0),
+      false,
+      paint,
+    );
+  }
+
+  @override
+  bool shouldRepaint(CircularProgressPainter old) =>
+      old.progress != progress ||
+      old.color != color ||
+      old.strokeWidth != strokeWidth;
+}
+
+Widget buildHeroSection(
+  BuildContext context,
+  Map<String, double> macros,
+  Map<String, double> targets,
+  double proteinPercent,
+  ProfileData? profile,
+) {
   String getGreeting() {
     final hour = DateTime.now().hour;
-
-    if (hour < 12) {
-      return "Good Morning";
-    } else if (hour < 17) {
-      return "Good Afternoon";
-    } else if (hour < 21) {
-      return "Good Evening";
-    } else {
-      return "Good Night";
-    }
+    if (hour < 12) return "Good Morning";
+    if (hour < 17) return "Good Afternoon";
+    if (hour < 21) return "Good Evening";
+    return "Good Night";
   }
 
   final greeting = getGreeting();
 
-  print('Profile --> $profile');
-
   return Container(
     decoration: BoxDecoration(
       gradient: const LinearGradient(
-        colors: [Color(0xFFDC2626), Color(0xFFB91C1C), Colors.black],
+        colors: [
+          Color(0xFF3730A3), // indigo-800
+          Color(0xFF4338CA), // indigo-700
+          Color(0xFF6D28D9), // violet-700
+          Color(0xFF1E1B4B), // indigo-950
+        ],
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
       ),
@@ -41,13 +81,13 @@ Widget buildHeroSection(BuildContext context, Map<String, double> macros,
         ),
       ],
     ),
-    padding: const EdgeInsets.fromLTRB(24, 60, 24, 112),
+    padding: const EdgeInsets.fromLTRB(24, 60, 24, 90),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           '$greeting, ${profile?.fullName ?? 'User'}',
-          style: TextStyle(
+          style: const TextStyle(
             color: Colors.white,
             fontSize: 28,
             fontWeight: FontWeight.w600,
@@ -64,7 +104,7 @@ Widget buildHeroSection(BuildContext context, Map<String, double> macros,
                   size: const Size(224, 224),
                   painter: CircularProgressPainter(
                     progress: 1.0,
-                    color: Colors.white.withOpacity(0.15),
+                    color: Colors.white.withValues(alpha: 0.15),
                     strokeWidth: 14,
                   ),
                 ),
@@ -91,17 +131,17 @@ Widget buildHeroSection(BuildContext context, Map<String, double> macros,
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        '${macros['protein']!.toInt()}g',
+                        '${macros['protein']?.toInt() ?? 0}g',
                         style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 48,
-                          fontWeight: FontWeight.bold,
-                        ),
+                            color: Colors.white,
+                            fontSize: 48,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: "SF Pro Display"),
                       ),
                       Text(
-                        '/ ${targets['protein']!.toInt()}g',
+                        '/ ${targets['protein']?.toInt() ?? 0}g',
                         style: TextStyle(
-                          color: Colors.white.withOpacity(0.7),
+                          color: Colors.white.withValues(alpha: 0.7),
                           fontSize: 14,
                         ),
                       ),

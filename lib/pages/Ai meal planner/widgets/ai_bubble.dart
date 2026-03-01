@@ -56,7 +56,7 @@ Widget aiBubble(
             const SizedBox(width: 8),
             IconButton(
               icon: const Icon(Icons.bookmark_border, size: 18),
-              color: AppTheme.primaryGreen,
+              color: AppTheme.primaryBlue,
               onPressed: () => onSave(text),
             ),
           ],

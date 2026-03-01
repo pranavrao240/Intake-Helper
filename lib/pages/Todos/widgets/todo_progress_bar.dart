@@ -1,29 +1,27 @@
 import 'package:flutter/material.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-class TodoProgressBar extends HookConsumerWidget {
+class TodoProgressBar extends StatelessWidget {
   final int completed;
   final int total;
-  final String? motivationalText;
+  final String motivationalText;
 
   const TodoProgressBar({
     super.key,
     required this.completed,
     required this.total,
-    this.motivationalText,
+    required this.motivationalText,
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final percent = total == 0 ? 0.0 : completed / total;
-    final percentLabel = '${(percent * 100).round()}%';
+  Widget build(BuildContext context) {
+    final double progress = total > 0 ? completed / total : 0;
 
     return Container(
-      padding: const EdgeInsets.fromLTRB(24, 14, 24, 20),
+      padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
       decoration: BoxDecoration(
-        color: const Color(0xFF0A0A0A),
+        color: Colors.black.withValues(alpha: 0.9),
         border: Border(
-          top: BorderSide(color: Colors.white.withOpacity(0.08)),
+          top: BorderSide(color: Colors.white.withValues(alpha: 0.06)),
         ),
       ),
       child: Column(
@@ -33,48 +31,57 @@ class TodoProgressBar extends HookConsumerWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                '$completed/$total Meals Completed',
+                "$completed/$total Meals Completed",
                 style: const TextStyle(
-                    color: Color(0xFF71717A), fontSize: 13),
+                  color: Colors.white54,
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               Text(
-                percentLabel,
+                "${(progress * 100).toInt()}%",
                 style: const TextStyle(
-                    color: Color(0xFF71717A), fontSize: 13),
+                  color: Colors.white,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w900,
+                ),
               ),
             ],
           ),
           const SizedBox(height: 8),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(10),
-            child: Stack(
-              children: [
-                Container(
-                  height: 10,
-                  width: double.infinity,
-                  color: const Color(0xFF27272A),
-                ),
-                AnimatedFractionallySizedBox(
-                  duration: const Duration(milliseconds: 500),
-                  curve: Curves.easeOut,
-                  widthFactor: percent,
-                  child: Container(
-                    height: 10,
-                    decoration: const BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [Color(0xFFDC2626), Color(0xFF2563EB)],
-                      ),
-                    ),
+          Container(
+            height: 6,
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 500),
+                width: MediaQuery.of(context).size.width * progress,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  gradient: const LinearGradient(
+                    colors: [
+                      Color(0xFF3730A3), // indigo-800
+                      Color(0xFF4338CA), // indigo-700
+                      Color(0xFF6D28D9), // violet-700
+                      Color(0xFF1E1B4B), // indigo-950
+                    ],
                   ),
                 ),
-              ],
+              ),
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 10),
           Text(
-            motivationalText ?? "You're 80% closer to today's goal 💪",
-            style:
-                const TextStyle(color: Color(0xFF71717A), fontSize: 12),
+            motivationalText,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              color: Colors.white24,
+              fontSize: 12,
+            ),
           ),
         ],
       ),

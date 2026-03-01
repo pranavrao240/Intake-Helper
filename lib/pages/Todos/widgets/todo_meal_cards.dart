@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 
 enum MealStatus { completed, active, missed, upcoming }
 
@@ -9,7 +9,6 @@ class MealCardData {
   final String? protein;
   final String? calories;
   final MealStatus status;
-  final bool isChecked;
   final VoidCallback? onTap;
 
   const MealCardData({
@@ -18,292 +17,361 @@ class MealCardData {
     required this.status,
     this.protein,
     this.calories,
-    this.isChecked = false,
     this.onTap,
   });
-
-  MealCardData copyWith({
-    String? title,
-    String? time,
-    String? protein,
-    String? calories,
-    MealStatus? status,
-    bool? isChecked,
-    VoidCallback? onTap,
-  }) {
-    return MealCardData(
-      title: title ?? this.title,
-      time: time ?? this.time,
-      protein: protein ?? this.protein,
-      calories: calories ?? this.calories,
-      status: status ?? this.status,
-      isChecked: isChecked ?? this.isChecked,
-      onTap: onTap ?? this.onTap,
-    );
-  }
 }
 
 MealStatus mealStatusFromString(String? status) {
   switch (status?.toLowerCase()) {
     case 'completed':
       return MealStatus.completed;
+    case 'active':
+      return MealStatus.active;
     case 'missed':
       return MealStatus.missed;
-    case 'upcoming':
-      return MealStatus.upcoming;
-    case 'active':
     default:
-      return MealStatus.active;
+      return MealStatus.upcoming;
   }
 }
 
-class CompletedMealCard extends HookConsumerWidget {
-  final MealCardData data;
-  const CompletedMealCard({super.key, required this.data});
+class _BaseMealCard extends StatelessWidget {
+  final Widget child;
+  final MealStatus status;
+  final VoidCallback? onTap;
+
+  const _BaseMealCard({
+    required this.child,
+    required this.status,
+    this.onTap,
+  });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return GestureDetector(
-      onTap: data.onTap,
-      child: Container(
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: const Color(0xFF18181B),
-          borderRadius: BorderRadius.circular(24),
-          border:
-              Border.all(color: const Color(0xFF2563EB).withValues(alpha: 0.4)),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Row(
-              children: [
-                Icon(
-                    data.isChecked
-                        ? Icons.check_circle_rounded
-                        : Icons.circle_outlined,
-                    color: data.isChecked ? Color(0xFF3B82F6) : Colors.white54,
-                    size: 32),
-                const SizedBox(width: 16),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      data.title,
-                      style: const TextStyle(
-                        color: Colors.white54,
-                        fontSize: 15,
-                        decoration: TextDecoration.lineThrough,
-                        decorationColor: Colors.white54,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      data.time,
-                      style: const TextStyle(
-                          color: Color(0xFF71717A), fontSize: 12),
-                    ),
-                  ],
-                ),
-              ],
+  Widget build(BuildContext context) {
+    final isCompleted = status == MealStatus.completed;
+    final isMissed = status == MealStatus.missed;
+    final isActive = status == MealStatus.active;
+
+    return Opacity(
+      opacity: isCompleted || isMissed ? (isMissed ? 0.35 : 0.6) : 1.0,
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.05),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: isActive
+                  ? const Color(0xFFEF4444).withOpacity(0.7)
+                  : Colors.white.withOpacity(0.1),
+              width: isActive ? 2 : 1,
             ),
-            if (data.protein != null)
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF2563EB).withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Text(
-                  '+${data.protein} Protein',
-                  style:
-                      const TextStyle(color: Color(0xFF60A5FA), fontSize: 11),
-                ),
-              ),
-          ],
+            boxShadow: isActive
+                ? [
+                    BoxShadow(
+                      color: const Color(0xFFEF4444).withOpacity(0.2),
+                      blurRadius: 30,
+                    ),
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.4),
+                      blurRadius: 20,
+                      offset: const Offset(0, 4),
+                    ),
+                  ]
+                : [],
+          ),
+          child: child,
         ),
       ),
     );
   }
 }
 
-class ActiveMealCard extends HookConsumerWidget {
+class CompletedMealCard extends StatelessWidget {
   final MealCardData data;
-  final VoidCallback? onTap;
-  const ActiveMealCard({super.key, required this.data, this.onTap});
+  const CompletedMealCard({super.key, required this.data});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: const Color(0xFF18181B),
-          borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: const Color(0xFFEF4444), width: 2),
-          boxShadow: [
-            BoxShadow(
-              color: const Color(0xFFEF4444).withOpacity(0.2),
-              blurRadius: 20,
-              offset: const Offset(0, 4),
+  Widget build(BuildContext context) {
+    return _BaseMealCard(
+      status: MealStatus.completed,
+      onTap: data.onTap,
+      child: Row(
+        children: [
+          _IconContainer(
+            color: Color(0xFF6D28D9),
+            icon: LucideIcons.checkCircle,
+            status: data.status,
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  data.title,
+                  style: const TextStyle(
+                    color: Colors.white54,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 15,
+                    decoration: TextDecoration.lineThrough,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(data.time,
+                    style:
+                        const TextStyle(color: Colors.white30, fontSize: 12)),
+              ],
             ),
-          ],
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 32,
-              height: 32,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: const Color(0xFF3F3F46), width: 2),
-              ),
-            ),
-            const SizedBox(width: 16),
-            Column(
+          ),
+          _Tag(
+            text: "+${data.protein ?? '0'}g Protein",
+            color: Colors.orange,
+          ),
+          const SizedBox(width: 8),
+          const Icon(LucideIcons.checkCircle, color: Colors.orange, size: 20),
+        ],
+      ),
+    );
+  }
+}
+
+class ActiveMealCard extends StatelessWidget {
+  final MealCardData data;
+  const ActiveMealCard({super.key, required this.data});
+
+  @override
+  Widget build(BuildContext context) {
+    return _BaseMealCard(
+      status: MealStatus.active,
+      onTap: data.onTap,
+      child: Row(
+        children: [
+          _IconContainer(
+            color: Colors.red,
+            icon: LucideIcons.flame,
+            status: data.status,
+            isActive: true,
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   data.title,
                   style: const TextStyle(
                     color: Colors.white,
+                    fontWeight: FontWeight.w900,
                     fontSize: 15,
-                    fontWeight: FontWeight.w500,
                   ),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 2),
                 Text(
-                  data.time,
+                  "${data.time} · Active now",
                   style: const TextStyle(
-                      color: Color(0xFFF87171),
-                      fontSize: 13,
-                      fontWeight: FontWeight.w500),
+                      color: Colors.red,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold),
                 ),
-                if (data.protein != null || data.calories != null) ...[
-                  const SizedBox(height: 4),
-                  Text(
-                    '${data.protein != null ? '${data.protein} Protein' : ''}${data.protein != null && data.calories != null ? ' • ' : ''}${data.calories != null ? '${data.calories} kcal' : ''}',
-                    style:
-                        const TextStyle(color: Color(0xFF71717A), fontSize: 12),
-                  ),
-                ],
+                const SizedBox(height: 2),
+                Text(
+                  "${data.protein ?? '0'}g Protein · ${data.calories ?? '0'} kcal",
+                  style: const TextStyle(color: Colors.white38, fontSize: 12),
+                ),
               ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 }
 
-class MissedMealCard extends HookConsumerWidget {
+class MissedMealCard extends StatelessWidget {
   final MealCardData data;
   const MissedMealCard({super.key, required this.data});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return Opacity(
-      opacity: 0.5,
-      child: Container(
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: const Color(0xFF18181B),
-          borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: const Color(0xFF27272A)),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Row(
+  Widget build(BuildContext context) {
+    return _BaseMealCard(
+      status: MealStatus.missed,
+      onTap: data.onTap,
+      child: Row(
+        children: [
+          _IconContainer(
+            color: Colors.grey,
+            icon: LucideIcons.x,
+            status: data.status,
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  width: 32,
-                  height: 32,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8),
-                    border:
-                        Border.all(color: const Color(0xFF3F3F46), width: 2),
-                  ),
+                Text(
+                  data.title,
+                  style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15),
                 ),
-                const SizedBox(width: 16),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(data.title,
-                        style:
-                            const TextStyle(color: Colors.white, fontSize: 15)),
-                    const SizedBox(height: 4),
-                    Text(data.time,
-                        style: const TextStyle(
-                            color: Color(0xFF71717A), fontSize: 12)),
-                  ],
+                const SizedBox(height: 2),
+                Text(
+                  data.time,
+                  style: const TextStyle(color: Colors.white38, fontSize: 12),
                 ),
               ],
             ),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
-              decoration: BoxDecoration(
-                color: const Color(0xFF3F3F46),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: const Text(
-                'Missed',
-                style: TextStyle(color: Color(0xFFD4D4D8), fontSize: 11),
-              ),
-            ),
-          ],
-        ),
+          ),
+          const _Tag(text: "Missed", color: Colors.grey, isMissed: true),
+        ],
       ),
     );
   }
 }
 
-class UpcomingMealCard extends HookConsumerWidget {
+class UpcomingMealCard extends StatelessWidget {
   final MealCardData data;
   const UpcomingMealCard({super.key, required this.data});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: const Color(0xFF18181B),
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: const Color(0xFF27272A)),
-      ),
+  Widget build(BuildContext context) {
+    return _BaseMealCard(
+      status: MealStatus.upcoming,
+      onTap: data.onTap,
       child: Row(
         children: [
-          Container(
-            width: 32,
-            height: 32,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: const Color(0xFF3F3F46), width: 2),
-            ),
+          _IconContainer(
+            color: Colors.blue,
+            icon: LucideIcons.utensils,
+            status: data.status,
           ),
           const SizedBox(width: 16),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(data.title,
-                  style: const TextStyle(color: Colors.white, fontSize: 15)),
-              const SizedBox(height: 4),
-              Text(data.time,
-                  style:
-                      const TextStyle(color: Color(0xFF71717A), fontSize: 12)),
-              if (data.protein != null || data.calories != null) ...[
-                const SizedBox(height: 4),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
                 Text(
-                  '${data.protein != null ? '${data.protein} Protein' : ''}${data.protein != null && data.calories != null ? ' • ' : ''}${data.calories != null ? '${data.calories} kcal' : ''}',
-                  style:
-                      const TextStyle(color: Color(0xFF71717A), fontSize: 12),
+                  data.title,
+                  style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15),
+                ),
+                const SizedBox(height: 2),
+                Row(
+                  children: [
+                    const Icon(LucideIcons.clock,
+                        color: Colors.white24, size: 12),
+                    const SizedBox(width: 4),
+                    Text(
+                      data.time,
+                      style:
+                          const TextStyle(color: Colors.white38, fontSize: 12),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  "${data.protein ?? '0'}g Protein · ${data.calories ?? '0'} kcal",
+                  style: const TextStyle(color: Colors.white24, fontSize: 12),
                 ),
               ],
-            ],
+            ),
           ),
+          const _Tag(text: "Tonight", color: Colors.blue),
         ],
+      ),
+    );
+  }
+}
+
+class _IconContainer extends StatelessWidget {
+  final Color color;
+  final IconData icon;
+  final MealStatus status;
+  final bool isActive;
+
+  const _IconContainer({
+    required this.color,
+    required this.icon,
+    required this.status,
+    this.isActive = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isMissed = status == MealStatus.missed;
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        Container(
+          width: 40,
+          height: 40,
+          decoration: BoxDecoration(
+            color: isMissed
+                ? Colors.white.withOpacity(0.05)
+                : color.withOpacity(0.15),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: isMissed
+                  ? Colors.white.withOpacity(0.08)
+                  : color.withOpacity(0.2),
+            ),
+          ),
+          child: Icon(
+            icon,
+            color: isMissed ? Colors.grey : color,
+            size: 20,
+          ),
+        ),
+        if (isActive)
+          Positioned(
+            top: -2,
+            right: -2,
+            child: Container(
+              width: 10,
+              height: 10,
+              decoration: BoxDecoration(
+                color: Colors.red,
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.black, width: 2),
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+class _Tag extends StatelessWidget {
+  final String text;
+  final Color color;
+  final bool isMissed;
+
+  const _Tag({required this.text, required this.color, this.isMissed = false});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      decoration: BoxDecoration(
+        color:
+            isMissed ? Colors.white.withOpacity(0.06) : color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color:
+              isMissed ? Colors.white.withOpacity(0.1) : color.withOpacity(0.2),
+        ),
+      ),
+      child: Text(
+        text,
+        style: TextStyle(
+          color: isMissed ? Colors.white.withOpacity(0.5) : color,
+          fontSize: 11,
+          fontWeight: FontWeight.w900,
+        ),
       ),
     );
   }

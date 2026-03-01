@@ -12,7 +12,7 @@ Widget userBubble(String text, {required VoidCallback onEdit}) {
           margin: const EdgeInsets.only(bottom: 6),
           constraints: const BoxConstraints(maxWidth: 280),
           decoration: BoxDecoration(
-            color: AppTheme.primaryGreen,
+            color: AppTheme.primaryBlue,
             borderRadius: BorderRadius.circular(14),
           ),
           child: Text(text, style: const TextStyle(color: Colors.white)),
