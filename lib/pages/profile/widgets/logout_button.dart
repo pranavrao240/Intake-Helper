@@ -21,7 +21,7 @@ class LogoutButton extends HookConsumerWidget {
             ),
           ),
           style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFFDC2626),
+            backgroundColor: const Color(0xFF6D28D9),
             foregroundColor: Colors.white,
             padding: const EdgeInsets.symmetric(vertical: 18),
             shape: RoundedRectangleBorder(

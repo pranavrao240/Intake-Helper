@@ -20,9 +20,10 @@ class ProfileHeader extends HookConsumerWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            Color(0xFFB91C1C),
-            Color(0xFFDC2626),
-            Color(0xFF0A0A0A),
+            Color(0xFF3730A3), // indigo-800
+            Color(0xFF4338CA), // indigo-700
+            Color(0xFF6D28D9), // violet-700
+            Color(0xFF1E1B4B), // indigo-950
           ],
         ),
         borderRadius: BorderRadius.only(
@@ -70,7 +71,7 @@ class ProfileHeader extends HookConsumerWidget {
                     width: 34,
                     height: 34,
                     decoration: const BoxDecoration(
-                      color: Color(0xFFDC2626),
+                      color: Color(0xFF6D28D9),
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(

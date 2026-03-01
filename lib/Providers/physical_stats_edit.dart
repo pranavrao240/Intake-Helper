@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-const _kRed = Color(0xFFE53935);
+const _kRed = Color(0xFF6D28D9);
 
 class PhysicalStats {
   final double? height; // cm

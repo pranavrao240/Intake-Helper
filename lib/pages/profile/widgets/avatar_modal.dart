@@ -82,12 +82,12 @@ class AvatarModal extends HookConsumerWidget {
                           duration: const Duration(milliseconds: 200),
                           decoration: BoxDecoration(
                             color: isSelected
-                                ? const Color(0xFFDC2626)
+                                ? Color(0xFF6D28D9)
                                 : Colors.white.withValues(alpha: 0.1),
                             shape: BoxShape.circle,
                             border: isSelected
                                 ? Border.all(
-                                    color: const Color(0xFFEF4444), width: 3)
+                                    color: const Color(0xFF6D28D9), width: 3)
                                 : null,
                           ),
                           child: Center(
@@ -109,7 +109,7 @@ class AvatarModal extends HookConsumerWidget {
                     child: ElevatedButton(
                       onPressed: () => onSelect(tempAvatar.value),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFDC2626),
+                        backgroundColor: const Color(0xFF6D28D9),
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(

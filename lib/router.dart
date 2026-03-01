@@ -8,8 +8,8 @@ import '../pages/Login_page.dart';
 import '../pages/register_page.dart';
 import 'pages/profile/profile_page.dart';
 import 'pages/Todos/todo_page.dart';
-import '../pages/nutritionScreen.dart';
-import '../pages/nutritionDetailsScreen.dart';
+import 'pages/nutritions/nutrition list/nutritionScreen.dart';
+import 'pages/nutritions/nutrition details/nutritionDetailsScreen.dart';
 
 class AppRoute {
   const AppRoute({required this.path, required this.name});

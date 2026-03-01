@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intake_helper/Providers/physical_stats_edit.dart';
 
-const _kRed = Color(0xFFE53935);
+const _kRed = Color(0xFF6D28D9);
 
 class PhysicalStatsCard extends HookConsumerWidget {
   const PhysicalStatsCard({super.key});
