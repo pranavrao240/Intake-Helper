@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:intake_helper/Providers/settings_providers.dart';
 import 'package:intake_helper/api/api_service.dart';
 import 'package:intake_helper/components/bottom_navbar.dart';
 import 'package:intake_helper/models/nutrition_model.dart';
@@ -87,7 +88,6 @@ class NutritionScreen extends HookConsumerWidget {
 
           const SliverToBoxAdapter(child: SizedBox(height: 44)),
 
-          // ── Loading ──
           if (isLoading.value)
             const SliverFillRemaining(
               child: Center(
@@ -195,7 +195,6 @@ class NutritionScreen extends HookConsumerWidget {
   }
 }
 
-// ── Load More Button ─────────────────────────────────────────────────────────
 class _LoadMoreButton extends StatelessWidget {
   final int remaining;
   final int pageSize;
@@ -282,7 +281,6 @@ class _LoadMoreButton extends StatelessWidget {
   }
 }
 
-// ── End of results indicator ─────────────────────────────────────────────────
 class _EndIndicator extends StatelessWidget {
   final int total;
   const _EndIndicator({required this.total});

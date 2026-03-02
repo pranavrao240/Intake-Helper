@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:developer';
 import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -158,7 +157,7 @@ class ApiService extends AsyncNotifier<ApiState> {
         state = AsyncValue.data(state.value!.copyWith(profileData: data.data));
       }
     } catch (e) {
-      log('Profile error: $e');
+      debugPrint('Profile error: $e');
     }
   }
 
@@ -453,8 +452,8 @@ class ApiService extends AsyncNotifier<ApiState> {
     return null;
   }
 
-  Future<bool> addTodoItem(
-      String nutritionId, String time, String day, String type) async {
+  Future<bool> addTodoItem(String nutritionId, List<String> time,
+      List<String> day, List<String> type) async {
     final preferences = await SharedPreferences.getInstance();
     final token = preferences.getString('token');
     final res = await client.post(
@@ -475,8 +474,14 @@ class ApiService extends AsyncNotifier<ApiState> {
       }),
     );
 
-    if (res.statusCode == 200) {
-      return true;
+    try {
+      if (res.statusCode == 200) {
+        print('add todo item response: ${res.body}');
+
+        return true;
+      }
+    } catch (e) {
+      print('error in add todo item: $e');
     }
 
     return false;

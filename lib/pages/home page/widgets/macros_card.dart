@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:intake_helper/Providers/settings_providers.dart';
+import 'package:intake_helper/common_functions/units_conversion.dart';
 
 Widget buildMacrosCard(
-    Map<String, double> macros, Map<String, double> targets) {
-  print("Macros from card: $macros");
+    WidgetRef ref, Map<String, double> macros, Map<String, double> targets) {
+  final unitsConversion = ref.read(weightUnitProvider);
+  final isKg = useState(unitsConversion == WeightUnit.kg ? true : false);
+
   return Padding(
     padding: const EdgeInsets.symmetric(horizontal: 24),
     child: Container(
@@ -38,6 +44,8 @@ Widget buildMacrosCard(
             target: targets['calories']!,
             unit: 'kcal',
             colors: const [Color(0xFF2563EB), Color(0xFF60A5FA)],
+            isKg: isKg.value,
+            ref: ref,
           ),
           _macroBar(
             label: 'PROTEIN',
@@ -45,6 +53,8 @@ Widget buildMacrosCard(
             target: targets['protein']!,
             unit: 'g',
             colors: const [Color(0xFF7C3AED), Color(0xFFEC4899)],
+            isKg: isKg.value,
+            ref: ref,
           ),
           _macroBar(
             label: 'CARBS',
@@ -52,6 +62,8 @@ Widget buildMacrosCard(
             target: targets['carbs']!,
             unit: 'g',
             colors: const [Color(0xFF2563EB), Color(0xFF60A5FA)],
+            isKg: isKg.value,
+            ref: ref,
           ),
           _macroBar(
             label: 'FATS',
@@ -59,6 +71,8 @@ Widget buildMacrosCard(
             target: targets['fats']!,
             unit: 'g',
             colors: const [Color(0xFF6B7280), Color(0xFF9CA3AF)],
+            isKg: isKg.value,
+            ref: ref,
             isLast: true,
           ),
         ],
@@ -73,8 +87,16 @@ Widget _macroBar({
   required double target,
   required String unit,
   required List<Color> colors,
+  required WidgetRef ref,
+  required bool isKg,
   bool isLast = false,
 }) {
+  current = isKg
+      ? double.parse(current.toStringAsFixed(2))
+      : double.parse(kilogramsToPounds(current).toStringAsFixed(2));
+  target = isKg
+      ? double.parse(target.toStringAsFixed(2))
+      : double.parse(kilogramsToPounds(target).toStringAsFixed(2));
   final percent = (current / target).clamp(0.0, 1.0);
 
   return Padding(
@@ -99,7 +121,7 @@ Widget _macroBar({
               text: TextSpan(
                 children: [
                   TextSpan(
-                    text: '${current.toInt()}',
+                    text: '$current',
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 13,
@@ -114,7 +136,7 @@ Widget _macroBar({
                     ),
                   ),
                   TextSpan(
-                    text: '${target.toInt()}',
+                    text: '${target}',
                     style: TextStyle(
                       color: Colors.white.withOpacity(0.55),
                       fontSize: 13,

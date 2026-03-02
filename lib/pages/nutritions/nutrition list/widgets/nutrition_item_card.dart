@@ -1,16 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intake_helper/Providers/settings_providers.dart';
+import 'package:intake_helper/common_functions/units_conversion.dart';
 import 'package:intake_helper/models/nutrition_model.dart';
 import 'package:intake_helper/router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-class NutritionItemCard extends StatelessWidget {
+class NutritionItemCard extends HookConsumerWidget {
   final Nutrition item;
 
   const NutritionItemCard({super.key, required this.item});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final unitsConversion = ref.read(weightUnitProvider);
+
     return GestureDetector(
       onTap: () {
         if (item.id != null) {
@@ -64,17 +69,20 @@ class NutritionItemCard extends StatelessWidget {
                     children: [
                       Expanded(
                         child: _MacroChip(
-                          icon: LucideIcons.flame,
-                          iconColor: const Color(0xFFEF4444),
-                          label: '${item.calories?.toInt() ?? 0} kcal',
-                        ),
+                            icon: LucideIcons.flame,
+                            iconColor: const Color(0xFFEF4444),
+                            label: unitsConversion == WeightUnit.kg
+                                ? '${item.calories?.toDouble() ?? 0} kcal'
+                                : '${kilogramsToPounds(item.calories?.toDouble() ?? 0).toStringAsFixed(2)} lb'),
                       ),
                       const SizedBox(width: 4),
                       Expanded(
                         child: _MacroChip(
-                          icon: LucideIcons.heart,
+                          icon: LucideIcons.drumstick,
                           iconColor: const Color(0xFFEF4444),
-                          label: '${item.protein?.toInt() ?? 0}g Protein',
+                          label: unitsConversion == WeightUnit.kg
+                              ? '${item.protein?.toDouble() ?? 0}g Protein'
+                              : '${kilogramsToPounds(item.protein?.toDouble() ?? 0).toStringAsFixed(2)} lb Protein',
                         ),
                       ),
                     ],
@@ -84,9 +92,11 @@ class NutritionItemCard extends StatelessWidget {
                     children: [
                       Expanded(
                         child: _MacroChip(
-                          icon: LucideIcons.salad,
+                          icon: LucideIcons.wheat,
                           iconColor: const Color(0xFF22C55E),
-                          label: '${item.carbohydrates?.toInt() ?? 0}g Carbs',
+                          label: unitsConversion == WeightUnit.kg
+                              ? '${item.carbohydrates?.toDouble() ?? 0}g Carbs'
+                              : '${kilogramsToPounds(item.carbohydrates?.toDouble() ?? 0).toStringAsFixed(2)} lb Carbs',
                         ),
                       ),
                       const SizedBox(width: 4),
@@ -94,7 +104,9 @@ class NutritionItemCard extends StatelessWidget {
                         child: _MacroChip(
                           icon: LucideIcons.droplets,
                           iconColor: const Color(0xFF60A5FA),
-                          label: 'Fats',
+                          label: unitsConversion == WeightUnit.kg
+                              ? '${item.fats?.toDouble() ?? 0}g Fats'
+                              : '${kilogramsToPounds(item.fats?.toDouble() ?? 0).toStringAsFixed(2)} lb Fats',
                         ),
                       ),
                     ],

@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:intake_helper/Providers/settings_providers.dart';
+import 'package:intake_helper/common_functions/units_conversion.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
 enum MealStatus { completed, active, missed, upcoming }
@@ -136,12 +139,14 @@ class CompletedMealCard extends StatelessWidget {
   }
 }
 
-class ActiveMealCard extends StatelessWidget {
+class ActiveMealCard extends HookConsumerWidget {
   final MealCardData data;
   const ActiveMealCard({super.key, required this.data});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final unitsConversion = ref.read(weightUnitProvider);
+
     return _BaseMealCard(
       status: MealStatus.active,
       onTap: data.onTap,
@@ -176,7 +181,9 @@ class ActiveMealCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  "${data.protein ?? '0'}g Protein · ${data.calories ?? '0'} kcal",
+                  unitsConversion == WeightUnit.kg
+                      ? "${double.parse(data.protein ?? '0').toStringAsFixed(2)} g Protein · ${double.parse(data.calories ?? '0').toStringAsFixed(0)} kcal"
+                      : "${kilogramsToPounds(double.parse(data.protein ?? '0')).toStringAsFixed(2)} lb Protein · ${double.parse(data.calories ?? '0').toStringAsFixed(0)} kcal",
                   style: const TextStyle(color: Colors.white38, fontSize: 12),
                 ),
               ],

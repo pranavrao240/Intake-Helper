@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intake_helper/Providers/providers.dart';
 import 'package:intake_helper/api/api_service.dart';
+import 'package:intake_helper/components/toast/toast.dart';
 import 'package:intake_helper/models/nutrition_model.dart';
 import 'package:intake_helper/pages/nutritions/nutrition%20details/widgets/energy_mix_card.dart';
 import 'package:intake_helper/pages/nutritions/nutrition%20details/widgets/ingredients_card.dart';
@@ -171,12 +172,8 @@ class NutritionDetailScreen extends HookConsumerWidget {
     required ValueNotifier<List<String>> selectedTypes,
   }) async {
     if (selectedTypes.value.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please select at least one meal type'),
-          backgroundColor: Color(0xFFEF4444),
-        ),
-      );
+      showToast('Please select at least one meal type', context, 2);
+
       return;
     }
 
@@ -202,28 +199,18 @@ class NutritionDetailScreen extends HookConsumerWidget {
 
     final success = await ApiService().addTodoItem(
       model.id ?? '',
-      formattedTime,
-      selectedDays.join(','),
-      selectedTypes.value.join(','),
+      [formattedTime],
+      selectedDays,
+      selectedTypes.value,
     );
 
     if (!context.mounted) return;
 
     if (success == true) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Added to Todo List'),
-          backgroundColor: Color(0xFF22C55E),
-        ),
-      );
+      showToast('Added to Todo List', context, 1);
       context.push('/todo');
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Failed to add to Todo List'),
-          backgroundColor: Color(0xFFEF4444),
-        ),
-      );
+      showToast('Failed to add to Todo List', context, 2);
     }
   }
 }

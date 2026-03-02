@@ -3,6 +3,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intake_helper/Providers/providers.dart';
+import 'package:intake_helper/Providers/settings_providers.dart';
 import 'package:intake_helper/components/bottom_navbar.dart';
 import 'package:intake_helper/models/todo_model.dart';
 import 'package:intake_helper/pages/Todos/widgets/meal_action_dialog.dart';
@@ -117,14 +118,38 @@ class TodoPage extends HookConsumerWidget {
                     .contains(dayName(selectedDate.value).toLowerCase());
               }).toList();
 
-              final filteredMeals = selectedCategory.value == 'All'
-                  ? mealsForSelectedDate
-                  : mealsForSelectedDate.where((m) {
-                      final type = (m.nutrition.type?.isNotEmpty == true)
-                          ? m.nutrition.type!.first.toLowerCase()
-                          : '';
-                      return type == selectedCategory.value.toLowerCase();
-                    }).toList();
+              List<Meal> filteredMeals = mealsForSelectedDate.where((m) {
+                /// ---------- HANDLE DAYS ----------
+                final rawDays = m.nutrition.day ?? [];
+
+                // Split comma-separated days and flatten
+                final allDays = rawDays
+                    .expand((d) => d.split(','))
+                    .map((d) => d.trim().toLowerCase())
+                    .toList();
+
+                final selectedDayLower =
+                    dayName(selectedDate.value).toLowerCase();
+
+                final matchesDay = allDays.contains(selectedDayLower);
+
+                /// ---------- HANDLE TYPE ----------
+                if (selectedCategory.value == 'All') {
+                  return matchesDay;
+                }
+
+                final rawTypes = m.nutrition.type ?? [];
+
+                final allTypes =
+                    rawTypes.map((t) => t.trim().toLowerCase()).toList();
+
+                final selectedCategoryLower =
+                    selectedCategory.value.toLowerCase();
+
+                final matchesType = allTypes.contains(selectedCategoryLower);
+
+                return matchesDay && matchesType;
+              }).toList();
 
               final completedCount = mealsForSelectedDate
                   .where((m) => resolveStatus(m) == MealStatus.completed)

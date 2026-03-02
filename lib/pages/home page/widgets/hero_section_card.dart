@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:intake_helper/Providers/settings_providers.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:intake_helper/common_functions/units_conversion.dart';
 import 'dart:math' as math;
 import 'package:intake_helper/models/user_model.dart';
 
@@ -46,6 +49,7 @@ Widget buildHeroSection(
   Map<String, double> targets,
   double proteinPercent,
   ProfileData? profile,
+  WidgetRef ref,
 ) {
   String getGreeting() {
     final hour = DateTime.now().hour;
@@ -56,6 +60,7 @@ Widget buildHeroSection(
   }
 
   final greeting = getGreeting();
+  final unitsConversion = ref.read(weightUnitProvider);
 
   return Container(
     decoration: BoxDecoration(
@@ -131,7 +136,9 @@ Widget buildHeroSection(
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        '${macros['protein']?.toInt() ?? 0}g',
+                        unitsConversion == WeightUnit.kg
+                            ? '${macros['protein']?.toDouble().toStringAsFixed(2) ?? 0}g'
+                            : '${kilogramsToPounds(macros['protein']?.toDouble() ?? 0).toStringAsFixed(2)}lb',
                         style: const TextStyle(
                             color: Colors.white,
                             fontSize: 48,
@@ -139,7 +146,9 @@ Widget buildHeroSection(
                             fontFamily: "SF Pro Display"),
                       ),
                       Text(
-                        '/ ${targets['protein']?.toInt() ?? 0}g',
+                        unitsConversion == WeightUnit.kg
+                            ? '/ ${targets['protein']?.toDouble().toStringAsFixed(2) ?? 0}g'
+                            : '/ ${kilogramsToPounds(targets['protein']?.toDouble() ?? 0).toStringAsFixed(2)}lb',
                         style: TextStyle(
                           color: Colors.white.withValues(alpha: 0.7),
                           fontSize: 14,

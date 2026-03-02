@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:intake_helper/Providers/settings_providers.dart';
 
-class IngredientsCard extends StatelessWidget {
+class IngredientsCard extends HookConsumerWidget {
   /// Pass a list of maps with keys 'name' and 'amount'
   /// e.g. [{'name': 'Chicken Breast', 'amount': '150g'}]
   final List<Map<String, String>> ingredients;
@@ -8,8 +10,9 @@ class IngredientsCard extends StatelessWidget {
   const IngredientsCard({super.key, required this.ingredients});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     if (ingredients.isEmpty) return const SizedBox.shrink();
+    final unitsConversion = ref.read(weightUnitProvider);
 
     return Container(
       decoration: BoxDecoration(
@@ -42,8 +45,8 @@ class IngredientsCard extends StatelessWidget {
             return Column(
               children: [
                 Padding(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 20, vertical: 14),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -89,7 +92,9 @@ class IngredientsCard extends StatelessWidget {
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Text(
-                          ing['amount'] ?? '',
+                          unitsConversion == WeightUnit.kg
+                              ? (ing['amount']) ?? ''
+                              : (ing['amount']?.replaceAll('g', 'lb')) ?? '',
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 12,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intake_helper/Providers/providers.dart';
+import 'package:intake_helper/Providers/settings_providers.dart';
 import 'package:intake_helper/api/api_service.dart';
 import 'package:intake_helper/components/bottom_navbar.dart';
 import 'package:intake_helper/components/weekly_chart.dart';
@@ -21,6 +22,7 @@ class Homepage extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final api = ref.read(apiServiceProvider.notifier);
+    final unitsConversion = ref.read(weightUnitProvider);
 
     final todoData = useState<TodoModel?>(null);
     final completedTasks = useState<List<String>>([]);
@@ -140,18 +142,14 @@ class Homepage extends HookConsumerWidget {
                       Stack(
                         clipBehavior: Clip.none,
                         children: [
-                          buildHeroSection(
-                            context,
-                            macros.value,
-                            targets.value,
-                            proteinPercent,
-                            profile,
-                          ),
+                          buildHeroSection(context, macros.value, targets.value,
+                              proteinPercent, profile, ref),
                           Positioned(
                             bottom: -250,
                             left: 0,
                             right: 0,
-                            child: buildMacrosCard(macros.value, targets.value),
+                            child: buildMacrosCard(
+                                ref, macros.value, targets.value),
                           ),
                         ],
                       ),
@@ -161,9 +159,9 @@ class Homepage extends HookConsumerWidget {
                       buildScheduledMeals(
                           context, todoData.value, completedTasks.value),
                       const SizedBox(height: 24),
-                      buildSavedMeals(context),
+                      buildSavedMeals(context, ref),
                       const SizedBox(height: 24),
-                      buildWeeklyChart(chartData: chartData),
+                      buildWeeklyChart(ref: ref, chartData: chartData),
                       const SizedBox(height: 40),
                     ],
                   ),

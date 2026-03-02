@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:intake_helper/Providers/settings_providers.dart';
+import 'package:intake_helper/common_functions/units_conversion.dart';
 
-class NutritionStatsRow extends StatelessWidget {
+class NutritionStatsRow extends HookConsumerWidget {
   final double? calories;
   final double? protein;
   final double? carbs;
@@ -15,26 +18,37 @@ class NutritionStatsRow extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final unitsConversion = ref.read(weightUnitProvider);
+    final isKg = unitsConversion == WeightUnit.kg;
+
     final stats = [
       _StatData(
-        label: 'KCAL',
-        value: '${calories?.toInt() ?? 0}',
+        label: isKg ? 'KCAL' : 'LB CAL',
+        value: isKg
+            ? '${calories?.toInt() ?? 0}'
+            : '${kilogramsToPounds(calories?.toDouble() ?? 0).toInt()}',
         color: const Color(0xFFEF4444),
       ),
       _StatData(
         label: 'PROTEIN',
-        value: '${protein?.toInt() ?? 0}g',
+        value: isKg
+            ? '${protein?.toInt() ?? 0}g'
+            : '${kilogramsToPounds(protein?.toDouble() ?? 0).toInt()} lb',
         color: const Color(0xFF60A5FA),
       ),
       _StatData(
         label: 'CARBS',
-        value: '${carbs?.toInt() ?? 0}g',
+        value: isKg
+            ? '${carbs?.toInt() ?? 0}g'
+            : '${kilogramsToPounds(carbs?.toDouble() ?? 0).toInt()} lb',
         color: const Color(0xFFFB923C),
       ),
       _StatData(
         label: 'FAT',
-        value: '${fat?.toInt() ?? 0}g',
+        value: isKg
+            ? '${fat?.toInt() ?? 0}g'
+            : '${kilogramsToPounds(fat?.toDouble() ?? 0).toInt()} lb',
         color: const Color(0xFFA1A1AA),
       ),
     ];

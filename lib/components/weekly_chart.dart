@@ -2,11 +2,16 @@ import 'dart:math' as math;
 
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:intake_helper/Providers/settings_providers.dart';
+import 'package:intake_helper/common_functions/units_conversion.dart';
 
 Widget buildWeeklyChart({
+  required WidgetRef ref,
   required List<Map<String, dynamic>> chartData,
 }) {
   print("chartData: $chartData");
+  final unitsConversion = ref.read(weightUnitProvider);
 
   final allDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
@@ -176,8 +181,11 @@ Widget buildWeeklyChart({
                         getTooltipColor: (_) => const Color(0xFF1E1B4B),
                         getTooltipItems: (touchedSpots) {
                           return touchedSpots.map((spot) {
+                            final value = unitsConversion == WeightUnit.kg
+                                ? '${spot.y.toDouble().toStringAsFixed(2)} g'
+                                : '${kilogramsToPounds(spot.y.toDouble()).toStringAsFixed(2)} lbs';
                             return LineTooltipItem(
-                              '${spot.y.toInt()}g',
+                              value,
                               const TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.w700,

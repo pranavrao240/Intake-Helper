@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:intake_helper/pages/profile/widgets/achievements_widget.dart';
+import 'package:intake_helper/pages/profile/widgets/settings_widget.dart';
 import 'widgets/profile_header.dart';
 import 'widgets/physical_stats_card.dart';
 import 'package:intake_helper/components/bottom_navbar.dart';
@@ -29,7 +31,10 @@ class ProfilePage extends HookConsumerWidget {
                 const SizedBox(height: 24),
                 const PhysicalStatsCard(),
                 const SizedBox(height: 24),
+                AchievementsWidget(),
                 // const buildWeeklyChart(),
+                const SizedBox(height: 24),
+                SettingsWidget(),
                 const SizedBox(height: 24),
                 const LogoutButton(),
                 const SizedBox(height: 40),

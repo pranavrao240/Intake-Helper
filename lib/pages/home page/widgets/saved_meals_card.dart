@@ -1,28 +1,29 @@
 //TODO: CURRENTLY HARDCODED - NEED TO FETCH FROM DATABASE
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intake_helper/router.dart';
 
-Widget buildSavedMeals(BuildContext context) {
+Widget buildSavedMeals(BuildContext context, WidgetRef ref) {
   final savedMeals = [
     {
       'id': '1',
       'name': 'Grilled Chicken',
-      'protein': '35g',
+      'protein': '35',
       'image':
           'https://images.unsplash.com/photo-1679279726937-122c49626802?auto=format&fit=crop&w=800&q=80'
     },
     {
       'id': '2',
       'name': 'Salmon Bowl',
-      'protein': '32g',
+      'protein': '32',
       'image':
           'https://images.unsplash.com/photo-1768326119213-e0ad875083a3?auto=format&fit=crop&w=800&q=80'
     },
     {
       'id': '3',
       'name': 'Protein Breakfast',
-      'protein': '28g',
+      'protein': '28',
       'image':
           'https://images.unsplash.com/photo-1589786741892-824d46e61d61?auto=format&fit=crop&w=800&q=80'
     },

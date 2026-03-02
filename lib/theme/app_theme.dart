@@ -30,10 +30,10 @@ class AppTheme {
   // ─────────────────────────────────────────────────────────────────
   static ThemeData darkTheme = ThemeData(
     brightness: Brightness.dark,
-    primaryColor: primaryRed,
+    primaryColor: Color(0xFF6D28D9),
     scaffoldBackgroundColor: bgBlack,
     colorScheme: const ColorScheme.dark(
-      primary: primaryRed,
+      primary: Color(0xFF6D28D9),
       secondary: primaryBlue,
       surface: surfaceDark,
       onPrimary: Colors.white,
@@ -89,10 +89,10 @@ class AppTheme {
   // ─────────────────────────────────────────────────────────────────
   static ThemeData lightTheme = ThemeData(
     brightness: Brightness.light,
-    primaryColor: primaryRed,
+    primaryColor: Color(0xFF6D28D9),
     scaffoldBackgroundColor: Colors.white,
     colorScheme: const ColorScheme.light(
-      primary: primaryRed,
+      primary: Color(0xFF6D28D9),
       secondary: primaryBlue,
       surface: Colors.white,
       onPrimary: Colors.white,
