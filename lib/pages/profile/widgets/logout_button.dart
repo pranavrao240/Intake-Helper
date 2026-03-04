@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:intake_helper/router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LogoutButton extends HookConsumerWidget {
   const LogoutButton({super.key});
@@ -11,7 +14,14 @@ class LogoutButton extends HookConsumerWidget {
       child: SizedBox(
         width: double.infinity,
         child: ElevatedButton.icon(
-          onPressed: () {},
+          onPressed: () async {
+            final preferences = await SharedPreferences.getInstance();
+            await preferences.remove('token');
+
+            if (context.mounted) {
+              context.go(RouteConstants.login.path);
+            }
+          },
           icon: const Icon(Icons.logout_rounded, size: 20),
           label: const Text(
             'Logout',

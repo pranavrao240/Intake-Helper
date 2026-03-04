@@ -166,6 +166,7 @@ class Homepage extends HookConsumerWidget {
                     ],
                   ),
                 ),
+
       bottomNavigationBar: BottomNavbar(),
     );
   }

@@ -80,7 +80,7 @@ Widget buildHeroSection(
       ),
       boxShadow: [
         BoxShadow(
-          color: const Color(0xFFDC2626).withValues(alpha: 0.4),
+          color: const Color(0xFF6D28D9).withValues(alpha: 0.4),
           blurRadius: 30,
           offset: const Offset(0, 10),
         ),

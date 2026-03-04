@@ -2,7 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-const _avatarList = ['👤', '💪', '🏋️', '🥇', '🔥', '⚡'];
+const String imagePath = 'lib/assets/characters';
+const List<String> _avatarList = [
+  '$imagePath/male1.png',
+  '$imagePath/male2.png',
+  '$imagePath/male3.png',
+  '$imagePath/male4.png',
+  '$imagePath/female1.png',
+  '$imagePath/female2.png',
+  '$imagePath/female3.png',
+  '$imagePath/female4.png',
+];
 
 class AvatarModal extends HookConsumerWidget {
   final String currentAvatar;
@@ -71,29 +81,31 @@ class AvatarModal extends HookConsumerWidget {
                   // ── Avatar grid ──
                   GridView.count(
                     shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
                     crossAxisCount: 3,
                     mainAxisSpacing: 16,
                     crossAxisSpacing: 16,
                     children: _avatarList.map((avatar) {
                       final isSelected = tempAvatar.value == avatar;
+
                       return GestureDetector(
                         onTap: () => tempAvatar.value = avatar,
-                        child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 200),
+                        child: Container(
+                          padding: EdgeInsets.only(left: 10, top: 5),
                           decoration: BoxDecoration(
-                            color: isSelected
-                                ? Color(0xFF6D28D9)
-                                : Colors.white.withValues(alpha: 0.1),
                             shape: BoxShape.circle,
                             border: isSelected
                                 ? Border.all(
                                     color: const Color(0xFF6D28D9), width: 3)
                                 : null,
                           ),
-                          child: Center(
-                            child: Text(
+                          child: ClipOval(
+                            child: Image.asset(
                               avatar,
-                              style: const TextStyle(fontSize: 32),
+                              width: 64,
+                              height: 64,
+                              fit: BoxFit.cover,
+                              alignment: Alignment.topLeft,
                             ),
                           ),
                         ),

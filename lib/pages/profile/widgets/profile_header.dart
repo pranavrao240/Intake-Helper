@@ -39,6 +39,7 @@ class ProfileHeader extends HookConsumerWidget {
             clipBehavior: Clip.none,
             children: [
               Container(
+                padding: const EdgeInsets.only(left: 10, top: 5),
                 width: 112,
                 height: 112,
                 decoration: BoxDecoration(
@@ -55,11 +56,29 @@ class ProfileHeader extends HookConsumerWidget {
                     ),
                   ],
                 ),
-                child: Center(
-                  child: Text(
-                    selectedAvatar,
-                    style: const TextStyle(fontSize: 48),
-                  ),
+                child: ClipOval(
+                  child: selectedAvatar.isNotEmpty
+                      ? Image.asset(
+                          selectedAvatar,
+                          fit: BoxFit.cover,
+                          alignment: Alignment.topCenter,
+                          errorBuilder: (context, error, stackTrace) {
+                            return const Center(
+                              child: Icon(
+                                Icons.person,
+                                size: 60,
+                                color: Colors.white70,
+                              ),
+                            );
+                          },
+                        )
+                      : Center(
+                          child: Icon(
+                            Icons.person,
+                            size: 60,
+                            color: Colors.white70,
+                          ),
+                        ),
                 ),
               ),
               Positioned(

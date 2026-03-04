@@ -4,8 +4,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../main.dart';
 import 'pages/home page/HomePage.dart';
-import '../pages/Login_page.dart';
-import '../pages/register_page.dart';
+import 'pages/auth/login/Login_page.dart';
+import 'pages/auth/register/register_page.dart';
 import 'pages/profile/profile_page.dart';
 import 'pages/Todos/todo_page.dart';
 import 'pages/nutritions/nutrition list/nutritionScreen.dart';
