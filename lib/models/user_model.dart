@@ -7,8 +7,8 @@ part 'user_model.g.dart';
 abstract class ProfileResponse with _$ProfileResponse {
   const factory ProfileResponse({
     required bool success,
-    ProfileData? data, // made nullable because JSON might not include it
-    String? message, // optional, because response might not have it
+    ProfileData? data,
+    String? message,
   }) = _ProfileResponse;
 
   factory ProfileResponse.fromJson(Map<String, dynamic> json) =>
@@ -22,9 +22,12 @@ abstract class ProfileData with _$ProfileData {
     String? fullName,
     String? email,
     int? age,
-    double? height, // corrected type
-    double? weight, // corrected type
+    double? height,
+    double? weight,
     @JsonKey(name: "dateOfBirth") String? dateOfBirth,
+    String? profileImage,
+    double? bodyFat,
+    String? gender,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) = _ProfileData;

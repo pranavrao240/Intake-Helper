@@ -43,8 +43,10 @@ class NutritionItemCard extends HookConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            // ── Food image (fixed height) ──
-            _FoodImage(dishName: item.dishName),
+            _FoodImage(
+              dishName: item.dishName,
+              dishImage: item.dishImage,
+            ),
 
             // ── Card body ──
             Padding(
@@ -121,60 +123,66 @@ class NutritionItemCard extends HookConsumerWidget {
   }
 }
 
-// ── Food placeholder image ───────────────────────────────────────────────────
 class _FoodImage extends StatelessWidget {
   final String? dishName;
-  const _FoodImage({this.dishName});
+  final String? dishImage;
+  const _FoodImage({this.dishName, this.dishImage});
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
       height: 130,
       width: double.infinity,
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          Container(
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                colors: [Color(0xFF1E1B4B), Color(0xFF1A1A2E)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-            ),
-          ),
-          Center(
-            child: Icon(
-              LucideIcons.utensils,
-              color: Colors.white.withOpacity(0.15),
-              size: 34,
-            ),
-          ),
-          Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            child: Container(
-              height: 36,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Colors.transparent,
-                    Colors.black.withOpacity(0.35),
-                  ],
+      child: dishImage != null
+          ? Image.network(
+              dishImage!,
+              width: 34,
+              height: 34,
+              fit: BoxFit.cover,
+            )
+          : Stack(
+              fit: StackFit.expand,
+              children: [
+                Container(
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [Color(0xFF1E1B4B), Color(0xFF1A1A2E)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                  ),
                 ),
-              ),
+                Center(
+                  child: Icon(
+                    LucideIcons.utensils,
+                    color: Colors.white.withValues(alpha: 0.15),
+                    size: 34,
+                  ),
+                ),
+                Positioned(
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  child: Container(
+                    height: 36,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Colors.transparent,
+                          Colors.black.withOpacity(0.35),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ),
-        ],
-      ),
     );
   }
 }
 
-// ── Single macro chip ────────────────────────────────────────────────────────
 class _MacroChip extends StatelessWidget {
   final IconData icon;
   final Color iconColor;

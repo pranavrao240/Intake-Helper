@@ -166,6 +166,8 @@ class ApiService extends AsyncNotifier<ApiState> {
     double? height,
     double? weight,
     String? dateOfBirth,
+    String? gender,
+    double? bodyFat,
   }) async {
     final Map<String, dynamic> payload = {};
     final preferences = await SharedPreferences.getInstance();
@@ -175,6 +177,8 @@ class ApiService extends AsyncNotifier<ApiState> {
     if (height != null) payload['height'] = height;
     if (weight != null) payload['weight'] = weight;
     if (dateOfBirth != null) payload['dateOfBirth'] = dateOfBirth;
+    if (gender != null) payload['gender'] = gender;
+    if (bodyFat != null) payload['bodyFat'] = bodyFat;
 
     if (payload.isEmpty) {
       debugPrint('No profile fields to update');
@@ -193,9 +197,59 @@ class ApiService extends AsyncNotifier<ApiState> {
         data: payload,
       );
 
+      print('Profile update response: ${response.data}');
+
       if (response.statusCode == 200) {
-        final profileModel =
-            ProfileResponse.fromJson(jsonDecode(response.data));
+        final profileModel = ProfileResponse.fromJson(response.data);
+        state = AsyncValue.data(
+          state.value!.copyWith(
+              profileData: profileModel.data, message: profileModel.message),
+        );
+      } else {
+        state = AsyncValue.data(
+          state.value!.copyWith(message: "Failed to update profile"),
+        );
+      }
+    } catch (e) {
+      debugPrint("Update profile error: $e");
+      state = AsyncValue.data(
+        state.value!.copyWith(
+            message: "Failed to update profile",
+            redirect: RouteConstants.todo.name),
+      );
+    }
+  }
+
+  Future<void> updateProfileImage({
+    String? profileImage,
+  }) async {
+    final Map<String, dynamic> payload = {};
+    final preferences = await SharedPreferences.getInstance();
+    final token = preferences.getString('token');
+
+    if (profileImage != null) payload['profileImage'] = profileImage;
+
+    if (payload.isEmpty) {
+      debugPrint('No profile fields to update');
+      return;
+    }
+
+    try {
+      final response = await dio.put(
+        '${Config.baseUrl}/${Config.profileAPI}',
+        options: Options(
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $token',
+          },
+        ),
+        data: {
+          'profileImage': profileImage,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final profileModel = ProfileResponse.fromJson(response.data);
         state = AsyncValue.data(
           state.value!.copyWith(
               profileData: profileModel.data, message: profileModel.message),
@@ -268,6 +322,8 @@ class ApiService extends AsyncNotifier<ApiState> {
 
         final data = responseData.data;
 
+        print('nutritions list $data');
+
         state = AsyncValue.data(state.value!.copyWith(
           nutritions: data,
         ));
@@ -321,14 +377,18 @@ class ApiService extends AsyncNotifier<ApiState> {
     return null;
   }
 
-  Future<void> addNutrition(
-      {required String name,
-      double? protein,
-      double? carbs,
-      double? calories,
-      String? quantity}) async {
+  Future<void> addNutrition({
+    required String name,
+    required String mealImage,
+    double? protein,
+    double? carbs,
+    double? calories,
+    String? quantity,
+  }) async {
     final preferences = await SharedPreferences.getInstance();
     final token = preferences.getString('token');
+
+    print("Meal image: $mealImage");
 
     try {
       final response =
@@ -341,6 +401,7 @@ class ApiService extends AsyncNotifier<ApiState> {
               ),
               data: {
             "DishName": name,
+            "DishImage": mealImage,
             "Protein": protein,
             "Carbohydrates": carbs,
             "Calories": calories,
@@ -349,9 +410,12 @@ class ApiService extends AsyncNotifier<ApiState> {
 
       await preferences.setString('addedId', response.data['data']['_id']);
 
+      final nutrition = Nutrition.fromJson(response.data['data']);
+
       state = AsyncValue.data(state.value!.copyWith(
         message: "Nutrition added successfully",
         isLoading: false,
+        nutrition: nutrition,
         redirect: RouteConstants.mealDetails.path,
         addedId: response.data['data']['_id'],
       ));

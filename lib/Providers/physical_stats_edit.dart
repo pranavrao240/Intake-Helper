@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:intake_helper/api/api_service.dart';
 
 const _kRed = Color(0xFF6D28D9);
 
@@ -51,16 +52,18 @@ class PhysicalStatsEditModal extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final stats = ref.watch(physicalStatsProvider);
+    final profileState = ref.watch(apiServiceProvider);
+    final profile = profileState.value?.profileData;
 
     final heightCtrl =
-        useTextEditingController(text: stats.height?.toString() ?? '');
+        useTextEditingController(text: profile?.height?.toString() ?? '');
     final weightCtrl =
-        useTextEditingController(text: stats.weight?.toString() ?? '');
-    final ageCtrl = useTextEditingController(text: stats.age?.toString() ?? '');
+        useTextEditingController(text: profile?.weight?.toString() ?? '');
+    final ageCtrl =
+        useTextEditingController(text: profile?.age?.toString() ?? '');
     final bodyFatCtrl =
-        useTextEditingController(text: stats.bodyFat?.toString() ?? '');
-    final selectedGender = useState<String>(stats.gender ?? 'Male');
+        useTextEditingController(text: profile?.bodyFat?.toString() ?? '');
+    final selectedGender = useState<String>(profile?.gender ?? 'Male');
     final formKey = useMemoized(GlobalKey<FormState>.new);
     final isSaving = useState(false);
 
@@ -68,15 +71,14 @@ class PhysicalStatsEditModal extends HookConsumerWidget {
       if (!(formKey.currentState?.validate() ?? false)) return;
       isSaving.value = true;
       await Future.delayed(const Duration(milliseconds: 400));
-      ref.read(physicalStatsProvider.notifier).update(
-            stats.copyWith(
-              height: double.tryParse(heightCtrl.text),
-              weight: double.tryParse(weightCtrl.text),
-              age: int.tryParse(ageCtrl.text),
-              gender: selectedGender.value,
-              bodyFat: double.tryParse(bodyFatCtrl.text),
-            ),
+      ref.read(apiServiceProvider.notifier).updateProfile(
+            age: int.tryParse(ageCtrl.text),
+            height: double.tryParse(heightCtrl.text),
+            weight: double.tryParse(weightCtrl.text),
+            gender: selectedGender.value,
+            bodyFat: double.tryParse(bodyFatCtrl.text),
           );
+
       isSaving.value = false;
       if (context.mounted) Navigator.of(context).pop();
     }
@@ -99,217 +101,223 @@ class PhysicalStatsEditModal extends HookConsumerWidget {
         ),
         child: Form(
           key: formKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                padding: const EdgeInsets.fromLTRB(20, 20, 16, 18),
-                decoration: const BoxDecoration(
-                  border: Border(
-                    bottom: BorderSide(color: Color(0xFF1E1E1E)),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  padding: const EdgeInsets.fromLTRB(20, 20, 16, 18),
+                  decoration: const BoxDecoration(
+                    border: Border(
+                      bottom: BorderSide(color: Color(0xFF1E1E1E)),
+                    ),
                   ),
-                ),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 36,
-                      height: 36,
-                      decoration: BoxDecoration(
-                        color: _kRed.withValues(alpha: 0.12),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: const Icon(
-                        Icons.monitor_weight_outlined,
-                        color: _kRed,
-                        size: 18,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    const Text(
-                      'Physical Stats',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: -0.3,
-                      ),
-                    ),
-                    const Spacer(),
-                    GestureDetector(
-                      onTap: () => Navigator.of(context).pop(),
-                      child: Container(
-                        width: 32,
-                        height: 32,
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 36,
+                        height: 36,
                         decoration: BoxDecoration(
-                          color: const Color(0xFF1E1E1E),
-                          borderRadius: BorderRadius.circular(8),
+                          color: _kRed.withValues(alpha: 0.12),
+                          borderRadius: BorderRadius.circular(10),
                         ),
                         child: const Icon(
-                          Icons.close_rounded,
-                          color: Color(0xFF888888),
-                          size: 16,
+                          Icons.monitor_weight_outlined,
+                          color: _kRed,
+                          size: 18,
                         ),
                       ),
-                    ),
-                  ],
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
-                child: Column(
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _StatField(
-                            controller: heightCtrl,
-                            label: 'Height',
-                            unit: 'cm',
-                            icon: Icons.height_rounded,
-                            hint: '00',
-                            keyboardType: const TextInputType.numberWithOptions(
-                                decimal: true),
-                            inputFormatters: [
-                              FilteringTextInputFormatter.allow(
-                                  RegExp(r'^\d{0,3}\.?\d{0,1}')),
-                            ],
-                            validator: (v) {
-                              if (v == null || v.isEmpty) return 'Required';
-                              final val = double.tryParse(v);
-                              if (val == null || val < 50 || val > 300) {
-                                return '50–300 cm';
-                              }
-                              return null;
-                            },
+                      const SizedBox(width: 12),
+                      const Text(
+                        'Physical Stats',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: -0.3,
+                        ),
+                      ),
+                      const Spacer(),
+                      GestureDetector(
+                        onTap: () => Navigator.of(context).pop(),
+                        child: Container(
+                          width: 32,
+                          height: 32,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF1E1E1E),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: const Icon(
+                            Icons.close_rounded,
+                            color: Color(0xFF888888),
+                            size: 16,
                           ),
                         ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: _StatField(
-                            controller: weightCtrl,
-                            label: 'Weight',
-                            unit: 'kg',
-                            icon: Icons.fitness_center_rounded,
-                            hint: '75',
-                            keyboardType: const TextInputType.numberWithOptions(
-                                decimal: true),
-                            inputFormatters: [
-                              FilteringTextInputFormatter.allow(
-                                  RegExp(r'^\d{0,3}\.?\d{0,1}')),
-                            ],
-                            validator: (v) {
-                              if (v == null || v.isEmpty) return 'Required';
-                              final val = double.tryParse(v);
-                              if (val == null || val < 20 || val > 500) {
-                                return '20–500 kg';
-                              }
-                              return null;
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _StatField(
-                            controller: ageCtrl,
-                            label: 'Age',
-                            unit: 'yrs',
-                            icon: Icons.cake_outlined,
-                            hint: '25',
-                            keyboardType: TextInputType.number,
-                            inputFormatters: [
-                              FilteringTextInputFormatter.digitsOnly,
-                              LengthLimitingTextInputFormatter(3),
-                            ],
-                            validator: (v) {
-                              if (v == null || v.isEmpty) return 'Required';
-                              final val = int.tryParse(v);
-                              if (val == null || val < 1 || val > 120) {
-                                return '1–120 yrs';
-                              }
-                              return null;
-                            },
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: _StatField(
-                            controller: bodyFatCtrl,
-                            label: 'Body Fat',
-                            unit: '%',
-                            icon: Icons.percent_rounded,
-                            hint: '18',
-                            keyboardType: const TextInputType.numberWithOptions(
-                                decimal: true),
-                            inputFormatters: [
-                              FilteringTextInputFormatter.allow(
-                                  RegExp(r'^\d{0,2}\.?\d{0,1}')),
-                            ],
-                            validator: (v) {
-                              if (v != null && v.isNotEmpty) {
-                                final val = double.tryParse(v);
-                                if (val == null || val < 1 || val > 70) {
-                                  return '1–70%';
-                                }
-                              }
-                              return null;
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    _GenderSelector(selected: selectedGender),
-                  ],
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
-                child: GestureDetector(
-                  onTap: isSaving.value ? null : handleSave,
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 200),
-                    height: 52,
-                    decoration: BoxDecoration(
-                      color:
-                          isSaving.value ? _kRed.withValues(alpha: 0.5) : _kRed,
-                      borderRadius: BorderRadius.circular(14),
-                      boxShadow: isSaving.value
-                          ? []
-                          : [
-                              BoxShadow(
-                                color: _kRed.withValues(alpha: 0.35),
-                                blurRadius: 16,
-                                offset: const Offset(0, 6),
-                              ),
-                            ],
-                    ),
-                    alignment: Alignment.center,
-                    child: isSaving.value
-                        ? const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2.5,
-                              color: Colors.white,
-                            ),
-                          )
-                        : const Text(
-                            'Save Stats',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 15,
-                              fontWeight: FontWeight.w700,
-                              letterSpacing: 0.3,
-                            ),
-                          ),
+                      ),
+                    ],
                   ),
                 ),
-              ),
-            ],
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
+                  child: Column(
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _StatField(
+                              controller: heightCtrl,
+                              label: 'Height',
+                              unit: 'cm',
+                              icon: Icons.height_rounded,
+                              hint: '00',
+                              keyboardType:
+                                  const TextInputType.numberWithOptions(
+                                      decimal: true),
+                              inputFormatters: [
+                                FilteringTextInputFormatter.allow(
+                                    RegExp(r'^\d{0,3}\.?\d{0,1}')),
+                              ],
+                              validator: (v) {
+                                if (v == null || v.isEmpty) return 'Required';
+                                final val = double.tryParse(v);
+                                if (val == null || val < 50 || val > 300) {
+                                  return '50–300 cm';
+                                }
+                                return null;
+                              },
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: _StatField(
+                              controller: weightCtrl,
+                              label: 'Weight',
+                              unit: 'kg',
+                              icon: Icons.fitness_center_rounded,
+                              hint: '75',
+                              keyboardType:
+                                  const TextInputType.numberWithOptions(
+                                      decimal: true),
+                              inputFormatters: [
+                                FilteringTextInputFormatter.allow(
+                                    RegExp(r'^\d{0,3}\.?\d{0,1}')),
+                              ],
+                              validator: (v) {
+                                if (v == null || v.isEmpty) return 'Required';
+                                final val = double.tryParse(v);
+                                if (val == null || val < 20 || val > 500) {
+                                  return '20–500 kg';
+                                }
+                                return null;
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _StatField(
+                              controller: ageCtrl,
+                              label: 'Age',
+                              unit: 'yrs',
+                              icon: Icons.cake_outlined,
+                              hint: '25',
+                              keyboardType: TextInputType.number,
+                              inputFormatters: [
+                                FilteringTextInputFormatter.digitsOnly,
+                                LengthLimitingTextInputFormatter(3),
+                              ],
+                              validator: (v) {
+                                if (v == null || v.isEmpty) return 'Required';
+                                final val = int.tryParse(v);
+                                if (val == null || val < 1 || val > 120) {
+                                  return '1–120 yrs';
+                                }
+                                return null;
+                              },
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: _StatField(
+                              controller: bodyFatCtrl,
+                              label: 'Body Fat',
+                              unit: '%',
+                              icon: Icons.percent_rounded,
+                              hint: '18',
+                              keyboardType:
+                                  const TextInputType.numberWithOptions(
+                                      decimal: true),
+                              inputFormatters: [
+                                FilteringTextInputFormatter.allow(
+                                    RegExp(r'^\d{0,2}\.?\d{0,1}')),
+                              ],
+                              validator: (v) {
+                                if (v != null && v.isNotEmpty) {
+                                  final val = double.tryParse(v);
+                                  if (val == null || val < 1 || val > 70) {
+                                    return '1–70%';
+                                  }
+                                }
+                                return null;
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      _GenderSelector(selected: selectedGender),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+                  child: GestureDetector(
+                    onTap: isSaving.value ? null : handleSave,
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      height: 52,
+                      decoration: BoxDecoration(
+                        color: isSaving.value
+                            ? _kRed.withValues(alpha: 0.5)
+                            : _kRed,
+                        borderRadius: BorderRadius.circular(14),
+                        boxShadow: isSaving.value
+                            ? []
+                            : [
+                                BoxShadow(
+                                  color: _kRed.withValues(alpha: 0.35),
+                                  blurRadius: 16,
+                                  offset: const Offset(0, 6),
+                                ),
+                              ],
+                      ),
+                      alignment: Alignment.center,
+                      child: isSaving.value
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2.5,
+                                color: Colors.white,
+                              ),
+                            )
+                          : const Text(
+                              'Save Stats',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 15,
+                                fontWeight: FontWeight.w700,
+                                letterSpacing: 0.3,
+                              ),
+                            ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -369,18 +377,9 @@ class _StatField extends HookWidget {
               color: const Color(0xFF1A1A1A),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: isFocused.value ? _kRed : const Color(0xFF2A2A2A),
+                color: const Color(0xFF2A2A2A),
                 width: isFocused.value ? 1.5 : 1,
               ),
-              boxShadow: isFocused.value
-                  ? [
-                      BoxShadow(
-                        color: _kRed.withValues(alpha: 0.15),
-                        blurRadius: 8,
-                        spreadRadius: 0,
-                      )
-                    ]
-                  : [],
             ),
             child: TextFormField(
               controller: controller,

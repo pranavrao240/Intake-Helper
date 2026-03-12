@@ -61,11 +61,6 @@ class NutritionDetailScreen extends HookConsumerWidget {
     final protein = (model.protein ?? 0).toDouble();
     final carbs = (model.carbohydrates ?? 0).toDouble();
 
-    print('calories: $calories');
-    print('protein: $protein');
-    print('carbs: $carbs');
-    print('nutrition Id: ${model.id}');
-
     return Stack(
       children: [
         // ── Scrollable content ──
@@ -74,11 +69,9 @@ class NutritionDetailScreen extends HookConsumerWidget {
             // Hero image (non-scrolling pinned at top)
             SliverToBoxAdapter(
               child: NutritionHeroSection(
-                dishName: model.dishName ?? 'Unknown Dish',
-                tag: model.type?.isNotEmpty == true ? model.type!.first : '',
-                imageUrl:
-                    'https://images.unsplash.com/photo-1679279726937-122c49626802?auto=format&amp;fit=crop&amp;w=1080&amp;q=80', // Pass image URL if available in your model
-              ),
+                  dishName: model.dishName ?? 'Unknown Dish',
+                  tag: model.type?.isNotEmpty == true ? model.type!.first : '',
+                  imageUrl: model.dishImage),
             ),
 
             // Body content
@@ -147,15 +140,11 @@ class NutritionDetailScreen extends HookConsumerWidget {
     );
   }
 
-  // ── Parse ingredients from model ──────────────────────────────────────────
   List<Map<String, String>> _parseIngredients(Nutrition model) {
-    // quantityRequired often holds ingredient info as a formatted string.
-    // Adapt this logic to match your actual model structure.
     if (model.quantityRequired == null || model.quantityRequired!.isEmpty) {
       return [];
     }
 
-    // If quantityRequired is a single value like "200g", show it as one item
     return [
       {
         'name': model.dishName ?? 'Main Ingredient',
@@ -164,7 +153,6 @@ class NutritionDetailScreen extends HookConsumerWidget {
     ];
   }
 
-  // ── Add meal handler ──────────────────────────────────────────────────────
   Future<void> _handleAddMeal({
     required BuildContext context,
     required WidgetRef ref,
@@ -215,7 +203,6 @@ class NutritionDetailScreen extends HookConsumerWidget {
   }
 }
 
-// ── Meal type selector ───────────────────────────────────────────────────────
 class _MealTypeSelector extends StatelessWidget {
   final ValueNotifier<List<String>> selectedTypes;
   const _MealTypeSelector({required this.selectedTypes});
@@ -283,7 +270,6 @@ class _MealTypeSelector extends StatelessWidget {
   }
 }
 
-// ── Time & day picker dialog ─────────────────────────────────────────────────
 class _TimeDayPickerDialog extends StatefulWidget {
   final void Function(TimeOfDay time, List<String> days) onConfirm;
   const _TimeDayPickerDialog({required this.onConfirm});

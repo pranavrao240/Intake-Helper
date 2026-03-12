@@ -22,7 +22,6 @@ class NutritionHeroSection extends StatelessWidget {
       child: Stack(
         fit: StackFit.expand,
         children: [
-          // ── Hero image ──
           imageUrl != null && imageUrl!.isNotEmpty
               ? Image.network(
                   imageUrl!,
@@ -38,8 +37,6 @@ class NutritionHeroSection extends StatelessWidget {
                   child: const Icon(Icons.restaurant,
                       color: Colors.white24, size: 60),
                 ),
-
-          // ── Bottom gradient ──
           const DecoratedBox(
             decoration: BoxDecoration(
               gradient: LinearGradient(
@@ -54,8 +51,6 @@ class NutritionHeroSection extends StatelessWidget {
               ),
             ),
           ),
-
-          // ── Top bar (back + heart) ──
           Positioned(
             top: MediaQuery.of(context).padding.top + 12,
             left: 20,
@@ -63,13 +58,11 @@ class NutritionHeroSection extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                // Back button
                 _GlassButton(
                   onTap: () => context.pop(),
                   child: const Icon(LucideIcons.arrowLeft,
                       color: Colors.white, size: 18),
                 ),
-                // Heart button
                 _GlassButton(
                   onTap: () {},
                   child: const Icon(LucideIcons.heart,
@@ -78,8 +71,6 @@ class NutritionHeroSection extends StatelessWidget {
               ],
             ),
           ),
-
-          // ── Title at bottom ──
           Positioned(
             bottom: 0,
             left: 20,
@@ -87,7 +78,6 @@ class NutritionHeroSection extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Tag pill
                 if (tag != '')
                   Container(
                     padding:

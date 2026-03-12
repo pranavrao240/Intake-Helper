@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intake_helper/Providers/physical_stats_edit.dart';
+import 'package:intake_helper/api/api_service.dart';
 
 const _kRed = Color(0xFF6D28D9);
 
@@ -9,8 +10,8 @@ class PhysicalStatsCard extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final stats = ref.watch(physicalStatsProvider);
-
+    final profileState = ref.watch(apiServiceProvider);
+    final profile = profileState.value?.profileData;
     void openEdit() {
       showDialog(
         context: context,
@@ -91,9 +92,9 @@ class PhysicalStatsCard extends HookConsumerWidget {
             const Divider(height: 1, color: Color(0xFF1E1E1E)),
             Padding(
               padding: const EdgeInsets.all(16),
-              child: stats.height == null &&
-                      stats.weight == null &&
-                      stats.age == null
+              child: profile?.height == null &&
+                      profile?.weight == null &&
+                      profile?.age == null
                   ? _EmptyState(onTap: openEdit)
                   : Column(
                       children: [
@@ -101,8 +102,8 @@ class PhysicalStatsCard extends HookConsumerWidget {
                           children: [
                             _StatTile(
                               label: 'Height',
-                              value: stats.height != null
-                                  ? stats.height!.toStringAsFixed(0)
+                              value: profile?.height != null
+                                  ? profile!.height!.toStringAsFixed(0)
                                   : '—',
                               unit: 'cm',
                               icon: Icons.height_rounded,
@@ -110,8 +111,8 @@ class PhysicalStatsCard extends HookConsumerWidget {
                             const SizedBox(width: 10),
                             _StatTile(
                               label: 'Weight',
-                              value: stats.weight != null
-                                  ? stats.weight!.toStringAsFixed(1)
+                              value: profile?.weight != null
+                                  ? profile!.weight!.toStringAsFixed(1)
                                   : '—',
                               unit: 'kg',
                               icon: Icons.fitness_center_rounded,
@@ -123,8 +124,8 @@ class PhysicalStatsCard extends HookConsumerWidget {
                           children: [
                             _StatTile(
                               label: 'Age',
-                              value: stats.age != null
-                                  ? stats.age.toString()
+                              value: profile?.age != null
+                                  ? profile!.age.toString()
                                   : '—',
                               unit: 'yrs',
                               icon: Icons.cake_outlined,
@@ -132,15 +133,15 @@ class PhysicalStatsCard extends HookConsumerWidget {
                             const SizedBox(width: 10),
                             _StatTile(
                               label: 'Body Fat',
-                              value: stats.bodyFat != null
-                                  ? stats.bodyFat!.toStringAsFixed(1)
+                              value: profile?.bodyFat != null
+                                  ? profile!.bodyFat!.toStringAsFixed(1)
                                   : '—',
                               unit: '%',
                               icon: Icons.percent_rounded,
                             ),
                           ],
                         ),
-                        if (stats.gender != null) ...[
+                        if (profile?.gender != null) ...[
                           const SizedBox(height: 10),
                           Container(
                             width: double.infinity,
@@ -162,7 +163,7 @@ class PhysicalStatsCard extends HookConsumerWidget {
                                 ),
                                 const Spacer(),
                                 Text(
-                                  stats.gender!,
+                                  profile?.gender ?? '—',
                                   style: const TextStyle(
                                     color: Colors.white,
                                     fontSize: 14,

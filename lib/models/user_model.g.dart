@@ -30,6 +30,9 @@ _ProfileData _$ProfileDataFromJson(Map<String, dynamic> json) => _ProfileData(
       height: (json['height'] as num?)?.toDouble(),
       weight: (json['weight'] as num?)?.toDouble(),
       dateOfBirth: json['dateOfBirth'] as String?,
+      profileImage: json['profileImage'] as String?,
+      bodyFat: (json['bodyFat'] as num?)?.toDouble(),
+      gender: json['gender'] as String?,
       createdAt: json['createdAt'] == null
           ? null
           : DateTime.parse(json['createdAt'] as String),
@@ -47,6 +50,9 @@ Map<String, dynamic> _$ProfileDataToJson(_ProfileData instance) =>
       'height': instance.height,
       'weight': instance.weight,
       'dateOfBirth': instance.dateOfBirth,
+      'profileImage': instance.profileImage,
+      'bodyFat': instance.bodyFat,
+      'gender': instance.gender,
       'createdAt': instance.createdAt?.toIso8601String(),
       'updatedAt': instance.updatedAt?.toIso8601String(),
     };

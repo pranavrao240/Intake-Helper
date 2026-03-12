@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:intake_helper/Providers/settings_providers.dart';
 import 'package:intake_helper/api/api_service.dart';
 import 'package:intake_helper/components/bottom_navbar.dart';
 import 'package:intake_helper/models/nutrition_model.dart';

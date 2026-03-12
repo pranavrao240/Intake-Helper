@@ -14,6 +14,19 @@ class IngredientsCard extends HookConsumerWidget {
     if (ingredients.isEmpty) return const SizedBox.shrink();
     final unitsConversion = ref.read(weightUnitProvider);
 
+    List<String> parseIngredients(String? amount) {
+      if (amount == null || amount.isEmpty) return [];
+
+      return amount
+          .split('\n')
+          .map((e) => e.trim())
+          .where((e) => e.isNotEmpty)
+          .toList();
+    }
+
+    final parsedIngredients =
+        parseIngredients(ingredients.map((e) => e['amount']).join('\n'));
+
     return Container(
       decoration: BoxDecoration(
         color: const Color(0xFF18181B),
@@ -39,9 +52,11 @@ class IngredientsCard extends HookConsumerWidget {
           ),
 
           // Rows
-          ...List.generate(ingredients.length, (i) {
-            final ing = ingredients[i];
-            final isLast = i == ingredients.length - 1;
+
+          ...List.generate(parsedIngredients.length, (i) {
+            final ingredient = parsedIngredients[i];
+            final isLast = i == parsedIngredients.length - 1;
+
             return Column(
               children: [
                 Padding(
@@ -50,7 +65,7 @@ class IngredientsCard extends HookConsumerWidget {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      // Number badge + name
+                      /// LEFT SIDE
                       Row(
                         children: [
                           Container(
@@ -73,7 +88,7 @@ class IngredientsCard extends HookConsumerWidget {
                           ),
                           const SizedBox(width: 12),
                           Text(
-                            ing['name'] ?? '',
+                            ingredient,
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 15,
@@ -81,26 +96,6 @@ class IngredientsCard extends HookConsumerWidget {
                             ),
                           ),
                         ],
-                      ),
-
-                      // Amount pill
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 5),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.07),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Text(
-                          unitsConversion == WeightUnit.kg
-                              ? (ing['amount']) ?? ''
-                              : (ing['amount']?.replaceAll('g', 'lb')) ?? '',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w900,
-                          ),
-                        ),
                       ),
                     ],
                   ),
@@ -114,7 +109,7 @@ class IngredientsCard extends HookConsumerWidget {
                   ),
               ],
             );
-          }),
+          })
         ],
       ),
     );
