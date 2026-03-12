@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$ProfileResponse {
   bool get success;
-  ProfileData? get data; // made nullable because JSON might not include it
+  ProfileData? get data;
   String? get message;
 
   /// Create a copy of ProfileResponse
@@ -278,7 +278,6 @@ class _ProfileResponse implements ProfileResponse {
   final bool success;
   @override
   final ProfileData? data;
-// made nullable because JSON might not include it
   @override
   final String? message;
 
@@ -386,10 +385,13 @@ mixin _$ProfileData {
   String? get fullName;
   String? get email;
   int? get age;
-  double? get height; // corrected type
-  double? get weight; // corrected type
+  double? get height;
+  double? get weight;
   @JsonKey(name: "dateOfBirth")
   String? get dateOfBirth;
+  String? get profileImage;
+  double? get bodyFat;
+  String? get gender;
   DateTime? get createdAt;
   DateTime? get updatedAt;
 
@@ -417,6 +419,10 @@ mixin _$ProfileData {
             (identical(other.weight, weight) || other.weight == weight) &&
             (identical(other.dateOfBirth, dateOfBirth) ||
                 other.dateOfBirth == dateOfBirth) &&
+            (identical(other.profileImage, profileImage) ||
+                other.profileImage == profileImage) &&
+            (identical(other.bodyFat, bodyFat) || other.bodyFat == bodyFat) &&
+            (identical(other.gender, gender) || other.gender == gender) &&
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt) &&
             (identical(other.updatedAt, updatedAt) ||
@@ -426,11 +432,11 @@ mixin _$ProfileData {
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(runtimeType, id, fullName, email, age, height,
-      weight, dateOfBirth, createdAt, updatedAt);
+      weight, dateOfBirth, profileImage, bodyFat, gender, createdAt, updatedAt);
 
   @override
   String toString() {
-    return 'ProfileData(id: $id, fullName: $fullName, email: $email, age: $age, height: $height, weight: $weight, dateOfBirth: $dateOfBirth, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'ProfileData(id: $id, fullName: $fullName, email: $email, age: $age, height: $height, weight: $weight, dateOfBirth: $dateOfBirth, profileImage: $profileImage, bodyFat: $bodyFat, gender: $gender, createdAt: $createdAt, updatedAt: $updatedAt)';
   }
 }
 
@@ -448,6 +454,9 @@ abstract mixin class $ProfileDataCopyWith<$Res> {
       double? height,
       double? weight,
       @JsonKey(name: "dateOfBirth") String? dateOfBirth,
+      String? profileImage,
+      double? bodyFat,
+      String? gender,
       DateTime? createdAt,
       DateTime? updatedAt});
 }
@@ -471,6 +480,9 @@ class _$ProfileDataCopyWithImpl<$Res> implements $ProfileDataCopyWith<$Res> {
     Object? height = freezed,
     Object? weight = freezed,
     Object? dateOfBirth = freezed,
+    Object? profileImage = freezed,
+    Object? bodyFat = freezed,
+    Object? gender = freezed,
     Object? createdAt = freezed,
     Object? updatedAt = freezed,
   }) {
@@ -502,6 +514,18 @@ class _$ProfileDataCopyWithImpl<$Res> implements $ProfileDataCopyWith<$Res> {
       dateOfBirth: freezed == dateOfBirth
           ? _self.dateOfBirth
           : dateOfBirth // ignore: cast_nullable_to_non_nullable
+              as String?,
+      profileImage: freezed == profileImage
+          ? _self.profileImage
+          : profileImage // ignore: cast_nullable_to_non_nullable
+              as String?,
+      bodyFat: freezed == bodyFat
+          ? _self.bodyFat
+          : bodyFat // ignore: cast_nullable_to_non_nullable
+              as double?,
+      gender: freezed == gender
+          ? _self.gender
+          : gender // ignore: cast_nullable_to_non_nullable
               as String?,
       createdAt: freezed == createdAt
           ? _self.createdAt
@@ -616,6 +640,9 @@ extension ProfileDataPatterns on ProfileData {
             double? height,
             double? weight,
             @JsonKey(name: "dateOfBirth") String? dateOfBirth,
+            String? profileImage,
+            double? bodyFat,
+            String? gender,
             DateTime? createdAt,
             DateTime? updatedAt)?
         $default, {
@@ -632,6 +659,9 @@ extension ProfileDataPatterns on ProfileData {
             _that.height,
             _that.weight,
             _that.dateOfBirth,
+            _that.profileImage,
+            _that.bodyFat,
+            _that.gender,
             _that.createdAt,
             _that.updatedAt);
       case _:
@@ -662,6 +692,9 @@ extension ProfileDataPatterns on ProfileData {
             double? height,
             double? weight,
             @JsonKey(name: "dateOfBirth") String? dateOfBirth,
+            String? profileImage,
+            double? bodyFat,
+            String? gender,
             DateTime? createdAt,
             DateTime? updatedAt)
         $default,
@@ -677,6 +710,9 @@ extension ProfileDataPatterns on ProfileData {
             _that.height,
             _that.weight,
             _that.dateOfBirth,
+            _that.profileImage,
+            _that.bodyFat,
+            _that.gender,
             _that.createdAt,
             _that.updatedAt);
       case _:
@@ -706,6 +742,9 @@ extension ProfileDataPatterns on ProfileData {
             double? height,
             double? weight,
             @JsonKey(name: "dateOfBirth") String? dateOfBirth,
+            String? profileImage,
+            double? bodyFat,
+            String? gender,
             DateTime? createdAt,
             DateTime? updatedAt)?
         $default,
@@ -721,6 +760,9 @@ extension ProfileDataPatterns on ProfileData {
             _that.height,
             _that.weight,
             _that.dateOfBirth,
+            _that.profileImage,
+            _that.bodyFat,
+            _that.gender,
             _that.createdAt,
             _that.updatedAt);
       case _:
@@ -740,6 +782,9 @@ class _ProfileData implements ProfileData {
       this.height,
       this.weight,
       @JsonKey(name: "dateOfBirth") this.dateOfBirth,
+      this.profileImage,
+      this.bodyFat,
+      this.gender,
       this.createdAt,
       this.updatedAt});
   factory _ProfileData.fromJson(Map<String, dynamic> json) =>
@@ -756,13 +801,17 @@ class _ProfileData implements ProfileData {
   final int? age;
   @override
   final double? height;
-// corrected type
   @override
   final double? weight;
-// corrected type
   @override
   @JsonKey(name: "dateOfBirth")
   final String? dateOfBirth;
+  @override
+  final String? profileImage;
+  @override
+  final double? bodyFat;
+  @override
+  final String? gender;
   @override
   final DateTime? createdAt;
   @override
@@ -797,6 +846,10 @@ class _ProfileData implements ProfileData {
             (identical(other.weight, weight) || other.weight == weight) &&
             (identical(other.dateOfBirth, dateOfBirth) ||
                 other.dateOfBirth == dateOfBirth) &&
+            (identical(other.profileImage, profileImage) ||
+                other.profileImage == profileImage) &&
+            (identical(other.bodyFat, bodyFat) || other.bodyFat == bodyFat) &&
+            (identical(other.gender, gender) || other.gender == gender) &&
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt) &&
             (identical(other.updatedAt, updatedAt) ||
@@ -806,11 +859,11 @@ class _ProfileData implements ProfileData {
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(runtimeType, id, fullName, email, age, height,
-      weight, dateOfBirth, createdAt, updatedAt);
+      weight, dateOfBirth, profileImage, bodyFat, gender, createdAt, updatedAt);
 
   @override
   String toString() {
-    return 'ProfileData(id: $id, fullName: $fullName, email: $email, age: $age, height: $height, weight: $weight, dateOfBirth: $dateOfBirth, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'ProfileData(id: $id, fullName: $fullName, email: $email, age: $age, height: $height, weight: $weight, dateOfBirth: $dateOfBirth, profileImage: $profileImage, bodyFat: $bodyFat, gender: $gender, createdAt: $createdAt, updatedAt: $updatedAt)';
   }
 }
 
@@ -830,6 +883,9 @@ abstract mixin class _$ProfileDataCopyWith<$Res>
       double? height,
       double? weight,
       @JsonKey(name: "dateOfBirth") String? dateOfBirth,
+      String? profileImage,
+      double? bodyFat,
+      String? gender,
       DateTime? createdAt,
       DateTime? updatedAt});
 }
@@ -853,6 +909,9 @@ class __$ProfileDataCopyWithImpl<$Res> implements _$ProfileDataCopyWith<$Res> {
     Object? height = freezed,
     Object? weight = freezed,
     Object? dateOfBirth = freezed,
+    Object? profileImage = freezed,
+    Object? bodyFat = freezed,
+    Object? gender = freezed,
     Object? createdAt = freezed,
     Object? updatedAt = freezed,
   }) {
@@ -884,6 +943,18 @@ class __$ProfileDataCopyWithImpl<$Res> implements _$ProfileDataCopyWith<$Res> {
       dateOfBirth: freezed == dateOfBirth
           ? _self.dateOfBirth
           : dateOfBirth // ignore: cast_nullable_to_non_nullable
+              as String?,
+      profileImage: freezed == profileImage
+          ? _self.profileImage
+          : profileImage // ignore: cast_nullable_to_non_nullable
+              as String?,
+      bodyFat: freezed == bodyFat
+          ? _self.bodyFat
+          : bodyFat // ignore: cast_nullable_to_non_nullable
+              as double?,
+      gender: freezed == gender
+          ? _self.gender
+          : gender // ignore: cast_nullable_to_non_nullable
               as String?,
       createdAt: freezed == createdAt
           ? _self.createdAt

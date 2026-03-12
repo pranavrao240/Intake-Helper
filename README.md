@@ -18,6 +18,9 @@ samples, guidance on mobile development, and a full API reference.
 <!-- command to generate  a bundle file  -->
 flutter build appbundle --release
 
+command to convert webm to mp4
+ffmpeg -i jimmy_bulking_vdo2.webm -c:v libx264 -c:a aac jimmy_bulking_vdo2.mp4
+
 
 
 

@@ -39,9 +39,11 @@ Map<String, dynamic> _$TodoModelToJson(_TodoModel instance) =>
 _Meal _$MealFromJson(Map<String, dynamic> json) => _Meal(
       id: json['_id'] as String,
       nutrition: Nutrition.fromJson(json['nutrition'] as Map<String, dynamic>),
+      status: json['status'] as String,
     );
 
 Map<String, dynamic> _$MealToJson(_Meal instance) => <String, dynamic>{
       '_id': instance.id,
       'nutrition': instance.nutrition,
+      'status': instance.status,
     };

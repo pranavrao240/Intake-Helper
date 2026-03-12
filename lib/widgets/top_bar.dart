@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 PreferredSizeWidget customAppbar(BuildContext context,
     {required String title, VoidCallback? onBack}) {
   return AppBar(
-    backgroundColor: const Color(0xFF1F1F1F),
+    backgroundColor: Colors.transparent,
     leading: IconButton(
         onPressed: () {
           onBack != null ? onBack.call() : context.pop();

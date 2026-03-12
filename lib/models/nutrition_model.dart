@@ -1,4 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+
 part 'nutrition_model.freezed.dart';
 part 'nutrition_model.g.dart';
 
@@ -21,12 +22,10 @@ String? _anyToString(dynamic value) {
 List<String>? _stringOrListToStringList(dynamic value) {
   if (value == null) return null;
 
-  // Case: ["Breakfast"]
   if (value is List) {
     return value.map((e) => e.toString()).toList();
   }
 
-  // Case: "Breakfast" or "NULL"
   if (value is String) {
     if (value.toUpperCase() == 'NULL' || value.isEmpty) return [];
     return [value];
@@ -41,13 +40,20 @@ double? _numToDouble(dynamic value) {
   return double.tryParse(value.toString());
 }
 
+DateTime? _toDateTime(dynamic value) {
+  if (value == null) return null;
+  return DateTime.tryParse(value.toString());
+}
+
 @freezed
 abstract class Nutrition with _$Nutrition {
   const factory Nutrition({
     @JsonKey(fromJson: _anyToString) String? id,
     @JsonKey(fromJson: _anyToString) String? nutritionId,
     @JsonKey(name: '_id', fromJson: _anyToString) String? localId,
+    @JsonKey(name: 'createdAt', fromJson: _toDateTime) DateTime? createdAt,
     @JsonKey(name: 'DishName') String? dishName,
+    @JsonKey(name: 'DishImage') String? dishImage,
     @JsonKey(name: 'QuantityRequired') String? quantityRequired,
     @JsonKey(name: 'Calories', fromJson: _numToDouble) double? calories,
     @JsonKey(name: 'Protein', fromJson: _numToDouble) double? protein,

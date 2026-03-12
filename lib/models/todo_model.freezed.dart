@@ -704,6 +704,7 @@ mixin _$Meal {
   @JsonKey(name: '_id')
   String get id;
   Nutrition get nutrition;
+  String get status;
 
   /// Create a copy of Meal
   /// with the given fields replaced by the non-null parameter values.
@@ -722,16 +723,17 @@ mixin _$Meal {
             other is Meal &&
             (identical(other.id, id) || other.id == id) &&
             (identical(other.nutrition, nutrition) ||
-                other.nutrition == nutrition));
+                other.nutrition == nutrition) &&
+            (identical(other.status, status) || other.status == status));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, id, nutrition);
+  int get hashCode => Object.hash(runtimeType, id, nutrition, status);
 
   @override
   String toString() {
-    return 'Meal(id: $id, nutrition: $nutrition)';
+    return 'Meal(id: $id, nutrition: $nutrition, status: $status)';
   }
 }
 
@@ -740,7 +742,8 @@ abstract mixin class $MealCopyWith<$Res> {
   factory $MealCopyWith(Meal value, $Res Function(Meal) _then) =
       _$MealCopyWithImpl;
   @useResult
-  $Res call({@JsonKey(name: '_id') String id, Nutrition nutrition});
+  $Res call(
+      {@JsonKey(name: '_id') String id, Nutrition nutrition, String status});
 
   $NutritionCopyWith<$Res> get nutrition;
 }
@@ -759,6 +762,7 @@ class _$MealCopyWithImpl<$Res> implements $MealCopyWith<$Res> {
   $Res call({
     Object? id = null,
     Object? nutrition = null,
+    Object? status = null,
   }) {
     return _then(_self.copyWith(
       id: null == id
@@ -769,6 +773,10 @@ class _$MealCopyWithImpl<$Res> implements $MealCopyWith<$Res> {
           ? _self.nutrition
           : nutrition // ignore: cast_nullable_to_non_nullable
               as Nutrition,
+      status: null == status
+          ? _self.status
+          : status // ignore: cast_nullable_to_non_nullable
+              as String,
     ));
   }
 
@@ -876,14 +884,15 @@ extension MealPatterns on Meal {
 
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>(
-    TResult Function(@JsonKey(name: '_id') String id, Nutrition nutrition)?
+    TResult Function(@JsonKey(name: '_id') String id, Nutrition nutrition,
+            String status)?
         $default, {
     required TResult orElse(),
   }) {
     final _that = this;
     switch (_that) {
       case _Meal() when $default != null:
-        return $default(_that.id, _that.nutrition);
+        return $default(_that.id, _that.nutrition, _that.status);
       case _:
         return orElse();
     }
@@ -904,13 +913,14 @@ extension MealPatterns on Meal {
 
   @optionalTypeArgs
   TResult when<TResult extends Object?>(
-    TResult Function(@JsonKey(name: '_id') String id, Nutrition nutrition)
+    TResult Function(
+            @JsonKey(name: '_id') String id, Nutrition nutrition, String status)
         $default,
   ) {
     final _that = this;
     switch (_that) {
       case _Meal():
-        return $default(_that.id, _that.nutrition);
+        return $default(_that.id, _that.nutrition, _that.status);
       case _:
         throw StateError('Unexpected subclass');
     }
@@ -930,13 +940,14 @@ extension MealPatterns on Meal {
 
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>(
-    TResult? Function(@JsonKey(name: '_id') String id, Nutrition nutrition)?
+    TResult? Function(@JsonKey(name: '_id') String id, Nutrition nutrition,
+            String status)?
         $default,
   ) {
     final _that = this;
     switch (_that) {
       case _Meal() when $default != null:
-        return $default(_that.id, _that.nutrition);
+        return $default(_that.id, _that.nutrition, _that.status);
       case _:
         return null;
     }
@@ -947,7 +958,9 @@ extension MealPatterns on Meal {
 @JsonSerializable()
 class _Meal implements Meal {
   const _Meal(
-      {@JsonKey(name: '_id') required this.id, required this.nutrition});
+      {@JsonKey(name: '_id') required this.id,
+      required this.nutrition,
+      required this.status});
   factory _Meal.fromJson(Map<String, dynamic> json) => _$MealFromJson(json);
 
   @override
@@ -955,6 +968,8 @@ class _Meal implements Meal {
   final String id;
   @override
   final Nutrition nutrition;
+  @override
+  final String status;
 
   /// Create a copy of Meal
   /// with the given fields replaced by the non-null parameter values.
@@ -978,16 +993,17 @@ class _Meal implements Meal {
             other is _Meal &&
             (identical(other.id, id) || other.id == id) &&
             (identical(other.nutrition, nutrition) ||
-                other.nutrition == nutrition));
+                other.nutrition == nutrition) &&
+            (identical(other.status, status) || other.status == status));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, id, nutrition);
+  int get hashCode => Object.hash(runtimeType, id, nutrition, status);
 
   @override
   String toString() {
-    return 'Meal(id: $id, nutrition: $nutrition)';
+    return 'Meal(id: $id, nutrition: $nutrition, status: $status)';
   }
 }
 
@@ -997,7 +1013,8 @@ abstract mixin class _$MealCopyWith<$Res> implements $MealCopyWith<$Res> {
       __$MealCopyWithImpl;
   @override
   @useResult
-  $Res call({@JsonKey(name: '_id') String id, Nutrition nutrition});
+  $Res call(
+      {@JsonKey(name: '_id') String id, Nutrition nutrition, String status});
 
   @override
   $NutritionCopyWith<$Res> get nutrition;
@@ -1017,6 +1034,7 @@ class __$MealCopyWithImpl<$Res> implements _$MealCopyWith<$Res> {
   $Res call({
     Object? id = null,
     Object? nutrition = null,
+    Object? status = null,
   }) {
     return _then(_Meal(
       id: null == id
@@ -1027,6 +1045,10 @@ class __$MealCopyWithImpl<$Res> implements _$MealCopyWith<$Res> {
           ? _self.nutrition
           : nutrition // ignore: cast_nullable_to_non_nullable
               as Nutrition,
+      status: null == status
+          ? _self.status
+          : status // ignore: cast_nullable_to_non_nullable
+              as String,
     ));
   }
 
