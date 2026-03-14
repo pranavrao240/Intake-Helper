@@ -22,7 +22,6 @@ class Homepage extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final api = ref.read(apiServiceProvider.notifier);
-    final unitsConversion = ref.read(weightUnitProvider);
 
     final todoData = useState<TodoModel?>(null);
     final completedTasks = useState<List<String>>([]);

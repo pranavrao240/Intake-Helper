@@ -7,6 +7,7 @@ import 'package:http/io_client.dart';
 import 'package:intake_helper/Config/Config.dart';
 import 'package:intake_helper/models/login_response_model.dart';
 import 'package:intake_helper/models/nutrition_model.dart';
+import 'package:intake_helper/models/saved_nutrition_model.dart';
 import 'package:intake_helper/models/todo_model.dart';
 import 'package:flutter/material.dart';
 import 'package:intake_helper/models/user_model.dart';
@@ -17,6 +18,7 @@ class ApiState {
   final String? token;
   final List<Nutrition>? nutritions;
   final Nutrition? nutrition;
+  final List<SavedNutritionModel>? savedNutrition;
   final TodoModel? todo;
   final String? message;
   final LoginResponseModel? register;
@@ -32,6 +34,7 @@ class ApiState {
       this.todo,
       this.message,
       this.register,
+      this.savedNutrition,
       this.isLoading = false,
       this.redirect,
       this.addedId});
@@ -40,6 +43,7 @@ class ApiState {
       {String? token,
       List<Nutrition>? nutritions,
       Nutrition? nutrition,
+      List<SavedNutritionModel>? savedNutrition,
       TodoModel? todo,
       String? message,
       LoginResponseModel? register,
@@ -57,6 +61,7 @@ class ApiState {
       isLoading: isLoading ?? this.isLoading,
       redirect: redirect ?? this.redirect,
       addedId: addedId ?? this.addedId,
+      savedNutrition: savedNutrition ?? this.savedNutrition,
     );
   }
 }
@@ -306,6 +311,56 @@ class ApiService extends AsyncNotifier<ApiState> {
       state = AsyncValue.data(
         state.value!.copyWith(message: "Failed to update status"),
       );
+    }
+  }
+
+  Future<void> getSavedNutritions() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('token');
+      final res = await client.get(_url(Config.getSavedNutritionAPI), headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      });
+
+      print('res: ${res.body}');
+
+      final decoded = json.decode(res.body) as Map<String, dynamic>;
+      final list = decoded['data'] as List;
+      final nutritionModels = list
+          .map((e) => SavedNutritionModel.fromJson(e as Map<String, dynamic>))
+          .toList();
+
+      state = AsyncValue.data(
+        state.value!.copyWith(savedNutrition: nutritionModels),
+      );
+    } catch (e) {
+      state = AsyncValue.data(
+        state.value!.copyWith(message: "Failed to get saved nutritions"),
+      );
+      print('error $e');
+    }
+  }
+
+  Future<void> updateSavedNutritions(String id) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('token');
+      print('updating saved nutritions $id');
+      final res =
+          await client.put(_url('${Config.changeSavedStateAPI}/$id'), headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      });
+      if (res.statusCode == 200) {
+        state = AsyncValue.data(
+            state.value!.copyWith(message: "Meal Saved successfully!"));
+      }
+      print('succeed ${res.body}');
+    } catch (e) {
+      state = AsyncValue.data(
+          state.value!.copyWith(message: "Failed to save meal"));
+      print('error $e');
     }
   }
 

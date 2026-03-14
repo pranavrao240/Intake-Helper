@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:intake_helper/router.dart';
 import 'package:intl/intl.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
@@ -66,18 +68,11 @@ class TodoAppBar extends StatelessWidget {
                   ),
                 ],
               ),
-              Row(
-                children: [
-                  _IconButton(
-                    icon: LucideIcons.bell,
-                    onTap: () {},
-                  ),
-                  const SizedBox(width: 8),
-                  _IconButton(
-                    icon: LucideIcons.calendar,
-                    onTap: () {},
-                  ),
-                ],
+              _IconButton(
+                icon: LucideIcons.bell,
+                onTap: () {
+                  context.push(RouteConstants.notification.path);
+                },
               ),
             ],
           ),

@@ -1,21 +1,29 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:intake_helper/api/api_service.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
-class NutritionHeroSection extends StatelessWidget {
+class NutritionHeroSection extends HookConsumerWidget {
   final String dishName;
   final String tag;
   final String? imageUrl;
+  final bool isSaved;
+  final String id;
 
   const NutritionHeroSection({
     super.key,
     required this.dishName,
     required this.tag,
+    required this.isSaved,
+    required this.id,
     this.imageUrl,
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isLiked = useState(isSaved);
     return SizedBox(
       height: MediaQuery.of(context).size.height * 0.42,
       width: double.infinity,
@@ -64,9 +72,17 @@ class NutritionHeroSection extends StatelessWidget {
                       color: Colors.white, size: 18),
                 ),
                 _GlassButton(
-                  onTap: () {},
-                  child: const Icon(LucideIcons.heart,
-                      color: Color(0xFFEF4444), size: 18),
+                  onTap: () async {
+                    isLiked.value = !isLiked.value;
+                    await ref
+                        .read(apiServiceProvider.notifier)
+                        .updateSavedNutritions(id);
+                  },
+                  child: Icon(
+                    isLiked.value ? Icons.favorite : Icons.favorite_border,
+                    color: Color(0xFFEF4444),
+                    size: 18,
+                  ),
                 ),
               ],
             ),

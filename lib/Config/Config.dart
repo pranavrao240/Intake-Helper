@@ -1,9 +1,13 @@
 class Config {
   // static const String baseUrl = "https://intake-helper-app-api.vercel.app";
-  static const String baseUrl = "http://192.168.0.101:3000";
+  // static const String baseUrl = "http://192.168.0.102:3000";
+  static const String baseUrl = "http://10.218.70.240:3000";
   static const String nutritionAPI = "api/nutrition/import";
   static const String detailAPI = "api/nutrition/";
   static const String nutritionDetailAPI = "api/nutrition";
+
+  static const String getSavedNutritionAPI = "api/nutrition/saved";
+  static const String changeSavedStateAPI = "api/nutrition/saved";
 
   static const String appName = "Intake Helper";
   static const String loginAPI = "api/login";

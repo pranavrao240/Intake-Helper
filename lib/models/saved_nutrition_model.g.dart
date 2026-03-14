@@ -1,30 +1,16 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'nutrition_model.dart';
+part of 'saved_nutrition_model.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
-_NutritionResponse _$NutritionResponseFromJson(Map<String, dynamic> json) =>
-    _NutritionResponse(
-      message: json['message'] as String,
-      data: (json['data'] as List<dynamic>)
-          .map((e) => Nutrition.fromJson(e as Map<String, dynamic>))
-          .toList(),
-    );
-
-Map<String, dynamic> _$NutritionResponseToJson(_NutritionResponse instance) =>
-    <String, dynamic>{
-      'message': instance.message,
-      'data': instance.data,
-    };
-
-_Nutrition _$NutritionFromJson(Map<String, dynamic> json) => _Nutrition(
+_SavedNutritionModel _$SavedNutritionModelFromJson(Map<String, dynamic> json) =>
+    _SavedNutritionModel(
       id: _anyToString(json['id']),
-      nutritionId: _anyToString(json['nutritionId']),
       localId: _anyToString(json['_id']),
-      createdAt: _toDateTime(json['createdAt']),
+      nutritionId: (json['nutritionId'] as num?)?.toInt(),
       dishName: json['DishName'] as String?,
       dishImage: json['DishImage'] as String?,
       quantityRequired: json['QuantityRequired'] as String?,
@@ -38,18 +24,18 @@ _Nutrition _$NutritionFromJson(Map<String, dynamic> json) => _Nutrition(
       iron: _numToDouble(json['Iron']),
       calcium: _numToDouble(json['Calcium']),
       isSaved: json['isSaved'] as bool?,
-      type: _stringOrListToStringList(json['type']),
-      time: _stringOrListToStringList(json['time']),
-      day: _stringOrListToStringList(json['day']),
+      type: _anyToString(json['type']),
+      time: _anyToString(json['time']),
+      day: (json['day'] as List<dynamic>?)?.map((e) => e as String).toList(),
       selected: _anyToString(json['selected']),
     );
 
-Map<String, dynamic> _$NutritionToJson(_Nutrition instance) =>
+Map<String, dynamic> _$SavedNutritionModelToJson(
+        _SavedNutritionModel instance) =>
     <String, dynamic>{
       'id': instance.id,
-      'nutritionId': instance.nutritionId,
       '_id': instance.localId,
-      'createdAt': instance.createdAt?.toIso8601String(),
+      'nutritionId': instance.nutritionId,
       'DishName': instance.dishName,
       'DishImage': instance.dishImage,
       'QuantityRequired': instance.quantityRequired,

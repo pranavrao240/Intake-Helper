@@ -70,6 +70,8 @@ class NutritionDetailScreen extends HookConsumerWidget {
             SliverToBoxAdapter(
               child: NutritionHeroSection(
                   dishName: model.dishName ?? 'Unknown Dish',
+                  isSaved: model.isSaved!,
+                  id: model.id!,
                   tag: model.type?.isNotEmpty == true ? model.type!.first : '',
                   imageUrl: model.dishImage),
             ),

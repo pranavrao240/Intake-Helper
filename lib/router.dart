@@ -1,5 +1,6 @@
 import 'package:go_router/go_router.dart';
 import 'package:intake_helper/pages/Ai%20meal%20planner/ai_meal_planner_screen.dart';
+import 'package:intake_helper/pages/notifications/notifications_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../main.dart';
@@ -25,6 +26,8 @@ class RouteConstants {
   static const profile = AppRoute(path: '/profile', name: 'profile');
   static const todo = AppRoute(path: '/todo', name: 'todo');
   static const nutrition = AppRoute(path: '/nutrition', name: 'nutrition');
+  static const notification =
+      AppRoute(path: '/notification', name: 'notification');
   static const mealDetails =
       AppRoute(path: '/meal-details', name: 'meal-details');
   static const aiMealPlanner =
@@ -67,6 +70,7 @@ final protectedRoutes = [
   RouteConstants.nutrition.path,
   RouteConstants.mealDetails.path,
   RouteConstants.aiMealPlanner.path,
+  RouteConstants.notification.path,
 ];
 
 final GoRouter appRouter = GoRouter(
@@ -116,6 +120,11 @@ final GoRouter appRouter = GoRouter(
       path: RouteConstants.nutrition.path,
       name: RouteConstants.nutrition.name,
       builder: (_, __) => const NutritionScreen(),
+    ),
+    GoRoute(
+      path: RouteConstants.notification.path,
+      name: RouteConstants.notification.name,
+      builder: (_, __) => const NotificationsPage(),
     ),
     GoRoute(
       path: RouteConstants.aiMealPlanner.path,
