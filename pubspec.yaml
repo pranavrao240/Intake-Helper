@@ -109,6 +109,7 @@ flutter:
   assets:
     - lib/assets/images/
     - lib/assets/characters/
+    - lib/assets/videos/
     - .env
   fonts:
     - family: Montserrat

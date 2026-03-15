@@ -3,7 +3,6 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intake_helper/Providers/providers.dart';
-import 'package:intake_helper/Providers/settings_providers.dart';
 import 'package:intake_helper/components/bottom_navbar.dart';
 import 'package:intake_helper/models/todo_model.dart';
 import 'package:intake_helper/pages/Todos/widgets/meal_action_dialog.dart';
@@ -33,7 +32,11 @@ class TodoPage extends HookConsumerWidget {
     );
 
     Future<void> markComplete(String mealId, DateTime date) async {
-      await todosState.updateMealStatus(mealId, 'completed');
+      await todosState
+          .updateMealStatus(mealId, 'completed')
+          .then((value) async {
+        await todosState.updateStreak(todosCompleted: 1);
+      });
       refreshKey.value++;
     }
 

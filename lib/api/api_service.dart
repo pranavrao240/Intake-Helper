@@ -8,6 +8,7 @@ import 'package:intake_helper/Config/Config.dart';
 import 'package:intake_helper/models/login_response_model.dart';
 import 'package:intake_helper/models/nutrition_model.dart';
 import 'package:intake_helper/models/saved_nutrition_model.dart';
+import 'package:intake_helper/models/streak_model.dart';
 import 'package:intake_helper/models/todo_model.dart';
 import 'package:flutter/material.dart';
 import 'package:intake_helper/models/user_model.dart';
@@ -22,6 +23,7 @@ class ApiState {
   final TodoModel? todo;
   final String? message;
   final LoginResponseModel? register;
+  final StreakModel? streak;
   final ProfileData? profileData;
   final bool isLoading;
   final String? redirect;
@@ -35,6 +37,7 @@ class ApiState {
       this.message,
       this.register,
       this.savedNutrition,
+      this.streak,
       this.isLoading = false,
       this.redirect,
       this.addedId});
@@ -48,6 +51,7 @@ class ApiState {
       String? message,
       LoginResponseModel? register,
       ProfileData? profileData,
+      StreakModel? streak,
       bool? isLoading,
       String? redirect,
       String? addedId}) {
@@ -62,6 +66,7 @@ class ApiState {
       redirect: redirect ?? this.redirect,
       addedId: addedId ?? this.addedId,
       savedNutrition: savedNutrition ?? this.savedNutrition,
+      streak: streak ?? this.streak,
     );
   }
 }
@@ -377,8 +382,6 @@ class ApiService extends AsyncNotifier<ApiState> {
 
         final data = responseData.data;
 
-        print('nutritions list $data');
-
         state = AsyncValue.data(state.value!.copyWith(
           nutritions: data,
         ));
@@ -500,6 +503,18 @@ class ApiService extends AsyncNotifier<ApiState> {
           todo: model.data,
         ));
 
+        if (model.data != null && model.data!.meals.isNotEmpty) {
+          final today = DateTime.now();
+          final hasCompletedToday = model.data!.meals.any((meal) {
+            return meal.status == 'completed' &&
+                _isMealForToday(meal.nutrition, today);
+          });
+
+          if (!hasCompletedToday) {
+            await resetStreak();
+          }
+        }
+
         return model;
       }
 
@@ -513,6 +528,32 @@ class ApiService extends AsyncNotifier<ApiState> {
     }
 
     return null;
+  }
+
+  bool _isMealForToday(Nutrition nutrition, DateTime today) {
+    final todayName = _getDayName(today);
+    return nutrition.day?.contains(todayName) ?? false;
+  }
+
+  String _getDayName(DateTime date) {
+    switch (date.weekday) {
+      case 1:
+        return 'Mon';
+      case 2:
+        return 'Tue';
+      case 3:
+        return 'Wed';
+      case 4:
+        return 'Thu';
+      case 5:
+        return 'Fri';
+      case 6:
+        return 'Sat';
+      case 7:
+        return 'Sun';
+      default:
+        return '';
+    }
   }
 
   Future<bool> resetTodo() async {
@@ -571,38 +612,166 @@ class ApiService extends AsyncNotifier<ApiState> {
     return null;
   }
 
-  Future<bool> addTodoItem(String nutritionId, List<String> time,
-      List<String> day, List<String> type) async {
-    final preferences = await SharedPreferences.getInstance();
-    final token = preferences.getString('token');
-    final res = await client.post(
-      _url(Config.todoAPI),
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token',
-      },
-      body: jsonEncode({
-        "meals": [
-          {
-            "nutritionId": nutritionId,
-            "time": time,
-            "day": day,
-            "type": type,
-          }
-        ]
-      }),
-    );
-
+  Future<bool> addTodoItem(
+    String nutritionId,
+    List<String> time,
+    List<String> day,
+    List<String> type,
+  ) async {
     try {
+      final preferences = await SharedPreferences.getInstance();
+      final token = preferences.getString('token');
+
+      final res = await client.post(
+        _url(Config.todoAPI),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode({
+          "meals": [
+            {
+              "nutritionId": nutritionId,
+              "time": time,
+              "day": day,
+              "type": type,
+            }
+          ]
+        }),
+      );
+
       if (res.statusCode == 200) {
         print('add todo item response: ${res.body}');
 
+        /// handle streak safely
+        try {
+          await updateStreak(todosAdded: 1);
+        } catch (e) {
+          print("Streak error: $e");
+        }
+
         return true;
+      } else {
+        print("API error: ${res.body}");
       }
     } catch (e) {
       print('error in add todo item: $e');
     }
 
     return false;
+  }
+
+  Future<void> getStreak() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+
+    final response = await client.get(
+      _url(Config.streakAPI),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    try {
+      if (response.statusCode == 200) {
+        final data = StreakModel.fromJson(jsonDecode(response.body));
+
+        state = AsyncValue.data(state.value!
+            .copyWith(streak: data, message: 'Streak loaded successfully'));
+        print('Streak loaded successfully: $data');
+      } else {
+        print('Streak load failed: ${response.statusCode}');
+      }
+    } catch (e) {
+      debugPrint('Streak error: $e');
+      state = AsyncValue.data(state.value!
+          .copyWith(streak: null, message: 'Failed to load streak'));
+    }
+  }
+
+  Future<void> updateStreak({int? todosAdded, int? todosCompleted}) async {
+    final streakPayload = {};
+
+    if (todosAdded != null) {
+      streakPayload.addAll({"todosAdded": todosAdded});
+    }
+    if (todosCompleted != null) {
+      streakPayload.addAll({"todosCompleted": todosCompleted});
+    }
+
+    print('Streak payload: $streakPayload');
+
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+
+    final response = await client.post(
+      _url(Config.updateStreakAPI),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode(streakPayload),
+    );
+
+    debugPrint('Streak update response: ${response.statusCode}');
+
+    try {
+      if (response.statusCode == 200) {
+        final data = StreakModel.fromJson(jsonDecode(response.body));
+
+        final currentState = state.value;
+
+        if (currentState != null) {
+          state = AsyncValue.data(
+            currentState.copyWith(
+              streak: data,
+              message: 'Streak updated successfully',
+            ),
+          );
+        }
+
+        print('Streak updated successfully: $data');
+      } else {
+        print('Streak update failed: ${response.statusCode}');
+      }
+    } catch (e) {
+      debugPrint('Streak error: $e');
+
+      final currentState = state.value;
+
+      if (currentState != null) {
+        state = AsyncValue.data(
+          currentState.copyWith(
+            streak: null,
+            message: 'Failed to update streak',
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> resetStreak() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+
+    final res = await client.delete(_url(Config.resetStreakAPI), headers: {
+      'Authorization': 'Bearer $token',
+    });
+
+    try {
+      if (res.statusCode == 200) {
+        final data = StreakModel.fromJson(jsonDecode(res.body));
+        state = AsyncValue.data(state.value!
+            .copyWith(streak: data, message: 'Streak reset successfully'));
+      } else {
+        state = AsyncValue.data(state.value!
+            .copyWith(streak: null, message: 'Failed to reset streak'));
+      }
+    } catch (e) {
+      debugPrint('Streak reset error: $e');
+      state = AsyncValue.data(state.value!
+          .copyWith(streak: null, message: 'Failed to reset streak'));
+    }
   }
 }
