@@ -43,12 +43,15 @@ class CustomNotification {
       const iosInit = DarwinInitializationSettings();
 
       await _notificationsPlugin.initialize(
-        const InitializationSettings(android: androidInit, iOS: iosInit),
         onDidReceiveNotificationResponse: (response) {
           if (kDebugMode) {
             print('Notification tapped: ${response.payload}');
           }
         },
+        settings: InitializationSettings(
+          android: AndroidInitializationSettings('@mipmap/ic_launcher'),
+          iOS: iosInit,
+        ),
       );
 
       await _createNotificationChannel();
@@ -62,7 +65,7 @@ class CustomNotification {
   }
 
   Future<void> cancelNotification(int id) async {
-    await _notificationsPlugin.cancel(id);
+    await _notificationsPlugin.cancel(id: id);
   }
 
   Future<void> _createNotificationChannel() async {
@@ -95,10 +98,10 @@ class CustomNotification {
     );
 
     await _notificationsPlugin.show(
-      0,
-      'Hello 👋',
-      'This is a local notification!',
-      details,
+      id: 0,
+      title: 'Hello 👋',
+      body: 'This is a local notification!',
+      payload: 'test',
     );
   }
 
@@ -149,11 +152,11 @@ class CustomNotification {
 
     try {
       await _notificationsPlugin.zonedSchedule(
-        id,
-        title,
-        body,
-        scheduleDate,
-        details,
+        id: id,
+        title: title,
+        body: body,
+        scheduledDate: scheduleDate,
+        notificationDetails: details,
         androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
         matchDateTimeComponents: DateTimeComponents.time,
         payload: payload ?? 'scheduled_notification_$id',

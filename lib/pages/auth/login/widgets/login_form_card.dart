@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:intake_helper/components/custom_submit_button.dart';
+import 'package:intake_helper/router.dart';
 
 import 'login_input_field.dart';
-import 'social_login_buttons.dart';
 
 class LoginFormCard extends HookConsumerWidget {
   final TextEditingController emailController;
@@ -65,8 +67,9 @@ class LoginFormCard extends HookConsumerWidget {
               controller: emailController,
               keyboardType: TextInputType.emailAddress,
               validator: (value) {
-                if (value == null || value.isEmpty)
+                if (value == null || value.isEmpty) {
                   return 'Please enter your email';
+                }
                 if (!RegExp(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$")
                     .hasMatch(value)) {
                   return 'Please enter a valid email';
@@ -87,12 +90,38 @@ class LoginFormCard extends HookConsumerWidget {
               onToggleVisibility: () =>
                   hidePassword.value = !hidePassword.value,
               validator: (value) {
-                if (value == null || value.isEmpty)
+                if (value == null || value.isEmpty) {
                   return 'Please enter your password';
-                if (value.length < 6)
+                }
+                if (value.length < 6) {
                   return 'Password must be at least 6 characters';
+                }
                 return null;
               },
+            ),
+            GestureDetector(
+              onTap: () {
+                context.push(RouteConstants.forgotPassword.path);
+              },
+              child: Container(
+                padding: const EdgeInsets.only(top: 8.0),
+                decoration: BoxDecoration(),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Text(
+                      'Forgot password?',
+                      style: TextStyle(
+                          color: Colors.blueAccent,
+                          decoration: TextDecoration.underline,
+                          decorationColor: Colors.blueAccent,
+                          decorationStyle: TextDecorationStyle.solid,
+                          decorationThickness: 2.0),
+                      textAlign: TextAlign.end,
+                    ),
+                  ],
+                ),
+              ),
             ),
             const SizedBox(height: 16),
 
@@ -119,13 +148,14 @@ class LoginFormCard extends HookConsumerWidget {
                 ),
               ),
 
-            _SignInButton(isLoading: isLoading, onTap: onSubmit),
-            const SizedBox(height: 24),
+            CustomSubmitButton(
+                isLoading: isLoading, onTap: onSubmit, text: "Sign In"),
+            // const SizedBox(height: 24),
 
-            SocialLoginButtons(
-              onGoogleTap: onGoogleTap,
-              onAppleTap: onAppleTap,
-            ),
+            // SocialLoginButtons(
+            //   onGoogleTap: onGoogleTap,
+            //   onAppleTap: onAppleTap,
+            // ),
             const SizedBox(height: 20),
 
             Center(
@@ -154,64 +184,6 @@ class LoginFormCard extends HookConsumerWidget {
               ),
             ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-class _SignInButton extends StatelessWidget {
-  final bool isLoading;
-  final VoidCallback onTap;
-
-  const _SignInButton({required this.isLoading, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: isLoading ? null : onTap,
-      child: Container(
-        width: double.infinity,
-        height: 54,
-        decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            colors: [
-              Color(0xFF3730A3), // indigo-800
-              Color(0xFF4338CA), // indigo-700
-              Color(0xFF6D28D9), // violet-700
-              Color(0xFF1E1B4B), // indigo-950
-            ],
-            begin: Alignment.centerLeft,
-            end: Alignment.centerRight,
-          ),
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: const Color(0xFF6D28D9).withValues(alpha: 0.4),
-              blurRadius: 30,
-              offset: const Offset(0, 10),
-            ),
-          ],
-        ),
-        child: Center(
-          child: isLoading
-              ? const SizedBox(
-                  width: 22,
-                  height: 22,
-                  child: CircularProgressIndicator(
-                    color: Colors.white,
-                    strokeWidth: 2.5,
-                  ),
-                )
-              : const Text(
-                  'Sign In',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w900,
-                    letterSpacing: 0.3,
-                  ),
-                ),
         ),
       ),
     );

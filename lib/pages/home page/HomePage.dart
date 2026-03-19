@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:intake_helper/Providers/providers.dart';
-import 'package:intake_helper/Providers/settings_providers.dart';
 import 'package:intake_helper/api/api_service.dart';
 import 'package:intake_helper/components/bottom_navbar.dart';
 import 'package:intake_helper/components/weekly_chart.dart';
@@ -55,8 +54,6 @@ class Homepage extends HookConsumerWidget {
         'calories': calories,
         'fats': macros.value['fats'] ?? 0,
       };
-
-      print("[Macros] Macros: ${macros.value}");
     }
 
     Future<void> loadAll() async {
@@ -70,13 +67,11 @@ class Homepage extends HookConsumerWidget {
 
         todoData.value = data?.data;
         completedTasks.value = completed;
-        print('Completed tasks: $completed');
 
         if (data != null) {
           calculateMacros(data.data!, completed);
         }
       } catch (e) {
-        print("Error: $e");
         error.value = "Failed to load data";
       } finally {
         isLoading.value = false;

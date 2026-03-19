@@ -2,12 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:intake_helper/components/toast/toast.dart';
 import 'package:intake_helper/pages/auth/register/widgets/register_form_card.dart';
 import 'package:intake_helper/pages/auth/register/widgets/register_header.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
-import 'package:snippet_coder_utils/FormHelper.dart';
 
-import 'package:intake_helper/Config/Config.dart';
 import 'package:intake_helper/api/api_service.dart';
 import 'package:intake_helper/router.dart';
 
@@ -24,7 +23,23 @@ class RegisterPage extends HookConsumerWidget {
     final isLoading = useState(false);
     final errorMessage = useState('');
 
-    final registerState = ref.watch(apiServiceProvider);
+    ref.listen<AsyncValue<ApiState>>(apiServiceProvider, (previous, next) {
+      // Guard: skip if value is null or loading
+      final value = next.value;
+      if (value == null) return;
+
+      if (value.message?.isNotEmpty ?? false) {
+        showToast(value.message!, context, 1);
+      }
+
+      if (value.errorMessage?.isNotEmpty ?? false) {
+        showToast(value.errorMessage!, context, 2);
+      }
+
+      if (value.redirect != null) {
+        context.goNamed(value.redirect!, extra: emailController.text.trim());
+      }
+    });
 
     Future<void> handleRegister() async {
       errorMessage.value = '';
@@ -42,19 +57,6 @@ class RegisterPage extends HookConsumerWidget {
             );
 
         isLoading.value = false;
-
-        if (context.mounted) {
-          FormHelper.showSimpleAlertDialog(
-            context,
-            Config.appName,
-            registerState.value?.message ?? 'Registration Successful!',
-            'OK',
-            () {
-              Navigator.of(context).pop();
-              context.go(RouteConstants.login.path);
-            },
-          );
-        }
       } catch (_) {
         isLoading.value = false;
         errorMessage.value = 'Something went wrong. Please try again.';
@@ -66,6 +68,7 @@ class RegisterPage extends HookConsumerWidget {
     void handleAppleTap() {/* TODO: Apple Sign-In */}
 
     return SafeArea(
+      top: false,
       child: Scaffold(
         backgroundColor: Colors.black,
         body: ModalProgressHUD(

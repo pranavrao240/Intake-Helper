@@ -1,5 +1,8 @@
 import 'package:go_router/go_router.dart';
 import 'package:intake_helper/pages/Ai%20meal%20planner/ai_meal_planner_screen.dart';
+import 'package:intake_helper/pages/auth/email%20verfication/email_verification_page.dart';
+import 'package:intake_helper/pages/auth/forgot%20page/forgot_password_page.dart';
+import 'package:intake_helper/pages/auth/reset%20password/reset_password_page.dart';
 import 'package:intake_helper/pages/notifications/notifications_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -21,6 +24,12 @@ class AppRoute {
 class RouteConstants {
   static const login = AppRoute(path: '/login', name: 'login');
   static const register = AppRoute(path: '/register', name: 'register');
+  static const emailVerification =
+      AppRoute(path: '/email-verification', name: 'email-verification');
+  static const forgotPassword =
+      AppRoute(path: '/forgot-password', name: 'forgot-password');
+  static const resetPassword =
+      AppRoute(path: '/reset-password', name: 'reset-password');
 
   static const home = AppRoute(path: '/home', name: 'home');
   static const profile = AppRoute(path: '/profile', name: 'profile');
@@ -61,6 +70,9 @@ Future<bool> isUserLoggedIn() async {
 final publicRoutes = [
   RouteConstants.login.path,
   RouteConstants.register.path,
+  RouteConstants.forgotPassword.path,
+  RouteConstants.resetPassword.path,
+  RouteConstants.emailVerification.path,
 ];
 
 final protectedRoutes = [
@@ -84,7 +96,9 @@ final GoRouter appRouter = GoRouter(
       return RouteConstants.login.path;
     }
 
-    if (isLoggedIn && publicRoutes.contains(path)) {
+    if (isLoggedIn &&
+        publicRoutes.contains(path) &&
+        path != RouteConstants.emailVerification.path) {
       return RouteConstants.home.path;
     }
 
@@ -100,6 +114,16 @@ final GoRouter appRouter = GoRouter(
       path: RouteConstants.register.path,
       name: RouteConstants.register.name,
       builder: (_, __) => const RegisterPage(),
+    ),
+    GoRoute(
+      path: RouteConstants.forgotPassword.path,
+      name: RouteConstants.forgotPassword.name,
+      builder: (_, __) => const ForgotPasswordPage(),
+    ),
+    GoRoute(
+      path: RouteConstants.resetPassword.path,
+      name: RouteConstants.resetPassword.name,
+      builder: (_, __) => const ResetPasswordPage(),
     ),
     GoRoute(
       path: RouteConstants.home.path,
@@ -138,6 +162,12 @@ final GoRouter appRouter = GoRouter(
         final id = state.pathParameters['id']!;
         return NutritionDetailScreen(id: id);
       },
+    ),
+    GoRoute(
+      path: RouteConstants.emailVerification.path,
+      name: RouteConstants.emailVerification.name,
+      builder: (_, state) =>
+          EmailVerificationPage(email: state.extra as String),
     ),
   ],
 );

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:intake_helper/Providers/notifications_provider.dart';
+import 'package:intake_helper/Providers/meal_notifications_provider.dart';
 import 'package:intake_helper/pages/notifications/widgets/empty_notifications_state.dart';
 import 'package:intake_helper/pages/notifications/widgets/notification_card.dart';
 import 'package:intake_helper/pages/notifications/widgets/notification_header.dart';
@@ -11,12 +11,24 @@ class NotificationsPage extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final state = ref.watch(notificationsProvider);
     final scrollController = useScrollController();
+
+    Future<void> getAllNotifications() async {
+      await ref.read(mealNotificationProvider.notifier).getNotifications();
+    }
+
+    useEffect(() {
+      Future.microtask(() {
+        getAllNotifications();
+      });
+      return null;
+    }, []);
+
+    final notificatioState = ref.watch(mealNotificationProvider);
 
     return Scaffold(
       backgroundColor: const Color(0xFF1E1B4B),
-      body: state.isLoading
+      body: notificatioState.isLoading
           ? const _LoadingIndicator()
           : Column(
               children: [
@@ -29,7 +41,8 @@ class NotificationsPage extends HookConsumerWidget {
                       const SliverToBoxAdapter(child: SizedBox(height: 16)),
 
                       // ── Notification list or empty state ───────────────
-                      if (state.notifications.isEmpty)
+                      if (notificatioState.value?.notifications?.isEmpty ??
+                          true)
                         const SliverFillRemaining(
                           hasScrollBody: false,
                           child: Padding(
@@ -40,17 +53,37 @@ class NotificationsPage extends HookConsumerWidget {
                       else ...[
                         SliverPadding(
                           padding: const EdgeInsets.symmetric(horizontal: 20),
-                          sliver: SliverList(
-                            delegate: SliverChildBuilderDelegate(
-                              (context, index) => Padding(
-                                padding: const EdgeInsets.only(bottom: 12),
-                                child: NotificationCard(
-                                  notification: state.notifications[index],
-                                  index: index,
+                          sliver: HookConsumer(
+                            builder: (context, ref, _) {
+                              final notifications = useState(
+                                notificatioState.value!.notifications!,
+                              );
+                              return SliverList(
+                                delegate: SliverChildBuilderDelegate(
+                                  (context, index) => Padding(
+                                    padding: const EdgeInsets.only(bottom: 12),
+                                    child: NotificationCard(
+                                      notification: notifications.value[index],
+                                      index: index,
+                                      onDismiss: () {
+                                        final id =
+                                            notifications.value[index].id;
+                                        notifications.value = notifications
+                                            .value
+                                            .where((n) => n.id != id)
+                                            .toList();
+                                        ref
+                                            .read(mealNotificationProvider
+                                                .notifier)
+                                            .deleteNotification(
+                                                notificationId: [id]);
+                                      },
+                                    ),
+                                  ),
+                                  childCount: notifications.value.length,
                                 ),
-                              ),
-                              childCount: state.notifications.length,
-                            ),
+                              );
+                            },
                           ),
                         ),
                       ],

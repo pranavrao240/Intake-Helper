@@ -19,19 +19,11 @@ class SharedService {
     await APICacheManager().addCacheData(cacheDBModel);
   }
 
-  static Future<LoginResponseModel?> LoginDetails() async {
-    var isCacheKeyExists = await APICacheManager().isAPICacheKeyExist(KEY_NAME);
-
-    if (isCacheKeyExists) {
-      var cacheData = await APICacheManager().getCacheData(KEY_NAME);
-
-      return loginResponseJson(cacheData.syncData);
-    }
-    return null;
-  }
-
+  //
   static Future<void> logout(BuildContext context) async {
     await APICacheManager().deleteCache(KEY_NAME);
-    Navigator.pushNamedAndRemoveUntil(context, "/login", (route) => false);
+    if (context.mounted) {
+      Navigator.pushNamedAndRemoveUntil(context, "/login", (route) => false);
+    }
   }
 }

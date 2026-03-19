@@ -24,6 +24,7 @@ abstract class ProfileData with _$ProfileData {
     int? age,
     double? height,
     double? weight,
+    @JsonKey(name: "FCMToken") String? fcmToken,
     @JsonKey(name: "dateOfBirth") String? dateOfBirth,
     String? profileImage,
     double? bodyFat,

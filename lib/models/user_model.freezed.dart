@@ -387,6 +387,8 @@ mixin _$ProfileData {
   int? get age;
   double? get height;
   double? get weight;
+  @JsonKey(name: "FCMToken")
+  String? get fcmToken;
   @JsonKey(name: "dateOfBirth")
   String? get dateOfBirth;
   String? get profileImage;
@@ -417,6 +419,8 @@ mixin _$ProfileData {
             (identical(other.age, age) || other.age == age) &&
             (identical(other.height, height) || other.height == height) &&
             (identical(other.weight, weight) || other.weight == weight) &&
+            (identical(other.fcmToken, fcmToken) ||
+                other.fcmToken == fcmToken) &&
             (identical(other.dateOfBirth, dateOfBirth) ||
                 other.dateOfBirth == dateOfBirth) &&
             (identical(other.profileImage, profileImage) ||
@@ -431,12 +435,25 @@ mixin _$ProfileData {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, id, fullName, email, age, height,
-      weight, dateOfBirth, profileImage, bodyFat, gender, createdAt, updatedAt);
+  int get hashCode => Object.hash(
+      runtimeType,
+      id,
+      fullName,
+      email,
+      age,
+      height,
+      weight,
+      fcmToken,
+      dateOfBirth,
+      profileImage,
+      bodyFat,
+      gender,
+      createdAt,
+      updatedAt);
 
   @override
   String toString() {
-    return 'ProfileData(id: $id, fullName: $fullName, email: $email, age: $age, height: $height, weight: $weight, dateOfBirth: $dateOfBirth, profileImage: $profileImage, bodyFat: $bodyFat, gender: $gender, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'ProfileData(id: $id, fullName: $fullName, email: $email, age: $age, height: $height, weight: $weight, fcmToken: $fcmToken, dateOfBirth: $dateOfBirth, profileImage: $profileImage, bodyFat: $bodyFat, gender: $gender, createdAt: $createdAt, updatedAt: $updatedAt)';
   }
 }
 
@@ -453,6 +470,7 @@ abstract mixin class $ProfileDataCopyWith<$Res> {
       int? age,
       double? height,
       double? weight,
+      @JsonKey(name: "FCMToken") String? fcmToken,
       @JsonKey(name: "dateOfBirth") String? dateOfBirth,
       String? profileImage,
       double? bodyFat,
@@ -479,6 +497,7 @@ class _$ProfileDataCopyWithImpl<$Res> implements $ProfileDataCopyWith<$Res> {
     Object? age = freezed,
     Object? height = freezed,
     Object? weight = freezed,
+    Object? fcmToken = freezed,
     Object? dateOfBirth = freezed,
     Object? profileImage = freezed,
     Object? bodyFat = freezed,
@@ -511,6 +530,10 @@ class _$ProfileDataCopyWithImpl<$Res> implements $ProfileDataCopyWith<$Res> {
           ? _self.weight
           : weight // ignore: cast_nullable_to_non_nullable
               as double?,
+      fcmToken: freezed == fcmToken
+          ? _self.fcmToken
+          : fcmToken // ignore: cast_nullable_to_non_nullable
+              as String?,
       dateOfBirth: freezed == dateOfBirth
           ? _self.dateOfBirth
           : dateOfBirth // ignore: cast_nullable_to_non_nullable
@@ -639,6 +662,7 @@ extension ProfileDataPatterns on ProfileData {
             int? age,
             double? height,
             double? weight,
+            @JsonKey(name: "FCMToken") String? fcmToken,
             @JsonKey(name: "dateOfBirth") String? dateOfBirth,
             String? profileImage,
             double? bodyFat,
@@ -658,6 +682,7 @@ extension ProfileDataPatterns on ProfileData {
             _that.age,
             _that.height,
             _that.weight,
+            _that.fcmToken,
             _that.dateOfBirth,
             _that.profileImage,
             _that.bodyFat,
@@ -691,6 +716,7 @@ extension ProfileDataPatterns on ProfileData {
             int? age,
             double? height,
             double? weight,
+            @JsonKey(name: "FCMToken") String? fcmToken,
             @JsonKey(name: "dateOfBirth") String? dateOfBirth,
             String? profileImage,
             double? bodyFat,
@@ -709,6 +735,7 @@ extension ProfileDataPatterns on ProfileData {
             _that.age,
             _that.height,
             _that.weight,
+            _that.fcmToken,
             _that.dateOfBirth,
             _that.profileImage,
             _that.bodyFat,
@@ -741,6 +768,7 @@ extension ProfileDataPatterns on ProfileData {
             int? age,
             double? height,
             double? weight,
+            @JsonKey(name: "FCMToken") String? fcmToken,
             @JsonKey(name: "dateOfBirth") String? dateOfBirth,
             String? profileImage,
             double? bodyFat,
@@ -759,6 +787,7 @@ extension ProfileDataPatterns on ProfileData {
             _that.age,
             _that.height,
             _that.weight,
+            _that.fcmToken,
             _that.dateOfBirth,
             _that.profileImage,
             _that.bodyFat,
@@ -781,6 +810,7 @@ class _ProfileData implements ProfileData {
       this.age,
       this.height,
       this.weight,
+      @JsonKey(name: "FCMToken") this.fcmToken,
       @JsonKey(name: "dateOfBirth") this.dateOfBirth,
       this.profileImage,
       this.bodyFat,
@@ -803,6 +833,9 @@ class _ProfileData implements ProfileData {
   final double? height;
   @override
   final double? weight;
+  @override
+  @JsonKey(name: "FCMToken")
+  final String? fcmToken;
   @override
   @JsonKey(name: "dateOfBirth")
   final String? dateOfBirth;
@@ -844,6 +877,8 @@ class _ProfileData implements ProfileData {
             (identical(other.age, age) || other.age == age) &&
             (identical(other.height, height) || other.height == height) &&
             (identical(other.weight, weight) || other.weight == weight) &&
+            (identical(other.fcmToken, fcmToken) ||
+                other.fcmToken == fcmToken) &&
             (identical(other.dateOfBirth, dateOfBirth) ||
                 other.dateOfBirth == dateOfBirth) &&
             (identical(other.profileImage, profileImage) ||
@@ -858,12 +893,25 @@ class _ProfileData implements ProfileData {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, id, fullName, email, age, height,
-      weight, dateOfBirth, profileImage, bodyFat, gender, createdAt, updatedAt);
+  int get hashCode => Object.hash(
+      runtimeType,
+      id,
+      fullName,
+      email,
+      age,
+      height,
+      weight,
+      fcmToken,
+      dateOfBirth,
+      profileImage,
+      bodyFat,
+      gender,
+      createdAt,
+      updatedAt);
 
   @override
   String toString() {
-    return 'ProfileData(id: $id, fullName: $fullName, email: $email, age: $age, height: $height, weight: $weight, dateOfBirth: $dateOfBirth, profileImage: $profileImage, bodyFat: $bodyFat, gender: $gender, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'ProfileData(id: $id, fullName: $fullName, email: $email, age: $age, height: $height, weight: $weight, fcmToken: $fcmToken, dateOfBirth: $dateOfBirth, profileImage: $profileImage, bodyFat: $bodyFat, gender: $gender, createdAt: $createdAt, updatedAt: $updatedAt)';
   }
 }
 
@@ -882,6 +930,7 @@ abstract mixin class _$ProfileDataCopyWith<$Res>
       int? age,
       double? height,
       double? weight,
+      @JsonKey(name: "FCMToken") String? fcmToken,
       @JsonKey(name: "dateOfBirth") String? dateOfBirth,
       String? profileImage,
       double? bodyFat,
@@ -908,6 +957,7 @@ class __$ProfileDataCopyWithImpl<$Res> implements _$ProfileDataCopyWith<$Res> {
     Object? age = freezed,
     Object? height = freezed,
     Object? weight = freezed,
+    Object? fcmToken = freezed,
     Object? dateOfBirth = freezed,
     Object? profileImage = freezed,
     Object? bodyFat = freezed,
@@ -940,6 +990,10 @@ class __$ProfileDataCopyWithImpl<$Res> implements _$ProfileDataCopyWith<$Res> {
           ? _self.weight
           : weight // ignore: cast_nullable_to_non_nullable
               as double?,
+      fcmToken: freezed == fcmToken
+          ? _self.fcmToken
+          : fcmToken // ignore: cast_nullable_to_non_nullable
+              as String?,
       dateOfBirth: freezed == dateOfBirth
           ? _self.dateOfBirth
           : dateOfBirth // ignore: cast_nullable_to_non_nullable

@@ -2,15 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:intake_helper/Providers/meal_notifications_provider.dart';
 import 'package:intake_helper/Providers/providers.dart';
 import 'package:intake_helper/api/api_service.dart';
 import 'package:intake_helper/components/toast/toast.dart';
+import 'package:intake_helper/constants/notification_priority.dart';
+import 'package:intake_helper/constants/notification_type.dart';
 import 'package:intake_helper/models/nutrition_model.dart';
 import 'package:intake_helper/pages/nutritions/nutrition%20details/widgets/energy_mix_card.dart';
 import 'package:intake_helper/pages/nutritions/nutrition%20details/widgets/ingredients_card.dart';
 import 'package:intake_helper/pages/nutritions/nutrition%20details/widgets/nutrition_bottom_bar.dart';
 import 'package:intake_helper/pages/nutritions/nutrition%20details/widgets/nutrition_hero_section.dart';
 import 'package:intake_helper/pages/nutritions/nutrition%20details/widgets/nutrition_stats_row.dart';
+import 'package:intake_helper/utility/notification.dart';
 import 'package:intl/intl.dart';
 
 class NutritionDetailScreen extends HookConsumerWidget {
@@ -53,20 +57,17 @@ class NutritionDetailScreen extends HookConsumerWidget {
     required ValueNotifier<int> portion,
     required ValueNotifier<List<String>> selectedTypes,
   }) {
-    // Build ingredients from quantityRequired field (adjust to your model)
     final List<Map<String, String>> ingredients = _parseIngredients(model);
 
-    // Macro data for donut
     final calories = (model.calories ?? 0).toDouble();
     final protein = (model.protein ?? 0).toDouble();
     final carbs = (model.carbohydrates ?? 0).toDouble();
+    final dishName = model.dishName ?? 'Unknown Dish';
 
     return Stack(
       children: [
-        // ── Scrollable content ──
         CustomScrollView(
           slivers: [
-            // Hero image (non-scrolling pinned at top)
             SliverToBoxAdapter(
               child: NutritionHeroSection(
                   dishName: model.dishName ?? 'Unknown Dish',
@@ -75,42 +76,31 @@ class NutritionDetailScreen extends HookConsumerWidget {
                   tag: model.type?.isNotEmpty == true ? model.type!.first : '',
                   imageUrl: model.dishImage),
             ),
-
-            // Body content
             SliverPadding(
               padding: const EdgeInsets.fromLTRB(16, 20, 16, 140),
               sliver: SliverList(
                 delegate: SliverChildListDelegate([
-                  // ── Stats row ──
                   NutritionStatsRow(
                     calories: calories,
                     protein: protein,
                     carbs: carbs,
-                    fat: null, // Add fat field if available in your model
+                    fat: null,
                   ),
                   const SizedBox(height: 16),
-
-                  // ── Energy mix donut ──
                   EnergyMixCard(
                     calories: calories,
                     protein: protein,
                     carbs: carbs,
                   ),
                   const SizedBox(height: 16),
-
-                  // ── Ingredients ──
                   if (ingredients.isNotEmpty) ...[
                     IngredientsCard(ingredients: ingredients),
                     const SizedBox(height: 16),
                   ],
-
-                  // ── Meal type selector ──
                   _MealTypeSelector(
                     selectedTypes: selectedTypes,
                   ),
                   const SizedBox(height: 16),
-
-                  // ── Goal insight ──
                   GoalInsightCard(
                     insight: model.dishName != null
                         ? 'This meal is optimized for your daily nutrition goals. '
@@ -123,8 +113,6 @@ class NutritionDetailScreen extends HookConsumerWidget {
             ),
           ],
         ),
-
-        // ── Floating bottom bar ──
         NutritionBottomBar(
           portion: portion.value,
           onDecrement: () {
@@ -132,11 +120,11 @@ class NutritionDetailScreen extends HookConsumerWidget {
           },
           onIncrement: () => portion.value++,
           onAddMeal: () => _handleAddMeal(
-            context: context,
-            ref: ref,
-            model: model,
-            selectedTypes: selectedTypes,
-          ),
+              context: context,
+              ref: ref,
+              model: model,
+              selectedTypes: selectedTypes,
+              dishName: dishName),
         ),
       ],
     );
@@ -160,6 +148,7 @@ class NutritionDetailScreen extends HookConsumerWidget {
     required WidgetRef ref,
     required Nutrition model,
     required ValueNotifier<List<String>> selectedTypes,
+    required String dishName,
   }) async {
     if (selectedTypes.value.isEmpty) {
       showToast('Please select at least one meal type', context, 2);
@@ -177,6 +166,7 @@ class NutritionDetailScreen extends HookConsumerWidget {
           selectedTime = time;
           selectedDays = days;
         },
+        dishName: dishName,
       ),
     );
 
@@ -219,7 +209,7 @@ class _MealTypeSelector extends StatelessWidget {
         Text(
           'MEAL TYPE',
           style: TextStyle(
-            color: Colors.white.withOpacity(0.4),
+            color: Colors.white.withValues(alpha: 0.4),
             fontSize: 10,
             fontWeight: FontWeight.w900,
             letterSpacing: 2,
@@ -243,13 +233,13 @@ class _MealTypeSelector extends StatelessWidget {
                       const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
                   decoration: BoxDecoration(
                     color: isSelected
-                        ? const Color(0xFFEF4444).withOpacity(0.15)
-                        : Colors.white.withOpacity(0.05),
+                        ? const Color(0xFFEF4444).withValues(alpha: 0.15)
+                        : Colors.white.withValues(alpha: 0.05),
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
                       color: isSelected
-                          ? const Color(0xFFEF4444).withOpacity(0.5)
-                          : Colors.white.withOpacity(0.1),
+                          ? const Color(0xFFEF4444).withValues(alpha: 0.5)
+                          : Colors.white.withValues(alpha: 0.1),
                     ),
                   ),
                   child: Text(
@@ -257,7 +247,7 @@ class _MealTypeSelector extends StatelessWidget {
                     style: TextStyle(
                       color: isSelected
                           ? const Color(0xFFEF4444)
-                          : Colors.white.withOpacity(0.5),
+                          : Colors.white.withValues(alpha: 0.5),
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
                     ),
@@ -272,21 +262,22 @@ class _MealTypeSelector extends StatelessWidget {
   }
 }
 
-class _TimeDayPickerDialog extends StatefulWidget {
+class _TimeDayPickerDialog extends HookConsumerWidget {
   final void Function(TimeOfDay time, List<String> days) onConfirm;
-  const _TimeDayPickerDialog({required this.onConfirm});
+  final String dishName;
+
+  const _TimeDayPickerDialog({
+    required this.onConfirm,
+    required this.dishName,
+  });
+
+  static const _days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
   @override
-  State<_TimeDayPickerDialog> createState() => _TimeDayPickerDialogState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final selectedTime = useState(TimeOfDay.now());
+    final selectedDays = useState<Set<String>>({});
 
-class _TimeDayPickerDialogState extends State<_TimeDayPickerDialog> {
-  TimeOfDay _selectedTime = TimeOfDay.now();
-  final _days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-  final Set<String> _selectedDays = {};
-
-  @override
-  Widget build(BuildContext context) {
     return AlertDialog(
       backgroundColor: const Color(0xFF18181B),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
@@ -299,16 +290,15 @@ class _TimeDayPickerDialogState extends State<_TimeDayPickerDialog> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Time picker button
           GestureDetector(
             onTap: () async {
               final picked = await showTimePicker(
                 context: context,
-                initialTime: _selectedTime,
+                initialTime: selectedTime.value,
                 builder: (ctx, child) =>
                     Theme(data: ThemeData.dark(), child: child!),
               );
-              if (picked != null) setState(() => _selectedTime = picked);
+              if (picked != null) selectedTime.value = picked;
             },
             child: Container(
               width: double.infinity,
@@ -325,7 +315,7 @@ class _TimeDayPickerDialogState extends State<_TimeDayPickerDialog> {
                       color: Color(0xFFEF4444), size: 16),
                   const SizedBox(width: 8),
                   Text(
-                    _selectedTime.format(context),
+                    selectedTime.value.format(context),
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 15,
@@ -337,8 +327,6 @@ class _TimeDayPickerDialogState extends State<_TimeDayPickerDialog> {
             ),
           ),
           const SizedBox(height: 16),
-
-          // Day selector
           Text(
             'SELECT DAYS',
             style: TextStyle(
@@ -353,13 +341,13 @@ class _TimeDayPickerDialogState extends State<_TimeDayPickerDialog> {
             spacing: 8,
             runSpacing: 8,
             children: _days.map((day) {
-              final isSelected = _selectedDays.contains(day);
+              final isSelected = selectedDays.value.contains(day);
               return GestureDetector(
-                onTap: () => setState(() {
-                  isSelected
-                      ? _selectedDays.remove(day)
-                      : _selectedDays.add(day);
-                }),
+                onTap: () {
+                  final updated = Set<String>.from(selectedDays.value);
+                  isSelected ? updated.remove(day) : updated.add(day);
+                  selectedDays.value = updated;
+                },
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 150),
                   width: 38,
@@ -367,12 +355,12 @@ class _TimeDayPickerDialogState extends State<_TimeDayPickerDialog> {
                   decoration: BoxDecoration(
                     color: isSelected
                         ? const Color(0xFFEF4444)
-                        : Colors.white.withOpacity(0.06),
+                        : Colors.white.withValues(alpha: 0.06),
                     borderRadius: BorderRadius.circular(10),
                     border: Border.all(
                       color: isSelected
                           ? const Color(0xFFEF4444)
-                          : Colors.white.withOpacity(0.1),
+                          : Colors.white.withValues(alpha: 0.1),
                     ),
                   ),
                   child: Center(
@@ -381,7 +369,7 @@ class _TimeDayPickerDialogState extends State<_TimeDayPickerDialog> {
                       style: TextStyle(
                         color: isSelected
                             ? Colors.white
-                            : Colors.white.withOpacity(0.5),
+                            : Colors.white.withValues(alpha: 0.5),
                         fontSize: 10,
                         fontWeight: FontWeight.w800,
                       ),
@@ -397,12 +385,28 @@ class _TimeDayPickerDialogState extends State<_TimeDayPickerDialog> {
         TextButton(
           onPressed: () => context.pop(),
           child: Text('Cancel',
-              style: TextStyle(color: Colors.white.withOpacity(0.5))),
+              style: TextStyle(color: Colors.white.withValues(alpha: 0.5))),
         ),
         TextButton(
-          onPressed: () {
-            widget.onConfirm(_selectedTime, _selectedDays.toList());
-            context.pop();
+          onPressed: () async {
+            onConfirm(selectedTime.value, selectedDays.value.toList());
+
+            ref.read(mealNotificationProvider.notifier).createNotification(
+                  title: '🍽️ Time to eat!',
+                  message: 'Your $dishName is scheduled now.',
+                  priority: NotificationPriority.high.name,
+                  type: NotificationType.mealReminder.apiValue,
+                );
+
+            await CustomNotification().showScheduleNotification(
+              1,
+              '🍽️ Time to eat!',
+              'Your $dishName is scheduled now.',
+              selectedTime.value.hour,
+              selectedTime.value.minute,
+            );
+
+            if (context.mounted) context.pop();
           },
           child: const Text('Add',
               style: TextStyle(

@@ -6,9 +6,7 @@ import 'package:intake_helper/pages/auth/login/widgets/login_form_card.dart';
 import 'package:intake_helper/pages/auth/login/widgets/login_header.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:snippet_coder_utils/FormHelper.dart';
 
-import 'package:intake_helper/Config/Config.dart';
 import 'package:intake_helper/api/api_service.dart';
 import 'package:intake_helper/router.dart';
 
@@ -22,6 +20,15 @@ class LoginPage extends HookConsumerWidget {
     final passwordController = useTextEditingController();
     final isLoading = useState(false);
     final errorMessage = useState('');
+
+    ref.listen<AsyncValue<ApiState>>(apiServiceProvider, (previous, next) {
+      final value = next.value;
+      if (value == null) return;
+
+      if (value.redirect != null) {
+        context.goNamed(value.redirect!);
+      }
+    });
 
     Future<void> handleSignIn() async {
       errorMessage.value = '';
@@ -45,19 +52,6 @@ class LoginPage extends HookConsumerWidget {
         if (success) {
           final prefs = await SharedPreferences.getInstance();
           await prefs.setString('user_email', emailController.text.trim());
-
-          if (context.mounted) {
-            FormHelper.showSimpleAlertDialog(
-              context,
-              Config.appName,
-              'Logged in Successfully',
-              'OK',
-              () {
-                Navigator.of(context).pop();
-                context.go(RouteConstants.home.path);
-              },
-            );
-          }
         } else {
           errorMessage.value = 'Invalid email or password.';
         }
@@ -80,6 +74,7 @@ class LoginPage extends HookConsumerWidget {
     }
 
     return SafeArea(
+      top: false,
       child: Scaffold(
         backgroundColor: Colors.black,
         body: ModalProgressHUD(
