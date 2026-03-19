@@ -1,6 +1,9 @@
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
 class Config {
+  final String firebaseProjectId = dotenv.get('PROJECT_ID');
   // static const String baseUrl = "https://intake-helper-app-api.vercel.app";
-  static const String baseUrl = "http://192.168.0.104:3000";
+  static const String baseUrl = "http://192.168.0.106:3000";
   // static const String baseUrl = "http://10.218.70.240:3000";
   static const String nutritionAPI = "api/nutrition/import";
   static const String detailAPI = "api/nutrition/";
@@ -22,6 +25,16 @@ class Config {
   static const String statusTodosAPI = "api/status-todos";
   static const String profileAPI = "api/profile";
 
+  static const String notificationAPI = "api/notifications";
+
+  static String get firebaseMessagingAPI =>
+      "https://fcm.googleapis.com/v1/projects/${Config().firebaseProjectId}/messages:send";
+
   //OpenAI Apis
   static const String getOpenAiResponse = "https://api.openai.com/v1/responses";
+
+  static const String verifyEmailAPI = "api/verify-email";
+
+  static const String resetPasswordAPI = "api/reset-password";
+  static const String forgotPasswordAPI = "api/forgot-password";
 }

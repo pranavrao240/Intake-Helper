@@ -13,6 +13,8 @@ import 'package:intake_helper/models/todo_model.dart';
 import 'package:flutter/material.dart';
 import 'package:intake_helper/models/user_model.dart';
 import 'package:intake_helper/router.dart';
+import 'package:intake_helper/utility/logger.dart';
+import 'package:logger/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiState {
@@ -22,6 +24,9 @@ class ApiState {
   final List<SavedNutritionModel>? savedNutrition;
   final TodoModel? todo;
   final String? message;
+  final String? errorMessage;
+  final Exception? error;
+
   final LoginResponseModel? register;
   final StreakModel? streak;
   final ProfileData? profileData;
@@ -35,6 +40,8 @@ class ApiState {
       this.nutrition,
       this.todo,
       this.message,
+      this.errorMessage,
+      this.error,
       this.register,
       this.savedNutrition,
       this.streak,
@@ -49,6 +56,8 @@ class ApiState {
       List<SavedNutritionModel>? savedNutrition,
       TodoModel? todo,
       String? message,
+      String? errorMessage,
+      Exception? error,
       LoginResponseModel? register,
       ProfileData? profileData,
       StreakModel? streak,
@@ -62,6 +71,8 @@ class ApiState {
       nutrition: nutrition ?? this.nutrition,
       todo: todo ?? this.todo,
       message: message ?? this.message,
+      errorMessage: errorMessage ?? this.errorMessage,
+      error: error ?? this.error,
       isLoading: isLoading ?? this.isLoading,
       redirect: redirect ?? this.redirect,
       addedId: addedId ?? this.addedId,
@@ -75,6 +86,7 @@ final apiServiceProvider =
     AsyncNotifierProvider<ApiService, ApiState>(() => ApiService());
 
 class ApiService extends AsyncNotifier<ApiState> {
+  final Logger log = CustomLogger.getLogger('ApiService');
   static final client = _createHttpClient();
 
   static http.Client _createHttpClient() {
@@ -89,6 +101,20 @@ class ApiService extends AsyncNotifier<ApiState> {
   Uri _url(String endpoint) => Uri.parse("${Config.baseUrl}/$endpoint");
   final dio = Dio();
   final preferences = SharedPreferences.getInstance();
+
+  void resetMessages() {
+    final current = state.value;
+    if (current == null) return;
+
+    state = AsyncValue.data(
+      current.copyWith(
+        message: null,
+        errorMessage: null,
+        error: null,
+        redirect: null,
+      ),
+    );
+  }
 
   Future<bool> registerUser(
       String fullName, String email, String password) async {
@@ -105,18 +131,32 @@ class ApiService extends AsyncNotifier<ApiState> {
         }),
       );
 
-      if (res.statusCode == 200) {
-        final model = loginResponseJson(res.body);
-        final preferences = await SharedPreferences.getInstance();
-        preferences.setString('token', model.data.token);
+      print('res.statusCode: ${res.statusCode}');
+      print('res.body: ${res.body}');
+
+      if (res.statusCode == 200 || res.statusCode == 201) {
+        final model = LoginResponseModel.fromJson(jsonDecode(res.body));
+
+        debugPrint('model: $model');
+
         state = AsyncValue.data(state.value!.copyWith(
             token: model.data.token,
-            message: model.message,
-            register: model.data as LoginResponseModel));
+            message: 'Email Sent for verification',
+            register: model,
+            redirect: RouteConstants.emailVerification.name));
+        debugPrint("Registration successful");
         return true;
+      } else {
+        debugPrint("Registration failed");
+        state = AsyncValue.data(state.value!.copyWith(
+          errorMessage: 'Registration failed. Please try again.',
+        ));
       }
     } catch (e) {
-      debugPrint("Register error: $e");
+      print('Registration error: $e');
+      state = AsyncValue.data(state.value!.copyWith(
+        errorMessage: e.toString(),
+      ));
     }
     return false;
   }
@@ -133,25 +173,119 @@ class ApiService extends AsyncNotifier<ApiState> {
       );
 
       if (res.statusCode == 200) {
-        final model = loginResponseJson(res.body);
+        final model = LoginResponseModel.fromJson(jsonDecode(res.body));
+
         final preferences = await SharedPreferences.getInstance();
 
-        preferences.setString('token', model.data.token);
-        await saveAuthData(model.data.token);
-        state = AsyncValue.data(state.value!.copyWith(
-          token: model.data.token,
-          message: model.message,
-        ));
+        preferences.setString('token', model.data.token!);
+        preferences.setString('userId', model.data.id ?? '');
+        final currentState = state.value ?? ApiState(null);
+
+        state = AsyncValue.data(
+          currentState.copyWith(
+            token: model.data.token,
+            message: model.message,
+            redirect: RouteConstants.home.name,
+          ),
+        );
+
         return true;
+      } else {
+        state = AsyncValue.data(state.value!.copyWith(
+          errorMessage: 'Invalid email or password.',
+        ));
       }
     } catch (e) {
-      debugPrint("Login error: $e");
+      state = AsyncValue.data(state.value!.copyWith(
+        errorMessage: 'Login failed. Please try again.',
+      ));
     }
 
     return false;
   }
 
+  Future<void> sendForgotPasswordEmail(String email) async {
+    try {
+      final res = await client.post(
+        _url(Config.forgotPasswordAPI),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          "email": email,
+        }),
+      );
+
+      final prefs = await SharedPreferences.getInstance();
+      final body = jsonDecode(res.body);
+
+      await prefs.setString(
+        'emailVerificationToken',
+        body['data']['emailVerificationToken'] as String,
+      );
+
+      if (res.statusCode == 200) {
+        state = AsyncValue.data(
+          state.value!.copyWith(
+            message: 'Password reset email sent successfully',
+          ),
+        );
+      } else {
+        state = AsyncValue.data(
+          state.value!.copyWith(
+            errorMessage: 'Failed to send forgot password email',
+          ),
+        );
+      }
+    } catch (e) {
+      log.i('Error sending forgot password email: $e');
+      state = AsyncValue.data(
+        state.value!.copyWith(
+          errorMessage: 'Failed to send forgot password email',
+        ),
+      );
+    }
+  }
+
+  Future<void> resetPassword(String token, String newPassword) async {
+    try {
+      final res = await client.post(
+        _url(Config.resetPasswordAPI),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          "token": token,
+          "newPassword": newPassword,
+        }),
+      );
+
+      if (res.statusCode == 200) {
+        state = AsyncValue.data(
+          state.value!.copyWith(
+            message: 'Password reset successfully',
+            redirect: RouteConstants.resetPassword.name,
+          ),
+        );
+      } else {
+        state = AsyncValue.data(
+          state.value!.copyWith(
+            errorMessage: 'Failed to reset password',
+          ),
+        );
+      }
+    } catch (e) {
+      log.i('Error resetting password: $e');
+      state = AsyncValue.data(
+        state.value!.copyWith(
+          errorMessage: 'Failed to reset password',
+        ),
+      );
+    }
+  }
+
   Future<void> getProfile(String token) async {
+    final prefs = await SharedPreferences.getInstance();
     final response = await client.get(
       _url(Config.profileAPI),
       headers: {
@@ -165,6 +299,7 @@ class ApiService extends AsyncNotifier<ApiState> {
         final data = ProfileResponse.fromJson(jsonDecode(response.body));
 
         state = AsyncValue.data(state.value!.copyWith(profileData: data.data));
+        prefs.setString('userId', data.data?.id ?? '');
       }
     } catch (e) {
       debugPrint('Profile error: $e');
@@ -178,6 +313,7 @@ class ApiService extends AsyncNotifier<ApiState> {
     String? dateOfBirth,
     String? gender,
     double? bodyFat,
+    String? fcmToken,
   }) async {
     final Map<String, dynamic> payload = {};
     final preferences = await SharedPreferences.getInstance();
@@ -189,6 +325,7 @@ class ApiService extends AsyncNotifier<ApiState> {
     if (dateOfBirth != null) payload['dateOfBirth'] = dateOfBirth;
     if (gender != null) payload['gender'] = gender;
     if (bodyFat != null) payload['bodyFat'] = bodyFat;
+    if (fcmToken != null) payload['FCMToken'] = fcmToken;
 
     if (payload.isEmpty) {
       debugPrint('No profile fields to update');
@@ -207,25 +344,16 @@ class ApiService extends AsyncNotifier<ApiState> {
         data: payload,
       );
 
-      print('Profile update response: ${response.data}');
-
       if (response.statusCode == 200) {
         final profileModel = ProfileResponse.fromJson(response.data);
         state = AsyncValue.data(
           state.value!.copyWith(
               profileData: profileModel.data, message: profileModel.message),
         );
-      } else {
-        state = AsyncValue.data(
-          state.value!.copyWith(message: "Failed to update profile"),
-        );
-      }
+      } else {}
     } catch (e) {
-      debugPrint("Update profile error: $e");
       state = AsyncValue.data(
-        state.value!.copyWith(
-            message: "Failed to update profile",
-            redirect: RouteConstants.todo.name),
+        state.value!.copyWith(message: "Failed to update profile"),
       );
     }
   }
@@ -280,7 +408,6 @@ class ApiService extends AsyncNotifier<ApiState> {
   }
 
   Future<void> updateMealStatus(String mealId, String status) async {
-    print('Updating meal status: $mealId to $status');
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
     final response = await client.put(
@@ -307,12 +434,10 @@ class ApiService extends AsyncNotifier<ApiState> {
         );
       }
     } on DioException catch (e) {
-      print('Dio error: $e');
       state = AsyncValue.data(
         state.value!.copyWith(message: "Failed to update status"),
       );
     } catch (e) {
-      print('error $e');
       state = AsyncValue.data(
         state.value!.copyWith(message: "Failed to update status"),
       );
@@ -343,7 +468,6 @@ class ApiService extends AsyncNotifier<ApiState> {
       state = AsyncValue.data(
         state.value!.copyWith(message: "Failed to get saved nutritions"),
       );
-      print('error $e');
     }
   }
 
@@ -351,7 +475,6 @@ class ApiService extends AsyncNotifier<ApiState> {
     try {
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('token');
-      print('updating saved nutritions $id');
       final res =
           await client.put(_url('${Config.changeSavedStateAPI}/$id'), headers: {
         'Content-Type': 'application/json',
@@ -361,11 +484,9 @@ class ApiService extends AsyncNotifier<ApiState> {
         state = AsyncValue.data(
             state.value!.copyWith(message: "Meal Saved successfully!"));
       }
-      print('succeed ${res.body}');
     } catch (e) {
       state = AsyncValue.data(
           state.value!.copyWith(message: "Failed to save meal"));
-      print('error $e');
     }
   }
 
@@ -641,8 +762,6 @@ class ApiService extends AsyncNotifier<ApiState> {
       );
 
       if (res.statusCode == 200) {
-        print('add todo item response: ${res.body}');
-
         /// handle streak safely
         try {
           await updateStreak(todosAdded: 1);
@@ -679,10 +798,7 @@ class ApiService extends AsyncNotifier<ApiState> {
 
         state = AsyncValue.data(state.value!
             .copyWith(streak: data, message: 'Streak loaded successfully'));
-        print('Streak loaded successfully: $data');
-      } else {
-        print('Streak load failed: ${response.statusCode}');
-      }
+      } else {}
     } catch (e) {
       debugPrint('Streak error: $e');
       state = AsyncValue.data(state.value!
@@ -699,8 +815,6 @@ class ApiService extends AsyncNotifier<ApiState> {
     if (todosCompleted != null) {
       streakPayload.addAll({"todosCompleted": todosCompleted});
     }
-
-    print('Streak payload: $streakPayload');
 
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
@@ -730,14 +844,8 @@ class ApiService extends AsyncNotifier<ApiState> {
             ),
           );
         }
-
-        print('Streak updated successfully: $data');
-      } else {
-        print('Streak update failed: ${response.statusCode}');
-      }
+      } else {}
     } catch (e) {
-      debugPrint('Streak error: $e');
-
       final currentState = state.value;
 
       if (currentState != null) {

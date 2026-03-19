@@ -1,9 +1,13 @@
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intake_helper/router.dart';
 import 'package:intake_helper/theme/app_theme.dart';
+import 'package:intake_helper/utility/fcm_services.dart';
+import 'package:intake_helper/utility/local_notiifcations.dart';
 import 'package:intake_helper/utility/notification.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
@@ -13,6 +17,15 @@ final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+
+  await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
+    alert: true,
+    badge: true,
+    sound: true,
+  );
   await dotenv.load(fileName: ".env");
 
   // Initialize notifications
@@ -20,13 +33,16 @@ void main() async {
 
   runApp(
     const ProviderScope(
-      child: MyApp(),
+      child: AppWrapper(child: MyApp()),
     ),
   );
+
+  await FCMService().checkInitialMessage();
+  await FCMService().init();
 }
 
 class MyApp extends StatefulWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp({super.key});
 
   @override
   State<MyApp> createState() => _MyAppState();
@@ -57,4 +73,43 @@ class _MyAppState extends State<MyApp> {
       },
     );
   }
+}
+
+class AppWrapper extends StatefulWidget {
+  const AppWrapper({required this.child, super.key});
+  final Widget child;
+
+  @override
+  State<AppWrapper> createState() => _AppWrapperState();
+}
+
+class _AppWrapperState extends State<AppWrapper> {
+  @override
+  void initState() {
+    super.initState();
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
+      final notification = message.notification;
+
+      if (notification != null) {
+        await showForegroundNotification(
+          title: notification.title ?? '',
+          body: notification.body ?? '',
+          payload: message.data['route'] as String? ?? RouteConstants.home.name,
+        );
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.child;
+}
+
+/// Background notification handler
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp();
 }

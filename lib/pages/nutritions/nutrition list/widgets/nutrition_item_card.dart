@@ -126,6 +126,7 @@ class NutritionItemCard extends HookConsumerWidget {
 class _FoodImage extends StatelessWidget {
   final String? dishName;
   final String? dishImage;
+
   const _FoodImage({this.dishName, this.dishImage});
 
   @override
@@ -136,9 +137,29 @@ class _FoodImage extends StatelessWidget {
       child: dishImage != null
           ? Image.network(
               dishImage!,
-              width: 34,
-              height: 34,
               fit: BoxFit.cover,
+              width: double.infinity,
+              height: 130,
+
+              // 👇 Loader while image loads
+              loadingBuilder: (context, child, loadingProgress) {
+                if (loadingProgress == null) return child;
+
+                return const Center(
+                  child: SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  ),
+                );
+              },
+
+              // 👇 If image fails to load
+              errorBuilder: (context, error, stackTrace) {
+                return const Center(
+                  child: Icon(Icons.broken_image, color: Colors.grey),
+                );
+              },
             )
           : Stack(
               fit: StackFit.expand,
@@ -171,7 +192,7 @@ class _FoodImage extends StatelessWidget {
                         end: Alignment.bottomCenter,
                         colors: [
                           Colors.transparent,
-                          Colors.black.withOpacity(0.35),
+                          Colors.black.withValues(alpha: 0.35),
                         ],
                       ),
                     ),
@@ -206,7 +227,7 @@ class _MacroChip extends StatelessWidget {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
-              color: Colors.white.withOpacity(0.6),
+              color: Colors.white.withValues(alpha: 0.6),
               fontSize: 11,
               fontWeight: FontWeight.w500,
             ),

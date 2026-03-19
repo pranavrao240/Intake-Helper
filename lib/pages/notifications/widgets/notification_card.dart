@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import '../../../models/notification_model.dart';
+import '../../../models/notifications/meal_notification_model.dart';
 import '../../../Providers/notifications_provider.dart';
 
 class NotificationCard extends HookConsumerWidget {
-  final NotificationModel notification;
+  final MealNotificationModel notification;
   final int index;
+  final VoidCallback onDismiss;
 
   const NotificationCard({
     super.key,
     required this.notification,
     required this.index,
+    required this.onDismiss,
   });
 
   @override
@@ -53,12 +55,12 @@ class NotificationCard extends HookConsumerWidget {
           key: Key('notification_${notification.id}'),
           direction: DismissDirection.endToStart,
           background: _DismissBackground(),
-          onDismissed: (_) => notifier.dismissNotification(notification.id),
+          onDismissed: (_) => onDismiss(),
           child: GestureDetector(
             onTapDown: (_) => isHovered.value = true,
             onTapUp: (_) {
               isHovered.value = false;
-              notifier.markRead(notification.id);
+              notifier.markRead(int.parse(notification.id));
             },
             onTapCancel: () => isHovered.value = false,
             child: AnimatedScale(
@@ -70,14 +72,14 @@ class NotificationCard extends HookConsumerWidget {
                   color: Colors.white.withValues(alpha: 0.9),
                   borderRadius: BorderRadius.circular(24),
                   border: Border.all(
-                    color: notification.unread
-                        ? const Color(0xFF2563EB).withValues(alpha: 0.25)
-                        : Colors.white.withValues(alpha: 0.5),
+                    color: notification.isRead
+                        ? Colors.white.withValues(alpha: 0.5)
+                        : const Color(0xFF2563EB).withValues(alpha: 0.25),
                     width: 1,
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: notification.unread
+                      color: notification.isRead
                           ? const Color(0xFF2563EB).withValues(alpha: 0.1)
                           : Colors.black.withValues(alpha: 0.04),
                       blurRadius: isHovered.value ? 20 : 12,
@@ -100,12 +102,12 @@ class NotificationCard extends HookConsumerWidget {
                               child: _NotificationContent(
                                   notification: notification),
                             ),
-                            if (notification.unread) _UnreadDot(),
+                            if (!notification.isRead) _UnreadDot(),
                           ],
                         ),
                       ),
                       // Red bottom bar for unread
-                      if (notification.unread)
+                      if (!notification.isRead)
                         Positioned(
                           bottom: 0,
                           left: 0,
@@ -135,7 +137,7 @@ class NotificationCard extends HookConsumerWidget {
 }
 
 class _NotificationIcon extends StatelessWidget {
-  final NotificationModel notification;
+  final MealNotificationModel notification;
   const _NotificationIcon({required this.notification});
 
   @override
@@ -147,12 +149,12 @@ class _NotificationIcon extends StatelessWidget {
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: notification.bgGradientColors,
+          colors: [const Color(0xFFEF4444), const Color(0xFFF97316)],
         ),
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: notification.gradientColors.first.withValues(alpha: 0.2),
+            color: const Color(0xFFEF4444).withValues(alpha: 0.2),
             blurRadius: 8,
             offset: const Offset(0, 3),
           ),
@@ -166,18 +168,19 @@ class _NotificationIcon extends StatelessWidget {
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: notification.gradientColors,
+              colors: [const Color(0xFFEF4444), const Color(0xFFF97316)],
             ),
             borderRadius: BorderRadius.circular(10),
             boxShadow: [
               BoxShadow(
-                color: notification.gradientColors.first.withValues(alpha: 0.4),
+                color: const Color(0xFFEF4444).withValues(alpha: 0.4),
                 blurRadius: 6,
                 offset: const Offset(0, 2),
               ),
             ],
           ),
-          child: Icon(notification.icon, color: Colors.white, size: 18),
+          child:
+              Icon(Icons.notifications_rounded, color: Colors.white, size: 18),
         ),
       ),
     );
@@ -185,7 +188,7 @@ class _NotificationIcon extends StatelessWidget {
 }
 
 class _NotificationContent extends StatelessWidget {
-  final NotificationModel notification;
+  final MealNotificationModel notification;
   const _NotificationContent({required this.notification});
 
   @override
@@ -198,7 +201,7 @@ class _NotificationContent extends StatelessWidget {
           style: TextStyle(
             color: Colors.black87,
             fontSize: 15,
-            fontWeight: notification.unread ? FontWeight.w600 : FontWeight.w500,
+            fontWeight: notification.isRead ? FontWeight.w500 : FontWeight.w600,
             letterSpacing: -0.3,
           ),
         ),
@@ -213,7 +216,7 @@ class _NotificationContent extends StatelessWidget {
         ),
         const SizedBox(height: 6),
         Text(
-          notification.time,
+          notification.scheduledFor?.toString() ?? '',
           style: const TextStyle(
             color: Color(0xFF9CA3AF),
             fontSize: 11,

@@ -78,7 +78,7 @@ class RegisterFormCard extends HookConsumerWidget {
           children: [
             RegisterInputField(
               label: 'Full Name',
-              placeholder: 'Pranav Sharma',
+              placeholder: 'Enter Name',
               prefixIcon: Icons.person_outline_rounded,
               controller: fullNameController,
               validator: (v) {
@@ -161,11 +161,6 @@ class RegisterFormCard extends HookConsumerWidget {
                 ),
               ),
             _CreateAccountButton(isLoading: isLoading, onTap: onSubmit),
-            const SizedBox(height: 24),
-            RegisterSocialButtons(
-              onGoogleTap: onGoogleTap,
-              onAppleTap: onAppleTap,
-            ),
             const SizedBox(height: 20),
             Center(
               child: Row(
