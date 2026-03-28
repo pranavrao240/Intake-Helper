@@ -371,8 +371,8 @@ class __$LoginResponseModelCopyWithImpl<$Res>
 
 /// @nodoc
 mixin _$UserData {
-  @JsonKey(name: "_id")
-  String? get id; // ✅ handles MongoDB
+  @JsonKey(name: "id")
+  String? get id;
   String? get email;
   String? get fullName;
   bool? get emailVerified;
@@ -419,7 +419,7 @@ abstract mixin class $UserDataCopyWith<$Res> {
       _$UserDataCopyWithImpl;
   @useResult
   $Res call(
-      {@JsonKey(name: "_id") String? id,
+      {@JsonKey(name: "id") String? id,
       String? email,
       String? fullName,
       bool? emailVerified,
@@ -562,7 +562,7 @@ extension UserDataPatterns on UserData {
 
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>(
-    TResult Function(@JsonKey(name: "_id") String? id, String? email,
+    TResult Function(@JsonKey(name: "id") String? id, String? email,
             String? fullName, bool? emailVerified, String? token)?
         $default, {
     required TResult orElse(),
@@ -592,7 +592,7 @@ extension UserDataPatterns on UserData {
 
   @optionalTypeArgs
   TResult when<TResult extends Object?>(
-    TResult Function(@JsonKey(name: "_id") String? id, String? email,
+    TResult Function(@JsonKey(name: "id") String? id, String? email,
             String? fullName, bool? emailVerified, String? token)
         $default,
   ) {
@@ -620,7 +620,7 @@ extension UserDataPatterns on UserData {
 
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>(
-    TResult? Function(@JsonKey(name: "_id") String? id, String? email,
+    TResult? Function(@JsonKey(name: "id") String? id, String? email,
             String? fullName, bool? emailVerified, String? token)?
         $default,
   ) {
@@ -639,7 +639,7 @@ extension UserDataPatterns on UserData {
 @JsonSerializable()
 class _UserData implements UserData {
   const _UserData(
-      {@JsonKey(name: "_id") this.id,
+      {@JsonKey(name: "id") this.id,
       this.email,
       this.fullName,
       this.emailVerified,
@@ -648,9 +648,8 @@ class _UserData implements UserData {
       _$UserDataFromJson(json);
 
   @override
-  @JsonKey(name: "_id")
+  @JsonKey(name: "id")
   final String? id;
-// ✅ handles MongoDB
   @override
   final String? email;
   @override
@@ -708,7 +707,7 @@ abstract mixin class _$UserDataCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {@JsonKey(name: "_id") String? id,
+      {@JsonKey(name: "id") String? id,
       String? email,
       String? fullName,
       bool? emailVerified,

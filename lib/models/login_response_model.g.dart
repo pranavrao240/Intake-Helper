@@ -21,7 +21,7 @@ Map<String, dynamic> _$LoginResponseModelToJson(_LoginResponseModel instance) =>
     };
 
 _UserData _$UserDataFromJson(Map<String, dynamic> json) => _UserData(
-      id: json['_id'] as String?,
+      id: json['id'] as String?,
       email: json['email'] as String?,
       fullName: json['fullName'] as String?,
       emailVerified: json['emailVerified'] as bool?,
@@ -29,7 +29,7 @@ _UserData _$UserDataFromJson(Map<String, dynamic> json) => _UserData(
     );
 
 Map<String, dynamic> _$UserDataToJson(_UserData instance) => <String, dynamic>{
-      '_id': instance.id,
+      'id': instance.id,
       'email': instance.email,
       'fullName': instance.fullName,
       'emailVerified': instance.emailVerified,

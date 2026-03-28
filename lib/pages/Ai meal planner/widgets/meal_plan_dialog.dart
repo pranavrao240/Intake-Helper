@@ -4,8 +4,6 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intake_helper/pages/Ai%20meal%20planner/widgets/meal_info.dart';
 import 'selectable_meal_card.dart';
 
-/// Dialog presenting parsed [MealInfo] items for the user to select and save.
-/// Returns the selected list via [Navigator.pop].
 class MealPlanDialog extends HookConsumerWidget {
   final List<MealInfo> mealInfos;
 
@@ -33,7 +31,6 @@ class MealPlanDialog extends HookConsumerWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Title
             const Text(
               'Select Meals to Save',
               style: TextStyle(

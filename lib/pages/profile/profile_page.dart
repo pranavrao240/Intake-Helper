@@ -18,13 +18,14 @@ class ProfilePage extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final profileState = ref.watch(apiServiceProvider);
     final profileImage = profileState.value?.profileData?.profileImage;
+
     print('profile image $profileImage');
     final selectedAvatar = useState<String?>(null);
     final safeAvatar =
         selectedAvatar.value ?? profileImage ?? 'assets/characters/male1.png';
     final isModalOpen = useState(false);
 
-    Future<void> getProfileImage() async {
+    Future<void> getProfile() async {
       final preference = await SharedPreferences.getInstance();
       final token = preference.getString('token');
       await ref.read(apiServiceProvider.notifier).getProfile(token ?? '');
@@ -32,7 +33,7 @@ class ProfilePage extends HookConsumerWidget {
 
     useEffect(() {
       Future.microtask(() {
-        getProfileImage();
+        getProfile();
       });
       return null;
     }, []);

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
@@ -24,6 +26,7 @@ class TodoPage extends HookConsumerWidget {
     final refreshKey = useState(0);
     final deletedIds = useState<Set<String>>({});
     final todosState = ref.read(appProvider.notifier);
+    final streakState = ref.watch(appProvider);
 
     final mealsFuture = useMemoized<Future<List<Meal>>>(
       () =>
@@ -37,6 +40,11 @@ class TodoPage extends HookConsumerWidget {
           .then((value) async {
         await todosState.updateStreak(todosCompleted: 1);
       });
+      refreshKey.value++;
+    }
+
+    Future<void> getStreak() async {
+      await todosState.getStreak();
       refreshKey.value++;
     }
 
@@ -87,6 +95,13 @@ class TodoPage extends HookConsumerWidget {
           return UpcomingMealCard(data: cardData);
       }
     }
+
+    useEffect(() {
+      Future.microtask(() {
+        unawaited(getStreak());
+      });
+      return null;
+    }, []);
 
     return Scaffold(
       backgroundColor: Colors.black,
@@ -166,7 +181,8 @@ class TodoPage extends HookConsumerWidget {
                       date: selectedDate.value,
                       completed: completedCount,
                       total: totalCount,
-                      streak: 7, // Placeholder for streak
+                      streak: streakState.value?.streak?.data.currentStreak ??
+                          0, // Placeholder for streak
                     ),
                   ),
                   SliverToBoxAdapter(

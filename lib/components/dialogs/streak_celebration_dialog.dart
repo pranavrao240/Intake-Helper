@@ -130,7 +130,7 @@ class StreakCelebrationDialog extends HookConsumerWidget {
                           width: 160,
                           height: 200,
                           child: Image.asset(
-                            'lib/assets/videos/male3.gif',
+                            'lib/assets/videos/female2.gif',
                             fit: BoxFit.cover,
                             errorBuilder: (context, error, stackTrace) {
                               return Container(

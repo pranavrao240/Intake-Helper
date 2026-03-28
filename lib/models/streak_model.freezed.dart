@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$StreakModel {
   bool get success;
-  String get message;
+  String? get message;
   StreakData get data;
 
   /// Create a copy of StreakModel
@@ -54,7 +54,7 @@ abstract mixin class $StreakModelCopyWith<$Res> {
           StreakModel value, $Res Function(StreakModel) _then) =
       _$StreakModelCopyWithImpl;
   @useResult
-  $Res call({bool success, String message, StreakData data});
+  $Res call({bool success, String? message, StreakData data});
 
   $StreakDataCopyWith<$Res> get data;
 }
@@ -72,7 +72,7 @@ class _$StreakModelCopyWithImpl<$Res> implements $StreakModelCopyWith<$Res> {
   @override
   $Res call({
     Object? success = null,
-    Object? message = null,
+    Object? message = freezed,
     Object? data = null,
   }) {
     return _then(_self.copyWith(
@@ -80,10 +80,10 @@ class _$StreakModelCopyWithImpl<$Res> implements $StreakModelCopyWith<$Res> {
           ? _self.success
           : success // ignore: cast_nullable_to_non_nullable
               as bool,
-      message: null == message
+      message: freezed == message
           ? _self.message
           : message // ignore: cast_nullable_to_non_nullable
-              as String,
+              as String?,
       data: null == data
           ? _self.data
           : data // ignore: cast_nullable_to_non_nullable
@@ -195,7 +195,8 @@ extension StreakModelPatterns on StreakModel {
 
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>(
-    TResult Function(bool success, String message, StreakData data)? $default, {
+    TResult Function(bool success, String? message, StreakData data)?
+        $default, {
     required TResult orElse(),
   }) {
     final _that = this;
@@ -222,7 +223,7 @@ extension StreakModelPatterns on StreakModel {
 
   @optionalTypeArgs
   TResult when<TResult extends Object?>(
-    TResult Function(bool success, String message, StreakData data) $default,
+    TResult Function(bool success, String? message, StreakData data) $default,
   ) {
     final _that = this;
     switch (_that) {
@@ -247,7 +248,7 @@ extension StreakModelPatterns on StreakModel {
 
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>(
-    TResult? Function(bool success, String message, StreakData data)? $default,
+    TResult? Function(bool success, String? message, StreakData data)? $default,
   ) {
     final _that = this;
     switch (_that) {
@@ -262,15 +263,14 @@ extension StreakModelPatterns on StreakModel {
 /// @nodoc
 @JsonSerializable()
 class _StreakModel implements StreakModel {
-  const _StreakModel(
-      {required this.success, required this.message, required this.data});
+  const _StreakModel({required this.success, this.message, required this.data});
   factory _StreakModel.fromJson(Map<String, dynamic> json) =>
       _$StreakModelFromJson(json);
 
   @override
   final bool success;
   @override
-  final String message;
+  final String? message;
   @override
   final StreakData data;
 
@@ -317,7 +317,7 @@ abstract mixin class _$StreakModelCopyWith<$Res>
       __$StreakModelCopyWithImpl;
   @override
   @useResult
-  $Res call({bool success, String message, StreakData data});
+  $Res call({bool success, String? message, StreakData data});
 
   @override
   $StreakDataCopyWith<$Res> get data;
@@ -336,7 +336,7 @@ class __$StreakModelCopyWithImpl<$Res> implements _$StreakModelCopyWith<$Res> {
   @pragma('vm:prefer-inline')
   $Res call({
     Object? success = null,
-    Object? message = null,
+    Object? message = freezed,
     Object? data = null,
   }) {
     return _then(_StreakModel(
@@ -344,10 +344,10 @@ class __$StreakModelCopyWithImpl<$Res> implements _$StreakModelCopyWith<$Res> {
           ? _self.success
           : success // ignore: cast_nullable_to_non_nullable
               as bool,
-      message: null == message
+      message: freezed == message
           ? _self.message
           : message // ignore: cast_nullable_to_non_nullable
-              as String,
+              as String?,
       data: null == data
           ? _self.data
           : data // ignore: cast_nullable_to_non_nullable
@@ -370,7 +370,7 @@ class __$StreakModelCopyWithImpl<$Res> implements _$StreakModelCopyWith<$Res> {
 mixin _$StreakData {
   int get currentStreak;
   int get longestStreak;
-  DateTime get lastCompletedDate;
+  DateTime? get lastCompletedDate;
   List<StreakHistory> get streakHistory;
 
   /// Create a copy of StreakData
@@ -418,7 +418,7 @@ abstract mixin class $StreakDataCopyWith<$Res> {
   $Res call(
       {int currentStreak,
       int longestStreak,
-      DateTime lastCompletedDate,
+      DateTime? lastCompletedDate,
       List<StreakHistory> streakHistory});
 }
 
@@ -436,7 +436,7 @@ class _$StreakDataCopyWithImpl<$Res> implements $StreakDataCopyWith<$Res> {
   $Res call({
     Object? currentStreak = null,
     Object? longestStreak = null,
-    Object? lastCompletedDate = null,
+    Object? lastCompletedDate = freezed,
     Object? streakHistory = null,
   }) {
     return _then(_self.copyWith(
@@ -448,10 +448,10 @@ class _$StreakDataCopyWithImpl<$Res> implements $StreakDataCopyWith<$Res> {
           ? _self.longestStreak
           : longestStreak // ignore: cast_nullable_to_non_nullable
               as int,
-      lastCompletedDate: null == lastCompletedDate
+      lastCompletedDate: freezed == lastCompletedDate
           ? _self.lastCompletedDate
           : lastCompletedDate // ignore: cast_nullable_to_non_nullable
-              as DateTime,
+              as DateTime?,
       streakHistory: null == streakHistory
           ? _self.streakHistory
           : streakHistory // ignore: cast_nullable_to_non_nullable
@@ -554,7 +554,7 @@ extension StreakDataPatterns on StreakData {
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>(
     TResult Function(int currentStreak, int longestStreak,
-            DateTime lastCompletedDate, List<StreakHistory> streakHistory)?
+            DateTime? lastCompletedDate, List<StreakHistory> streakHistory)?
         $default, {
     required TResult orElse(),
   }) {
@@ -584,7 +584,7 @@ extension StreakDataPatterns on StreakData {
   @optionalTypeArgs
   TResult when<TResult extends Object?>(
     TResult Function(int currentStreak, int longestStreak,
-            DateTime lastCompletedDate, List<StreakHistory> streakHistory)
+            DateTime? lastCompletedDate, List<StreakHistory> streakHistory)
         $default,
   ) {
     final _that = this;
@@ -612,7 +612,7 @@ extension StreakDataPatterns on StreakData {
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>(
     TResult? Function(int currentStreak, int longestStreak,
-            DateTime lastCompletedDate, List<StreakHistory> streakHistory)?
+            DateTime? lastCompletedDate, List<StreakHistory> streakHistory)?
         $default,
   ) {
     final _that = this;
@@ -632,7 +632,7 @@ class _StreakData implements StreakData {
   const _StreakData(
       {required this.currentStreak,
       required this.longestStreak,
-      required this.lastCompletedDate,
+      this.lastCompletedDate,
       required final List<StreakHistory> streakHistory})
       : _streakHistory = streakHistory;
   factory _StreakData.fromJson(Map<String, dynamic> json) =>
@@ -643,7 +643,7 @@ class _StreakData implements StreakData {
   @override
   final int longestStreak;
   @override
-  final DateTime lastCompletedDate;
+  final DateTime? lastCompletedDate;
   final List<StreakHistory> _streakHistory;
   @override
   List<StreakHistory> get streakHistory {
@@ -704,7 +704,7 @@ abstract mixin class _$StreakDataCopyWith<$Res>
   $Res call(
       {int currentStreak,
       int longestStreak,
-      DateTime lastCompletedDate,
+      DateTime? lastCompletedDate,
       List<StreakHistory> streakHistory});
 }
 
@@ -722,7 +722,7 @@ class __$StreakDataCopyWithImpl<$Res> implements _$StreakDataCopyWith<$Res> {
   $Res call({
     Object? currentStreak = null,
     Object? longestStreak = null,
-    Object? lastCompletedDate = null,
+    Object? lastCompletedDate = freezed,
     Object? streakHistory = null,
   }) {
     return _then(_StreakData(
@@ -734,10 +734,10 @@ class __$StreakDataCopyWithImpl<$Res> implements _$StreakDataCopyWith<$Res> {
           ? _self.longestStreak
           : longestStreak // ignore: cast_nullable_to_non_nullable
               as int,
-      lastCompletedDate: null == lastCompletedDate
+      lastCompletedDate: freezed == lastCompletedDate
           ? _self.lastCompletedDate
           : lastCompletedDate // ignore: cast_nullable_to_non_nullable
-              as DateTime,
+              as DateTime?,
       streakHistory: null == streakHistory
           ? _self._streakHistory
           : streakHistory // ignore: cast_nullable_to_non_nullable
@@ -748,12 +748,12 @@ class __$StreakDataCopyWithImpl<$Res> implements _$StreakDataCopyWith<$Res> {
 
 /// @nodoc
 mixin _$StreakHistory {
-  DateTime get date;
+  DateTime? get date;
   int get todosCompleted;
   int get todosAdded;
-  bool get streakMaintained;
+  bool? get streakMaintained;
   @JsonKey(name: "_id")
-  String get id;
+  String? get id;
 
   /// Create a copy of StreakHistory
   /// with the given fields replaced by the non-null parameter values.
@@ -799,11 +799,11 @@ abstract mixin class $StreakHistoryCopyWith<$Res> {
       _$StreakHistoryCopyWithImpl;
   @useResult
   $Res call(
-      {DateTime date,
+      {DateTime? date,
       int todosCompleted,
       int todosAdded,
-      bool streakMaintained,
-      @JsonKey(name: "_id") String id});
+      bool? streakMaintained,
+      @JsonKey(name: "_id") String? id});
 }
 
 /// @nodoc
@@ -819,17 +819,17 @@ class _$StreakHistoryCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? date = null,
+    Object? date = freezed,
     Object? todosCompleted = null,
     Object? todosAdded = null,
-    Object? streakMaintained = null,
-    Object? id = null,
+    Object? streakMaintained = freezed,
+    Object? id = freezed,
   }) {
     return _then(_self.copyWith(
-      date: null == date
+      date: freezed == date
           ? _self.date
           : date // ignore: cast_nullable_to_non_nullable
-              as DateTime,
+              as DateTime?,
       todosCompleted: null == todosCompleted
           ? _self.todosCompleted
           : todosCompleted // ignore: cast_nullable_to_non_nullable
@@ -838,14 +838,14 @@ class _$StreakHistoryCopyWithImpl<$Res>
           ? _self.todosAdded
           : todosAdded // ignore: cast_nullable_to_non_nullable
               as int,
-      streakMaintained: null == streakMaintained
+      streakMaintained: freezed == streakMaintained
           ? _self.streakMaintained
           : streakMaintained // ignore: cast_nullable_to_non_nullable
-              as bool,
-      id: null == id
+              as bool?,
+      id: freezed == id
           ? _self.id
           : id // ignore: cast_nullable_to_non_nullable
-              as String,
+              as String?,
     ));
   }
 }
@@ -943,8 +943,8 @@ extension StreakHistoryPatterns on StreakHistory {
 
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>(
-    TResult Function(DateTime date, int todosCompleted, int todosAdded,
-            bool streakMaintained, @JsonKey(name: "_id") String id)?
+    TResult Function(DateTime? date, int todosCompleted, int todosAdded,
+            bool? streakMaintained, @JsonKey(name: "_id") String? id)?
         $default, {
     required TResult orElse(),
   }) {
@@ -973,8 +973,8 @@ extension StreakHistoryPatterns on StreakHistory {
 
   @optionalTypeArgs
   TResult when<TResult extends Object?>(
-    TResult Function(DateTime date, int todosCompleted, int todosAdded,
-            bool streakMaintained, @JsonKey(name: "_id") String id)
+    TResult Function(DateTime? date, int todosCompleted, int todosAdded,
+            bool? streakMaintained, @JsonKey(name: "_id") String? id)
         $default,
   ) {
     final _that = this;
@@ -1001,8 +1001,8 @@ extension StreakHistoryPatterns on StreakHistory {
 
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>(
-    TResult? Function(DateTime date, int todosCompleted, int todosAdded,
-            bool streakMaintained, @JsonKey(name: "_id") String id)?
+    TResult? Function(DateTime? date, int todosCompleted, int todosAdded,
+            bool? streakMaintained, @JsonKey(name: "_id") String? id)?
         $default,
   ) {
     final _that = this;
@@ -1020,25 +1020,25 @@ extension StreakHistoryPatterns on StreakHistory {
 @JsonSerializable()
 class _StreakHistory implements StreakHistory {
   const _StreakHistory(
-      {required this.date,
+      {this.date,
       required this.todosCompleted,
       required this.todosAdded,
-      required this.streakMaintained,
-      @JsonKey(name: "_id") required this.id});
+      this.streakMaintained,
+      @JsonKey(name: "_id") this.id});
   factory _StreakHistory.fromJson(Map<String, dynamic> json) =>
       _$StreakHistoryFromJson(json);
 
   @override
-  final DateTime date;
+  final DateTime? date;
   @override
   final int todosCompleted;
   @override
   final int todosAdded;
   @override
-  final bool streakMaintained;
+  final bool? streakMaintained;
   @override
   @JsonKey(name: "_id")
-  final String id;
+  final String? id;
 
   /// Create a copy of StreakHistory
   /// with the given fields replaced by the non-null parameter values.
@@ -1090,11 +1090,11 @@ abstract mixin class _$StreakHistoryCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {DateTime date,
+      {DateTime? date,
       int todosCompleted,
       int todosAdded,
-      bool streakMaintained,
-      @JsonKey(name: "_id") String id});
+      bool? streakMaintained,
+      @JsonKey(name: "_id") String? id});
 }
 
 /// @nodoc
@@ -1110,17 +1110,17 @@ class __$StreakHistoryCopyWithImpl<$Res>
   @override
   @pragma('vm:prefer-inline')
   $Res call({
-    Object? date = null,
+    Object? date = freezed,
     Object? todosCompleted = null,
     Object? todosAdded = null,
-    Object? streakMaintained = null,
-    Object? id = null,
+    Object? streakMaintained = freezed,
+    Object? id = freezed,
   }) {
     return _then(_StreakHistory(
-      date: null == date
+      date: freezed == date
           ? _self.date
           : date // ignore: cast_nullable_to_non_nullable
-              as DateTime,
+              as DateTime?,
       todosCompleted: null == todosCompleted
           ? _self.todosCompleted
           : todosCompleted // ignore: cast_nullable_to_non_nullable
@@ -1129,14 +1129,14 @@ class __$StreakHistoryCopyWithImpl<$Res>
           ? _self.todosAdded
           : todosAdded // ignore: cast_nullable_to_non_nullable
               as int,
-      streakMaintained: null == streakMaintained
+      streakMaintained: freezed == streakMaintained
           ? _self.streakMaintained
           : streakMaintained // ignore: cast_nullable_to_non_nullable
-              as bool,
-      id: null == id
+              as bool?,
+      id: freezed == id
           ? _self.id
           : id // ignore: cast_nullable_to_non_nullable
-              as String,
+              as String?,
     ));
   }
 }

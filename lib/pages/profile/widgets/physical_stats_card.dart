@@ -12,6 +12,7 @@ class PhysicalStatsCard extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final profileState = ref.watch(apiServiceProvider);
     final profile = profileState.value?.profileData;
+
     void openEdit() {
       showDialog(
         context: context,
@@ -92,9 +93,7 @@ class PhysicalStatsCard extends HookConsumerWidget {
             const Divider(height: 1, color: Color(0xFF1E1E1E)),
             Padding(
               padding: const EdgeInsets.all(16),
-              child: profile?.height == null &&
-                      profile?.weight == null &&
-                      profile?.age == null
+              child: profile == null
                   ? _EmptyState(onTap: openEdit)
                   : Column(
                       children: [
@@ -102,8 +101,8 @@ class PhysicalStatsCard extends HookConsumerWidget {
                           children: [
                             _StatTile(
                               label: 'Height',
-                              value: profile?.height != null
-                                  ? profile!.height!.toStringAsFixed(0)
+                              value: profile.height != null
+                                  ? profile.height!.toStringAsFixed(0)
                                   : '—',
                               unit: 'cm',
                               icon: Icons.height_rounded,
@@ -111,8 +110,8 @@ class PhysicalStatsCard extends HookConsumerWidget {
                             const SizedBox(width: 10),
                             _StatTile(
                               label: 'Weight',
-                              value: profile?.weight != null
-                                  ? profile!.weight!.toStringAsFixed(1)
+                              value: profile.weight != null
+                                  ? profile.weight!.toStringAsFixed(1)
                                   : '—',
                               unit: 'kg',
                               icon: Icons.fitness_center_rounded,
@@ -124,8 +123,8 @@ class PhysicalStatsCard extends HookConsumerWidget {
                           children: [
                             _StatTile(
                               label: 'Age',
-                              value: profile?.age != null
-                                  ? profile!.age.toString()
+                              value: profile.age != null
+                                  ? profile.age.toString()
                                   : '—',
                               unit: 'yrs',
                               icon: Icons.cake_outlined,
@@ -133,15 +132,15 @@ class PhysicalStatsCard extends HookConsumerWidget {
                             const SizedBox(width: 10),
                             _StatTile(
                               label: 'Body Fat',
-                              value: profile?.bodyFat != null
-                                  ? profile!.bodyFat!.toStringAsFixed(1)
+                              value: profile.bodyFat != null
+                                  ? profile.bodyFat!.toStringAsFixed(1)
                                   : '—',
                               unit: '%',
                               icon: Icons.percent_rounded,
                             ),
                           ],
                         ),
-                        if (profile?.gender != null) ...[
+                        if (profile.gender != null) ...[
                           const SizedBox(height: 10),
                           Container(
                             width: double.infinity,
@@ -163,7 +162,7 @@ class PhysicalStatsCard extends HookConsumerWidget {
                                 ),
                                 const Spacer(),
                                 Text(
-                                  profile?.gender ?? '—',
+                                  profile.gender ?? '—',
                                   style: const TextStyle(
                                     color: Colors.white,
                                     fontSize: 14,

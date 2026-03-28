@@ -286,20 +286,23 @@ class ApiService extends AsyncNotifier<ApiState> {
 
   Future<void> getProfile(String token) async {
     final prefs = await SharedPreferences.getInstance();
-    final response = await client.get(
-      _url(Config.profileAPI),
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json',
-      },
+    final response = await dio.get(
+      '${Config.baseUrl}/${Config.profileAPI}',
+      options: Options(
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      ),
     );
 
     try {
       if (response.statusCode == 200) {
-        final data = ProfileResponse.fromJson(jsonDecode(response.body));
+        final data = ProfileData.fromJson(response.data['data']);
+        print('Profile data: $data');
 
-        state = AsyncValue.data(state.value!.copyWith(profileData: data.data));
-        prefs.setString('userId', data.data?.id ?? '');
+        state = AsyncValue.data(state.value!.copyWith(profileData: data));
+        prefs.setString('userId', data.id ?? '');
       }
     } catch (e) {
       debugPrint('Profile error: $e');
@@ -345,10 +348,12 @@ class ApiService extends AsyncNotifier<ApiState> {
       );
 
       if (response.statusCode == 200) {
-        final profileModel = ProfileResponse.fromJson(response.data);
+        final profileModel = ProfileData.fromJson(response.data['data']);
+        print('Profile updated: $profileModel');
         state = AsyncValue.data(
           state.value!.copyWith(
-              profileData: profileModel.data, message: profileModel.message),
+              profileData: profileModel,
+              message: "Profile updated successfully"),
         );
       } else {}
     } catch (e) {
@@ -387,11 +392,15 @@ class ApiService extends AsyncNotifier<ApiState> {
       );
 
       if (response.statusCode == 200) {
-        final profileModel = ProfileResponse.fromJson(response.data);
+        final profileModel = ProfileData.fromJson(response.data['data']);
+
+        log.i('profile respo: $profileModel');
         state = AsyncValue.data(
           state.value!.copyWith(
-              profileData: profileModel.data, message: profileModel.message),
+              profileData: profileModel,
+              message: "Profile updated successfully"),
         );
+        log.i('successed');
       } else {
         state = AsyncValue.data(
           state.value!.copyWith(message: "Failed to update profile"),
@@ -784,17 +793,19 @@ class ApiService extends AsyncNotifier<ApiState> {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
 
-    final response = await client.get(
-      _url(Config.streakAPI),
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json',
-      },
+    final response = await dio.get(
+      '${Config.baseUrl}/${Config.streakAPI}',
+      options: Options(
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      ),
     );
 
     try {
       if (response.statusCode == 200) {
-        final data = StreakModel.fromJson(jsonDecode(response.body));
+        final data = StreakModel.fromJson(response.data);
 
         state = AsyncValue.data(state.value!
             .copyWith(streak: data, message: 'Streak loaded successfully'));
@@ -867,19 +878,20 @@ class ApiService extends AsyncNotifier<ApiState> {
       'Authorization': 'Bearer $token',
     });
 
+    print(res.body);
+
     try {
       if (res.statusCode == 200) {
-        final data = StreakModel.fromJson(jsonDecode(res.body));
-        state = AsyncValue.data(state.value!
-            .copyWith(streak: data, message: 'Streak reset successfully'));
+        state = AsyncValue.data(
+            state.value!.copyWith(message: 'Streak reset successfully'));
       } else {
-        state = AsyncValue.data(state.value!
-            .copyWith(streak: null, message: 'Failed to reset streak'));
+        state = AsyncValue.data(
+            state.value!.copyWith(message: 'Failed to reset streak'));
       }
     } catch (e) {
       debugPrint('Streak reset error: $e');
-      state = AsyncValue.data(state.value!
-          .copyWith(streak: null, message: 'Failed to reset streak'));
+      state = AsyncValue.data(
+          state.value!.copyWith(message: 'Failed to reset streak'));
     }
   }
 }

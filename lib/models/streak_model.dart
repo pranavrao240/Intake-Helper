@@ -7,7 +7,7 @@ part 'streak_model.g.dart';
 abstract class StreakModel with _$StreakModel {
   const factory StreakModel({
     required bool success,
-    required String message,
+    String? message,
     required StreakData data,
   }) = _StreakModel;
 
@@ -20,7 +20,7 @@ abstract class StreakData with _$StreakData {
   const factory StreakData({
     required int currentStreak,
     required int longestStreak,
-    required DateTime lastCompletedDate,
+    DateTime? lastCompletedDate,
     required List<StreakHistory> streakHistory,
   }) = _StreakData;
 
@@ -31,11 +31,11 @@ abstract class StreakData with _$StreakData {
 @freezed
 abstract class StreakHistory with _$StreakHistory {
   const factory StreakHistory({
-    required DateTime date,
+    DateTime? date,
     required int todosCompleted,
     required int todosAdded,
-    required bool streakMaintained,
-    @JsonKey(name: "_id") required String id,
+    @Default(false) bool streakMaintained,
+    @JsonKey(name: "_id") String? id,
   }) = _StreakHistory;
 
   factory StreakHistory.fromJson(Map<String, dynamic> json) =>

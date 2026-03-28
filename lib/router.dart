@@ -4,6 +4,7 @@ import 'package:intake_helper/pages/auth/email%20verfication/email_verification_
 import 'package:intake_helper/pages/auth/forgot%20page/forgot_password_page.dart';
 import 'package:intake_helper/pages/auth/reset%20password/reset_password_page.dart';
 import 'package:intake_helper/pages/notifications/notifications_page.dart';
+import 'package:intake_helper/pages/on%20boarding/onboarding_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../main.dart';
@@ -32,6 +33,7 @@ class RouteConstants {
       AppRoute(path: '/reset-password', name: 'reset-password');
 
   static const home = AppRoute(path: '/home', name: 'home');
+  static const onboarding = AppRoute(path: '/onboarding', name: 'onboarding');
   static const profile = AppRoute(path: '/profile', name: 'profile');
   static const todo = AppRoute(path: '/todo', name: 'todo');
   static const nutrition = AppRoute(path: '/nutrition', name: 'nutrition');
@@ -41,6 +43,18 @@ class RouteConstants {
       AppRoute(path: '/meal-details', name: 'meal-details');
   static const aiMealPlanner =
       AppRoute(path: '/ai-meal-planner', name: 'ai-meal-planner');
+}
+
+const _kOnboardingKey = 'hasSeenOnboarding';
+
+Future<bool> hasSeenOnboarding() async {
+  final prefs = await SharedPreferences.getInstance();
+  return prefs.getBool(_kOnboardingKey) ?? false;
+}
+
+Future<void> markOnboardingSeen() async {
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.setBool(_kOnboardingKey, true);
 }
 
 Future<bool> isTokenExpired() async {
@@ -90,6 +104,7 @@ final GoRouter appRouter = GoRouter(
   initialLocation: RouteConstants.login.path,
   redirect: (context, state) async {
     final isLoggedIn = await isUserLoggedIn();
+    final onboardingDone = await hasSeenOnboarding();
     final path = state.uri.path;
 
     if (!isLoggedIn && protectedRoutes.contains(path)) {
@@ -97,6 +112,13 @@ final GoRouter appRouter = GoRouter(
     }
 
     if (isLoggedIn &&
+        !onboardingDone &&
+        path != RouteConstants.onboarding.path) {
+      return RouteConstants.onboarding.path;
+    }
+
+    if (isLoggedIn &&
+        onboardingDone &&
         publicRoutes.contains(path) &&
         path != RouteConstants.emailVerification.path) {
       return RouteConstants.home.path;
@@ -105,6 +127,11 @@ final GoRouter appRouter = GoRouter(
     return null;
   },
   routes: [
+    GoRoute(
+      path: RouteConstants.onboarding.path,
+      name: RouteConstants.onboarding.name,
+      builder: (_, __) => const OnboardingPage(),
+    ),
     GoRoute(
       path: RouteConstants.login.path,
       name: RouteConstants.login.name,

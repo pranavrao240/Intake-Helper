@@ -78,43 +78,10 @@ Widget buildQuickActions(BuildContext context) {
               ),
             ),
             const SizedBox(width: 16),
-            // Expanded(
-            //   child: OutlinedButton(
-            //     onPressed: () {
-            //       //TODO: Add Scan functionality
-            //     },
-            //     style: OutlinedButton.styleFrom(
-            //       backgroundColor: const Color(0xFF18181B),
-            //       side: const BorderSide(color: Color(0xFF3B82F6)),
-            //       padding: const EdgeInsets.symmetric(vertical: 12),
-            //       shape: RoundedRectangleBorder(
-            //         borderRadius: BorderRadius.circular(16),
-            //       ),
-            //     ),
-            //     child: const Row(
-            //       mainAxisAlignment: MainAxisAlignment.center,
-            //       children: [
-            //         Icon(Icons.qr_code_scanner,
-            //             color: Color(0xFF60A5FA), size: 18),
-            //         SizedBox(width: 6),
-            //         Text(
-            //           'Scan',
-            //           style: TextStyle(
-            //             color: Color(0xFF60A5FA),
-            //             fontSize: 14,
-            //             fontWeight: FontWeight.w600,
-            //           ),
-            //         ),
-            //       ],
-            //     ),
-            //   ),
-            // ),
             Expanded(
               child: OutlinedButton(
                 onPressed: () {
                   //TODO: Add Scan functionality
-
-                  showStreakCelebrationDialog(context, streakCount: 2);
                 },
                 style: OutlinedButton.styleFrom(
                   backgroundColor: const Color(0xFF18181B),
@@ -131,7 +98,7 @@ Widget buildQuickActions(BuildContext context) {
                         color: Color(0xFF60A5FA), size: 18),
                     SizedBox(width: 6),
                     Text(
-                      'PoP up',
+                      'Scan',
                       style: TextStyle(
                         color: Color(0xFF60A5FA),
                         fontSize: 14,
