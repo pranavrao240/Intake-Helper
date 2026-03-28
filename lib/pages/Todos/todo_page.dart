@@ -15,6 +15,8 @@ import 'package:intake_helper/pages/Todos/widgets/todo_fab.dart';
 import 'package:intake_helper/pages/Todos/widgets/todo_meal_cards.dart';
 import 'package:intake_helper/pages/Todos/widgets/todo_progress_bar.dart';
 import 'package:intake_helper/router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:intake_helper/components/dialogs/streak_celebration_dialog.dart';
 
 class TodoPage extends HookConsumerWidget {
   const TodoPage({super.key});
@@ -102,6 +104,33 @@ class TodoPage extends HookConsumerWidget {
       });
       return null;
     }, []);
+
+    final currentStreak = streakState.value?.streak?.data.currentStreak ?? 0;
+
+    useEffect(() {
+      if (currentStreak > 0) {
+        Future.microtask(() async {
+          final prefs = await SharedPreferences.getInstance();
+          final savedStreak = prefs.getInt('saved_streak') ?? 0;
+          final avatar = prefs.getString('avatar');
+
+          if (currentStreak > savedStreak) {
+            await prefs.setInt('saved_streak', currentStreak);
+
+            if (currentStreak == 1 || currentStreak == 7) {
+              if (context.mounted) {
+                showStreakCelebrationDialog(
+                  context,
+                  streakCount: currentStreak,
+                  avatar: avatar!,
+                );
+              }
+            }
+          }
+        });
+      }
+      return null;
+    }, [currentStreak]);
 
     return Scaffold(
       backgroundColor: Colors.black,

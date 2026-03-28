@@ -5,20 +5,22 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 final streakCountProvider = StateProvider<int>((ref) => 7);
 
 void showStreakCelebrationDialog(BuildContext context,
-    {required int streakCount}) {
+    {required int streakCount, required String avatar}) {
   showDialog(
     context: context,
     barrierColor: Colors.black87,
     builder: (_) => ProviderScope(
-      child: StreakCelebrationDialog(streakCount: streakCount),
+      child: StreakCelebrationDialog(streakCount: streakCount, avatar: avatar),
     ),
   );
 }
 
 class StreakCelebrationDialog extends HookConsumerWidget {
   final int streakCount;
+  final String avatar;
 
-  const StreakCelebrationDialog({super.key, required this.streakCount});
+  const StreakCelebrationDialog(
+      {super.key, required this.streakCount, required this.avatar});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -130,7 +132,7 @@ class StreakCelebrationDialog extends HookConsumerWidget {
                           width: 160,
                           height: 200,
                           child: Image.asset(
-                            'lib/assets/videos/female2.gif',
+                            'lib/assets/videos/$avatar.gif',
                             fit: BoxFit.cover,
                             errorBuilder: (context, error, stackTrace) {
                               return Container(
@@ -174,7 +176,7 @@ class StreakCelebrationDialog extends HookConsumerWidget {
                       ),
                       onPressed: () => Navigator.of(context).pop(),
                       child: const Text(
-                        'Keep it up! 🚀',
+                        'I\'ll Maintain My Streak! 🚀',
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w700,

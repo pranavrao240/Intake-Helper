@@ -145,11 +145,14 @@ class _FoodImage extends StatelessWidget {
               loadingBuilder: (context, child, loadingProgress) {
                 if (loadingProgress == null) return child;
 
-                return const Center(
-                  child: SizedBox(
-                    width: 24,
-                    height: 24,
-                    child: CircularProgressIndicator(strokeWidth: 2),
+                return AnimatedRotation(
+                  turns: 1,
+                  curve: Curves.easeInOut,
+                  duration: const Duration(seconds: 1),
+                  child: Icon(
+                    LucideIcons.utensils,
+                    color: Colors.white.withValues(alpha: 0.15),
+                    size: 34,
                   ),
                 );
               },

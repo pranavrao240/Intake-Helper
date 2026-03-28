@@ -19,7 +19,6 @@ class ProfilePage extends HookConsumerWidget {
     final profileState = ref.watch(apiServiceProvider);
     final profileImage = profileState.value?.profileData?.profileImage;
 
-    print('profile image $profileImage');
     final selectedAvatar = useState<String?>(null);
     final safeAvatar =
         selectedAvatar.value ?? profileImage ?? 'assets/characters/male1.png';

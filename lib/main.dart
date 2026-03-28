@@ -9,6 +9,7 @@ import 'package:intake_helper/theme/app_theme.dart';
 import 'package:intake_helper/utility/fcm_services.dart';
 import 'package:intake_helper/utility/local_notiifcations.dart';
 import 'package:intake_helper/utility/notification.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
@@ -27,6 +28,11 @@ void main() async {
     sound: true,
   );
   await dotenv.load(fileName: ".env");
+
+  await Supabase.initialize(
+    url: 'https://vmhkcoenltymspivkagd.supabase.co',
+    anonKey: 'sb_publishable_8_jUo-Lp4L-7vGShlBVrrA_G4p0542E',
+  );
 
   // Initialize notifications
   await CustomNotification().init();

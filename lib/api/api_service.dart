@@ -16,6 +16,7 @@ import 'package:intake_helper/router.dart';
 import 'package:intake_helper/utility/logger.dart';
 import 'package:logger/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:intake_helper/utility/fcm_services.dart';
 
 class ApiState {
   final String? token;
@@ -179,6 +180,14 @@ class ApiService extends AsyncNotifier<ApiState> {
 
         preferences.setString('token', model.data.token!);
         preferences.setString('userId', model.data.id ?? '');
+
+        // Trigger backend sync of FCM token after logging in
+        try {
+          await FCMService().init();
+        } catch (e) {
+          debugPrint('Error initializing FCM token after login: $e');
+        }
+
         final currentState = state.value ?? ApiState(null);
 
         state = AsyncValue.data(

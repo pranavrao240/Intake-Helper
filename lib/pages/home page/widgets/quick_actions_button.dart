@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intake_helper/components/dialogs/streak_celebration_dialog.dart';
+import 'package:intake_helper/pages/Ai%20meal%20planner/widgets/meal_plan_dialog.dart';
 import 'package:intake_helper/router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 Widget buildQuickActions(BuildContext context) {
   return Padding(
@@ -77,38 +79,47 @@ Widget buildQuickActions(BuildContext context) {
                 ),
               ),
             ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: OutlinedButton(
-                onPressed: () {
-                  //TODO: Add Scan functionality
-                },
-                style: OutlinedButton.styleFrom(
-                  backgroundColor: const Color(0xFF18181B),
-                  side: const BorderSide(color: Color(0xFF3B82F6)),
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                ),
-                child: const Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.qr_code_scanner,
-                        color: Color(0xFF60A5FA), size: 18),
-                    SizedBox(width: 6),
-                    Text(
-                      'Scan',
-                      style: TextStyle(
-                        color: Color(0xFF60A5FA),
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
+            // const SizedBox(width: 16),
+            // Expanded(
+            //   child: OutlinedButton(
+            //     onPressed: () async {
+            //       final prefs = await SharedPreferences.getInstance();
+            //       final avatar = prefs.getString('avatar');
+            //       //TODO: Add Scan functionality
+            //       showDialog(
+            //         context: context,
+            //         builder: (context) => StreakCelebrationDialog(
+            //           streakCount: 4,
+            //           avatar: avatar!,
+            //         ),
+            //       );
+            //     },
+            //     style: OutlinedButton.styleFrom(
+            //       backgroundColor: const Color(0xFF18181B),
+            //       side: const BorderSide(color: Color(0xFF3B82F6)),
+            //       padding: const EdgeInsets.symmetric(vertical: 12),
+            //       shape: RoundedRectangleBorder(
+            //         borderRadius: BorderRadius.circular(16),
+            //       ),
+            //     ),
+            //     child: const Row(
+            //       mainAxisAlignment: MainAxisAlignment.center,
+            //       children: [
+            //         Icon(Icons.qr_code_scanner,
+            //             color: Color(0xFF60A5FA), size: 18),
+            //         SizedBox(width: 6),
+            //         Text(
+            //           'Scan',
+            //           style: TextStyle(
+            //             color: Color(0xFF60A5FA),
+            //             fontSize: 14,
+            //             fontWeight: FontWeight.w600,
+            //           ),
+            //         ),
+            //       ],
+            //     ),
+            //   ),
+            // ),
           ],
         ),
       ],

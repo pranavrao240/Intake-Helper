@@ -77,6 +77,36 @@ class FCMService {
       log.w('⚠️ No authenticated user. Backend sync skipped.');
       return;
     }
+
+    final authToken = prefs.getString('token');
+    
+    if (authToken == null) {
+      log.w('⚠️ No auth token found. Backend sync skipped.');
+      return;
+    }
+
+    try {
+      final response = await dio.put(
+        '${Config.baseUrl}/${Config.profileAPI}',
+        options: Options(
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $authToken',
+          },
+        ),
+        data: {
+          'FCMToken': newToken,
+        },
+      );
+      
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        log.i('✅ Backend sync successful for FCM token');
+      } else {
+        log.e('❌ Backend sync failed for FCM token: ${response.statusCode}');
+      }
+    } catch (e) {
+      log.e('❌ Backend sync error: $e');
+    }
   }
 
   void _setupListeners() {
