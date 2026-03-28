@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
@@ -8,6 +9,7 @@ import 'package:intake_helper/pages/auth/reset%20password/widgets/reset_password
 import 'package:intake_helper/theme/app_tokens.dart';
 import 'package:intake_helper/pages/auth/reset%20password/widgets/reset_password_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:intake_helper/l10n/app_localizations.dart';
 
 class PasswordInputCard extends HookConsumerWidget {
   const PasswordInputCard({super.key});
@@ -18,6 +20,7 @@ class PasswordInputCard extends HookConsumerWidget {
     final notifier = ref.read(resetPasswordProvider.notifier);
     final passwordController = useTextEditingController();
     final cnfPasswordController = useTextEditingController();
+    final locale = AppLocalizations.of(context)!;
 
     final shakeCtrl = useAnimationController(
       duration: const Duration(milliseconds: 380),
@@ -61,25 +64,25 @@ class PasswordInputCard extends HookConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const _FieldLabel(text: 'NEW PASSWORD'),
+          _FieldLabel(text: locale.passwordInputCardNewPassword),
           const SizedBox(height: 8),
           _PasswordField(
-            hint: 'Enter new password',
+            hint: locale.passwordInputCardEnterNewPassword,
             onChanged: notifier.updatePassword,
             controller: passwordController,
             enabled: !state.isSubmitting,
           ),
           if (state.password.isNotEmpty) ...[
             const SizedBox(height: 14),
-            _StrengthBar(score: state.strengthScore),
+            _StrengthBar(score: state.strengthScore(context)),
             const SizedBox(height: 12),
             _RequirementsPanel(password: state.password),
           ],
           const SizedBox(height: 20),
-          const _FieldLabel(text: 'CONFIRM PASSWORD'),
+          _FieldLabel(text: locale.passwordInputCardConfirmPassword),
           const SizedBox(height: 8),
           _PasswordField(
-            hint: 'Re-enter new password',
+            hint: locale.passwordInputCardReEnterNewPassword,
             onChanged: notifier.updateConfirmPassword,
             controller: cnfPasswordController,
             enabled: !state.isSubmitting,
@@ -96,7 +99,7 @@ class PasswordInputCard extends HookConsumerWidget {
           ],
           const SizedBox(height: 28),
           _ResetButton(
-            canSubmit: state.canSubmit,
+            canSubmit: state.canSubmit(context),
             isLoading: state.isSubmitting,
             onTap: () async {
               final prefs = await SharedPreferences.getInstance();
@@ -186,14 +189,15 @@ class _PasswordField extends HookWidget {
         enabled: enabled,
         obscureText: isObscure.value,
         onChanged: onChanged,
-        style: TextStyle(
+        style: const TextStyle(
           color: Colors.white,
           fontSize: 16,
         ),
         decoration: InputDecoration(
             labelText: hint,
             labelStyle: const TextStyle(color: Colors.white54),
-            prefixIcon: Icon(Icons.lock_outline_rounded, color: Colors.white54),
+            prefixIcon:
+                const Icon(Icons.lock_outline_rounded, color: Colors.white54),
             suffixIcon: GestureDetector(
               onTap: () => isObscure.value = !isObscure.value,
               child: Icon(
@@ -223,12 +227,13 @@ class _StrengthBar extends HookWidget {
     return Colors.green;
   }
 
-  String get _label {
-    if (score <= 1) return 'Very Weak';
-    if (score <= 2) return 'Weak';
-    if (score <= 3) return 'Fair';
-    if (score <= 4) return 'Strong';
-    return 'Very Strong';
+  String _label(BuildContext context) {
+    final locale = AppLocalizations.of(context)!;
+    if (score <= 1) return locale.passwordStrengthVeryWeak;
+    if (score <= 2) return locale.passwordStrengthWeak;
+    if (score <= 3) return locale.passwordStrengthFair;
+    if (score <= 4) return locale.passwordStrengthStrong;
+    return locale.passwordStrengthVeryStrong;
   }
 
   @override
@@ -244,14 +249,15 @@ class _StrengthBar extends HookWidget {
       return null;
     }, [score]);
     final width = useAnimation(animCtrl);
+    final locale = AppLocalizations.of(context)!;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           children: [
-            const Text('STRENGTH',
-                style: TextStyle(
+            Text(locale.passwordInputCardStrength,
+                style: const TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.w700,
                     color: AppTokens.textLabel,
@@ -261,7 +267,7 @@ class _StrengthBar extends HookWidget {
               duration: const Duration(milliseconds: 250),
               style: TextStyle(
                   fontSize: 11, fontWeight: FontWeight.w600, color: _color),
-              child: Text(_label),
+              child: Text(_label(context)),
             ),
           ],
         ),
@@ -301,6 +307,7 @@ class _RequirementsPanel extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final locale = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
@@ -311,16 +318,16 @@ class _RequirementsPanel extends HookConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'PASSWORD REQUIREMENTS',
-            style: TextStyle(
+          Text(
+            locale.passwordInputCardRequirements,
+            style: const TextStyle(
                 fontSize: 10,
                 fontWeight: FontWeight.w700,
                 color: AppTokens.textLabel,
                 letterSpacing: 1.0),
           ),
           const SizedBox(height: 10),
-          ...ResetPasswordState.requirements.map((req) =>
+          ...ResetPasswordState.requirements(context).map((req) =>
               _RequirementRow(label: req.label, met: req.check(password))),
         ],
       ),
@@ -397,6 +404,7 @@ class _MatchFeedback extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
+    final locale = AppLocalizations.of(context)!;
     final ctrl = useAnimationController(
       duration: const Duration(milliseconds: 280),
     );
@@ -423,7 +431,9 @@ class _MatchFeedback extends HookWidget {
             ),
             const SizedBox(width: 6),
             Text(
-              matches ? 'Passwords match' : 'Passwords do not match',
+              matches
+                  ? locale.passwordInputCardPasswordsMatch
+                  : locale.passwordInputCardPasswordsDoNotMatch,
               style: TextStyle(
                 fontSize: 12,
                 color: matches ? Colors.greenAccent : AppTokens.red,
@@ -449,6 +459,7 @@ class _ResetButton extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final locale = AppLocalizations.of(context)!;
     final isPressed = useState(false);
     final shimCtrl = useAnimationController(
       duration: const Duration(milliseconds: 1800),
@@ -508,7 +519,7 @@ class _ResetButton extends HookConsumerWidget {
                   child: isLoading
                       ? const _LoadingDots()
                       : Text(
-                          'Reset Password',
+                          locale.passwordInputCardResetPassword,
                           style: TextStyle(
                             color: active ? Colors.white : AppTokens.textMuted,
                             fontSize: 16,
@@ -564,6 +575,7 @@ class _SecurityTip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final locale = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
@@ -585,10 +597,10 @@ class _SecurityTip extends StatelessWidget {
                 const Center(child: Text('🔒', style: TextStyle(fontSize: 16))),
           ),
           const SizedBox(width: 12),
-          const Expanded(
+          Expanded(
             child: Text(
-              'Use a strong, unique password that you don\'t use on other websites.',
-              style: TextStyle(
+              locale.passwordInputCardSecurityTip,
+              style: const TextStyle(
                   fontSize: 13, color: AppTokens.textSecondary, height: 1.45),
             ),
           ),

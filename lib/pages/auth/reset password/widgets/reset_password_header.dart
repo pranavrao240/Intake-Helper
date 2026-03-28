@@ -3,6 +3,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intake_helper/pages/auth/reset%20password/widgets/reset_password_provider.dart';
 import 'package:intake_helper/theme/app_tokens.dart';
+import 'package:intake_helper/l10n/app_localizations.dart';
 
 class ResetPasswordHeader extends HookConsumerWidget {
   const ResetPasswordHeader({super.key});
@@ -10,6 +11,7 @@ class ResetPasswordHeader extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(resetPasswordProvider);
+    final locale = AppLocalizations.of(context)!;
 
     final entranceCtrl = useAnimationController(
       duration: const Duration(milliseconds: 900),
@@ -50,7 +52,9 @@ class ResetPasswordHeader extends HookConsumerWidget {
                     child: AnimatedSwitcher(
                       duration: const Duration(milliseconds: 350),
                       child: Text(
-                        state.isSuccess ? 'Password Reset!' : 'Reset Password',
+                        state.isSuccess
+                            ? locale.resetPasswordHeaderSuccessTitle
+                            : locale.resetPasswordHeaderTitle,
                         key: ValueKey(state.isSuccess),
                         style: const TextStyle(
                           fontSize: 30,
@@ -74,8 +78,8 @@ class ResetPasswordHeader extends HookConsumerWidget {
                         children: [
                           Text(
                             state.isSuccess
-                                ? 'Your new password is ready '
-                                : 'Create a strong new password ',
+                                ? locale.resetPasswordHeaderSuccessSubtitle
+                                : locale.resetPasswordHeaderSubtitle,
                             style: const TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w500,
@@ -190,6 +194,7 @@ class _StatusBadge extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
+    final locale = AppLocalizations.of(context)!;
     final pulseCtrl = useAnimationController(
       duration: const Duration(milliseconds: 900),
     )..repeat(reverse: true);
@@ -222,7 +227,9 @@ class _StatusBadge extends HookWidget {
           ),
           const SizedBox(width: 6),
           Text(
-            isSuccess ? 'PASSWORD UPDATED' : 'CREATE NEW PASSWORD',
+            isSuccess
+                ? locale.resetPasswordHeaderStatusUpdated
+                : locale.resetPasswordHeaderStatusCreate,
             style: const TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w700,

@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:intake_helper/l10n/app_localizations.dart';
 
 String? _extractImageUrl(String text) {
-  final match = RegExp(r'!\[.*?\]\((.*?)\)').firstMatch(text);
+  final match = RegExp(r'!\\[.*?\\]\\((.*?)\\)').firstMatch(text);
   return match?.group(1);
 }
 
@@ -10,13 +11,13 @@ String _cleanText(String text) {
   return text
       .replaceAll(
         RegExp(
-          r'Meal Image only one image should be given:\s*\n?',
+          r'Meal Image only one image should be given:\\s*\\n?',
           caseSensitive: false,
         ),
         '',
       )
-      .replaceAll(RegExp(r'!\[.*?\]\(.*?\)'), '')
-      .replaceAll(RegExp(r'\n{3,}'), '\n\n')
+      .replaceAll(RegExp(r'!\\[.*?\\]\\(.*?\\)'), '')
+      .replaceAll(RegExp(r'\\n{3,}'), '\n\n')
       .trim();
 }
 
@@ -26,19 +27,20 @@ class _MealSection {
   const _MealSection(this.label, this.value);
 }
 
-List<_MealSection> _parseSections(String text) {
+List<_MealSection> _parseSections(BuildContext context, String text) {
   final sections = <_MealSection>[];
   final lines = text.split('\n');
+  final locale = AppLocalizations.of(context)!;
 
   String currentLabel = '';
   final buffer = StringBuffer();
 
-  const sectionHeaders = {
-    'Meal Name:',
-    'Meal Type:',
-    'Quantity:',
-    'Steps:',
-    'Nutrition:',
+  final sectionHeaders = {
+    '${locale.aiBubbleMealName}:',
+    '${locale.aiBubbleMealType}:',
+    '${locale.aiBubbleQuantity}:',
+    '${locale.aiBubbleSteps}:',
+    '${locale.aiBubbleNutrition}:',
   };
 
   void flush() {
@@ -78,8 +80,10 @@ Widget aiBubble(
 }) {
   final imageUrl = _extractImageUrl(text);
   final cleaned = _cleanText(text);
-  final isMealPlan = cleaned.contains('Meal Name:');
-  final sections = isMealPlan ? _parseSections(cleaned) : <_MealSection>[];
+  final locale = AppLocalizations.of(context)!;
+  final isMealPlan = cleaned.contains('${locale.aiBubbleMealName}:');
+  final sections =
+      isMealPlan ? _parseSections(context, cleaned) : <_MealSection>[];
 
   return Align(
     alignment: Alignment.centerLeft,
@@ -144,20 +148,20 @@ Widget aiBubble(
               onTap: () {
                 Clipboard.setData(ClipboardData(text: cleaned));
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Copied to clipboard')),
+                  SnackBar(content: Text(locale.aiBubbleCopiedToClipboard)),
                 );
               },
             ),
             _ActionIcon(
               icon: Icons.thumb_up_alt_outlined,
               onTap: () => ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Thanks for your feedback!')),
+                SnackBar(content: Text(locale.aiBubbleThanksForFeedback)),
               ),
             ),
             _ActionIcon(
               icon: Icons.thumb_down_alt_outlined,
               onTap: () => ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Thanks for your feedback!')),
+                SnackBar(content: Text(locale.aiBubbleThanksForFeedback)),
               ),
             ),
             _ActionIcon(
@@ -181,11 +185,12 @@ class _FormattedMeal extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: sections.map(_sectionWidget).toList(),
+      children: sections.map((s) => _sectionWidget(context, s)).toList(),
     );
   }
 
-  Widget _sectionWidget(_MealSection s) {
+  Widget _sectionWidget(BuildContext context, _MealSection s) {
+    final locale = AppLocalizations.of(context)!;
     switch (s.label) {
       case 'Meal Name':
         return Padding(
@@ -226,19 +231,19 @@ class _FormattedMeal extends StatelessWidget {
       case 'Quantity':
         return _labeledBlock(
           icon: Icons.restaurant_menu,
-          label: 'Quantity',
+          label: locale.aiBubbleQuantity,
           content: s.value,
         );
 
       case 'Steps':
         return _labeledBlock(
           icon: Icons.format_list_numbered,
-          label: 'Steps',
+          label: locale.aiBubbleSteps,
           content: s.value,
         );
 
       case 'Nutrition':
-        return _nutritionBlock(s.value);
+        return _nutritionBlock(context, s.value);
 
       default:
         return Text(
@@ -287,8 +292,9 @@ class _FormattedMeal extends StatelessWidget {
     );
   }
 
-  Widget _nutritionBlock(String content) {
+  Widget _nutritionBlock(BuildContext context, String content) {
     final nutrients = <String, String>{};
+    final locale = AppLocalizations.of(context)!;
     for (final line in content.split('\n')) {
       final parts = line.split(':');
       if (parts.length >= 2) {
@@ -303,9 +309,9 @@ class _FormattedMeal extends StatelessWidget {
           children: [
             const Icon(Icons.bar_chart, size: 13, color: Color(0xFF00E599)),
             const SizedBox(width: 5),
-            const Text(
-              'NUTRITION',
-              style: TextStyle(
+            Text(
+              locale.aiBubbleNutritionCaps,
+              style: const TextStyle(
                 color: Color(0xFF00E599),
                 fontSize: 11,
                 fontWeight: FontWeight.w700,

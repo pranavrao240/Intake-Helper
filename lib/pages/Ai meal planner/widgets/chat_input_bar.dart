@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:intake_helper/l10n/app_localizations.dart';
 
 class ChatInputBar extends StatelessWidget {
   final TextEditingController controller;
@@ -13,6 +14,7 @@ class ChatInputBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final locale = AppLocalizations.of(context)!;
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
@@ -51,7 +53,7 @@ class ChatInputBar extends StatelessWidget {
                   onSubmitted: (_) => onSend(),
                   decoration: InputDecoration(
                     fillColor: Colors.transparent,
-                    hintText: 'Edit or send a new prompt...',
+                    hintText: locale.chatInputBarHint,
                     hintStyle: TextStyle(
                       color: Colors.white.withValues(alpha: 0.35),
                       fontSize: 15,

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intake_helper/pages/Ai%20meal%20planner/widgets/meal_info.dart';
 import 'nutrition_chip.dart';
+import 'package:intake_helper/l10n/app_localizations.dart';
 
 class SelectableMealCard extends HookConsumerWidget {
   final MealInfo mealInfo;
@@ -17,6 +18,7 @@ class SelectableMealCard extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final locale = AppLocalizations.of(context)!;
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
@@ -77,15 +79,15 @@ class SelectableMealCard extends HookConsumerWidget {
                     runSpacing: 8,
                     children: [
                       NutritionChip(
-                        label: 'Calories',
+                        label: locale.selectableMealCardCalories,
                         value: '${mealInfo.calories.toStringAsFixed(0)} kcal',
                       ),
                       NutritionChip(
-                        label: 'Protein',
+                        label: locale.selectableMealCardProtein,
                         value: '${mealInfo.protein.toStringAsFixed(1)} g',
                       ),
                       NutritionChip(
-                        label: 'Carbs',
+                        label: locale.selectableMealCardCarbs,
                         value: '${mealInfo.carbs.toStringAsFixed(1)} g',
                       ),
                     ],

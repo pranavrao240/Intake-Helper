@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intake_helper/components/dialogs/streak_celebration_dialog.dart';
-import 'package:intake_helper/pages/Ai%20meal%20planner/widgets/meal_plan_dialog.dart';
 import 'package:intake_helper/router.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:intake_helper/l10n/app_localizations.dart';
 
 Widget buildQuickActions(BuildContext context) {
+  final locale = AppLocalizations.of(context)!;
   return Padding(
     padding: const EdgeInsets.symmetric(horizontal: 24),
     child: Column(
@@ -25,14 +24,14 @@ Widget buildQuickActions(BuildContext context) {
               elevation: 8,
               shadowColor: const Color(0xFFDC2626).withOpacity(0.3),
             ),
-            child: const Row(
+            child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.add, color: Colors.white),
-                SizedBox(width: 8),
+                const Icon(Icons.add, color: Colors.white),
+                const SizedBox(width: 8),
                 Text(
-                  'Add Meal',
-                  style: TextStyle(
+                  locale.quickActionsAddMeal,
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
@@ -59,17 +58,17 @@ Widget buildQuickActions(BuildContext context) {
                     borderRadius: BorderRadius.circular(16),
                   ),
                 ),
-                child: const Row(
+                child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(
+                    const Text(
                       '✨',
                       style: TextStyle(fontSize: 16),
                     ),
-                    SizedBox(width: 6),
+                    const SizedBox(width: 6),
                     Text(
-                      'AI Plan',
-                      style: TextStyle(
+                      locale.quickActionsAiPlan,
+                      style: const TextStyle(
                         color: Color(0xFF60A5FA),
                         fontSize: 14,
                         fontWeight: FontWeight.w600,

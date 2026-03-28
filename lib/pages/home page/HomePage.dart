@@ -14,6 +14,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:math' as math;
+import 'package:intake_helper/l10n/app_localizations.dart';
 
 class Homepage extends HookConsumerWidget {
   const Homepage({super.key});
@@ -21,6 +22,7 @@ class Homepage extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final api = ref.read(apiServiceProvider.notifier);
+    final locale = AppLocalizations.of(context)!;
 
     final todoData = useState<TodoModel?>(null);
     final completedTasks = useState<List<String>>([]);
@@ -72,7 +74,7 @@ class Homepage extends HookConsumerWidget {
           calculateMacros(data.data!, completed);
         }
       } catch (e) {
-        error.value = "Failed to load data";
+        error.value = locale.homePageFailedToLoad;
       } finally {
         isLoading.value = false;
       }

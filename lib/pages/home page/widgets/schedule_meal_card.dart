@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intake_helper/models/todo_model.dart';
 import 'package:intake_helper/router.dart';
+import 'package:intake_helper/l10n/app_localizations.dart';
 
 Widget buildScheduledMeals(
     BuildContext context, TodoModel? todoData, List<String> completedTasks) {
-  print('Completed tasks from schedule meal card: $completedTasks');
+  final locale = AppLocalizations.of(context)!;
 
   return Padding(
     padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -17,9 +18,9 @@ Widget buildScheduledMeals(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            const Text(
-              "Today's Schedule",
-              style: TextStyle(
+            Text(
+              locale.scheduleMealCardTitle,
+              style: const TextStyle(
                 color: Colors.white,
                 fontSize: 20,
                 fontWeight: FontWeight.w800,
@@ -28,9 +29,9 @@ Widget buildScheduledMeals(
             ),
             GestureDetector(
               onTap: () => context.push(RouteConstants.todo.path),
-              child: const Text(
-                'VIEW ALL',
-                style: TextStyle(
+              child: Text(
+                locale.scheduleMealCardViewAll,
+                style: const TextStyle(
                   color: Color(0xFF6366F1), // indigo-blue matching screenshot
                   fontSize: 11,
                   fontWeight: FontWeight.w800,
@@ -44,12 +45,12 @@ Widget buildScheduledMeals(
 
         // ── Meal list ────────────────────────────────────────
         if (todoData == null || todoData.meals.isEmpty)
-          const Padding(
-            padding: EdgeInsets.symmetric(vertical: 20),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 20),
             child: Center(
               child: Text(
-                'No meals scheduled',
-                style: TextStyle(color: Colors.white38, fontSize: 14),
+                locale.scheduleMealCardEmpty,
+                style: const TextStyle(color: Colors.white38, fontSize: 14),
               ),
             ),
           )

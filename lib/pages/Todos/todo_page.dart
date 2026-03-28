@@ -17,13 +17,15 @@ import 'package:intake_helper/pages/Todos/widgets/todo_progress_bar.dart';
 import 'package:intake_helper/router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intake_helper/components/dialogs/streak_celebration_dialog.dart';
+import 'package:intake_helper/l10n/app_localizations.dart';
 
 class TodoPage extends HookConsumerWidget {
   const TodoPage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final selectedCategory = useState('All');
+    final locale = AppLocalizations.of(context)!;
+    final selectedCategory = useState(locale.todoPageAll);
     final selectedDate = useState(DateTime.now());
     final refreshKey = useState(0);
     final deletedIds = useState<Set<String>>({});
@@ -147,7 +149,7 @@ class TodoPage extends HookConsumerWidget {
 
               if (snapshot.hasError) {
                 return Center(
-                  child: Text('Error: ${snapshot.error}',
+                  child: Text(locale.todoPageError(snapshot.error.toString()),
                       style: const TextStyle(color: Color(0xFF71717A))),
                 );
               }
@@ -181,7 +183,7 @@ class TodoPage extends HookConsumerWidget {
                 final matchesDay = allDays.contains(selectedDayLower);
 
                 /// ---------- HANDLE TYPE ----------
-                if (selectedCategory.value == 'All') {
+                if (selectedCategory.value == locale.todoPageAll) {
                   return matchesDay;
                 }
 
@@ -234,9 +236,10 @@ class TodoPage extends HookConsumerWidget {
                         child: Padding(
                           padding: const EdgeInsets.only(top: 60),
                           child: Text(
-                            selectedCategory.value == 'All'
-                                ? 'No meals planned for this day'
-                                : 'No ${selectedCategory.value} meals on this day',
+                            selectedCategory.value == locale.todoPageAll
+                                ? locale.todoPageNoMealsPlanned
+                                : locale.todoPageNoMealsInCategory(
+                                    selectedCategory.value),
                             style: const TextStyle(
                                 color: Color(0xFF71717A), fontSize: 14),
                           ),
@@ -296,10 +299,11 @@ class TodoPage extends HookConsumerWidget {
                       completed: completedCount,
                       total: totalCount,
                       motivationalText: totalCount == 0
-                          ? "No meals scheduled for today 🍽️"
+                          ? locale.todoPageNoMealsScheduled
                           : completedCount == totalCount
-                              ? "All meals done! Great job today 🎉"
-                              : "You're ${(progress * 100).round()}% closer to today's goal 💪",
+                              ? locale.todoPageAllMealsDone
+                              : locale.todoPageProgressMessage(
+                                  (progress * 100).round()),
                     ),
                   );
                 },

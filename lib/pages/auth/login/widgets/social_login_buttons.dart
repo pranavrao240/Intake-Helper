@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intake_helper/l10n/app_localizations.dart';
 
 class SocialLoginButtons extends StatelessWidget {
   final VoidCallback? onGoogleTap;
@@ -12,6 +13,7 @@ class SocialLoginButtons extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final locale = AppLocalizations.of(context)!;
     return Column(
       children: [
         Row(
@@ -21,7 +23,7 @@ class SocialLoginButtons extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12),
               child: Text(
-                'or continue with',
+                locale.socialLoginOrContinueWith,
                 style: TextStyle(
                   color: Colors.white.withValues(alpha: 0.2),
                   fontSize: 10,
@@ -40,7 +42,7 @@ class SocialLoginButtons extends StatelessWidget {
           children: [
             Expanded(
               child: _SocialButton(
-                label: 'Google',
+                label: locale.socialLoginGoogle,
                 icon: _GoogleIcon(),
                 onTap: onGoogleTap,
               ),
@@ -48,7 +50,7 @@ class SocialLoginButtons extends StatelessWidget {
             const SizedBox(width: 12),
             Expanded(
               child: _SocialButton(
-                label: 'Apple',
+                label: locale.socialLoginApple,
                 icon: const Icon(Icons.apple, color: Colors.white, size: 20),
                 onTap: onAppleTap,
               ),

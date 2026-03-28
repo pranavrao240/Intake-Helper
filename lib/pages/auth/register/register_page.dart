@@ -6,6 +6,7 @@ import 'package:intake_helper/components/toast/toast.dart';
 import 'package:intake_helper/pages/auth/register/widgets/register_form_card.dart';
 import 'package:intake_helper/pages/auth/register/widgets/register_header.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
+import 'package:intake_helper/l10n/app_localizations.dart';
 
 import 'package:intake_helper/api/api_service.dart';
 import 'package:intake_helper/router.dart';
@@ -22,6 +23,7 @@ class RegisterPage extends HookConsumerWidget {
     final confirmPasswordController = useTextEditingController();
     final isLoading = useState(false);
     final errorMessage = useState('');
+    final locale = AppLocalizations.of(context)!;
 
     ref.listen<AsyncValue<ApiState>>(apiServiceProvider, (previous, next) {
       // Guard: skip if value is null or loading
@@ -59,7 +61,7 @@ class RegisterPage extends HookConsumerWidget {
         isLoading.value = false;
       } catch (_) {
         isLoading.value = false;
-        errorMessage.value = 'Something went wrong. Please try again.';
+        errorMessage.value = locale.registerPageGenericError;
       }
     }
 

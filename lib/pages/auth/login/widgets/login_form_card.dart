@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intake_helper/components/custom_submit_button.dart';
 import 'package:intake_helper/router.dart';
+import 'package:intake_helper/l10n/app_localizations.dart';
 
 import 'login_input_field.dart';
 
@@ -34,6 +35,7 @@ class LoginFormCard extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final hidePassword = useState(true);
+    final locale = AppLocalizations.of(context)!;
 
     return Container(
       decoration: BoxDecoration(
@@ -61,18 +63,18 @@ class LoginFormCard extends HookConsumerWidget {
           children: [
             // Email field
             LoginInputField(
-              label: 'Email',
-              placeholder: 'you@example.com',
+              label: locale.loginFormCardEmailLabel,
+              placeholder: locale.loginFormCardEmailPlaceholder,
               prefixIcon: Icons.mail_outline_rounded,
               controller: emailController,
               keyboardType: TextInputType.emailAddress,
               validator: (value) {
                 if (value == null || value.isEmpty) {
-                  return 'Please enter your email';
+                  return locale.loginFormCardEnterEmail;
                 }
                 if (!RegExp(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$")
                     .hasMatch(value)) {
-                  return 'Please enter a valid email';
+                  return locale.loginFormCardInvalidEmail;
                 }
                 return null;
               },
@@ -81,8 +83,8 @@ class LoginFormCard extends HookConsumerWidget {
 
             // Password field
             LoginInputField(
-              label: 'Password',
-              placeholder: '••••••••',
+              label: locale.loginFormCardPasswordLabel,
+              placeholder: locale.loginFormCardPasswordPlaceholder,
               prefixIcon: Icons.lock_outline_rounded,
               controller: passwordController,
               obscureText: hidePassword.value,
@@ -91,10 +93,10 @@ class LoginFormCard extends HookConsumerWidget {
                   hidePassword.value = !hidePassword.value,
               validator: (value) {
                 if (value == null || value.isEmpty) {
-                  return 'Please enter your password';
+                  return locale.loginFormCardEnterPassword;
                 }
                 if (value.length < 6) {
-                  return 'Password must be at least 6 characters';
+                  return locale.loginFormCardPasswordTooShort;
                 }
                 return null;
               },
@@ -110,7 +112,7 @@ class LoginFormCard extends HookConsumerWidget {
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     Text(
-                      'Forgot password?',
+                      locale.loginFormCardForgotPassword,
                       style: TextStyle(
                           color: Colors.blueAccent,
                           decoration: TextDecoration.underline,
@@ -149,7 +151,9 @@ class LoginFormCard extends HookConsumerWidget {
               ),
 
             CustomSubmitButton(
-                isLoading: isLoading, onTap: onSubmit, text: "Sign In"),
+                isLoading: isLoading,
+                onTap: onSubmit,
+                text: locale.loginFormCardSignIn),
             // const SizedBox(height: 24),
 
             // SocialLoginButtons(
@@ -163,7 +167,7 @@ class LoginFormCard extends HookConsumerWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    "Don't have an account? ",
+                    locale.loginFormCardNoAccount,
                     style: TextStyle(
                       color: Colors.white.withValues(alpha: 0.4),
                       fontSize: 13.5,
@@ -171,9 +175,9 @@ class LoginFormCard extends HookConsumerWidget {
                   ),
                   GestureDetector(
                     onTap: onRegisterTap,
-                    child: const Text(
-                      'Register',
-                      style: TextStyle(
+                    child: Text(
+                      locale.loginFormCardRegister,
+                      style: const TextStyle(
                         color: Color(0xFFF87171),
                         fontWeight: FontWeight.w900,
                         fontSize: 13.5,

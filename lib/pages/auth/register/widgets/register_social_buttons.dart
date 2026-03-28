@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intake_helper/l10n/app_localizations.dart';
 
 class RegisterSocialButtons extends StatelessWidget {
   final VoidCallback? onGoogleTap;
@@ -12,18 +13,18 @@ class RegisterSocialButtons extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final locale = AppLocalizations.of(context)!;
     return Column(
       children: [
         // Divider
         Row(
           children: [
             Expanded(
-                child: Divider(
-                    color: Colors.white.withValues(alpha: 0.08))),
+                child: Divider(color: Colors.white.withValues(alpha: 0.08))),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12),
               child: Text(
-                'or continue with',
+                locale.registerSocialOrContinueWith,
                 style: TextStyle(
                   color: Colors.white.withValues(alpha: 0.2),
                   fontSize: 10,
@@ -33,8 +34,7 @@ class RegisterSocialButtons extends StatelessWidget {
               ),
             ),
             Expanded(
-                child: Divider(
-                    color: Colors.white.withValues(alpha: 0.08))),
+                child: Divider(color: Colors.white.withValues(alpha: 0.08))),
           ],
         ),
         const SizedBox(height: 16),
@@ -42,7 +42,7 @@ class RegisterSocialButtons extends StatelessWidget {
           children: [
             Expanded(
               child: _SocialBtn(
-                label: 'Google',
+                label: locale.registerSocialGoogle,
                 icon: _GoogleIcon(),
                 onTap: onGoogleTap,
               ),
@@ -50,9 +50,8 @@ class RegisterSocialButtons extends StatelessWidget {
             const SizedBox(width: 12),
             Expanded(
               child: _SocialBtn(
-                label: 'Apple',
-                icon: const Icon(Icons.apple,
-                    color: Colors.white, size: 20),
+                label: locale.registerSocialApple,
+                icon: const Icon(Icons.apple, color: Colors.white, size: 20),
                 onTap: onAppleTap,
               ),
             ),
@@ -68,8 +67,7 @@ class _SocialBtn extends StatelessWidget {
   final Widget icon;
   final VoidCallback? onTap;
 
-  const _SocialBtn(
-      {required this.label, required this.icon, this.onTap});
+  const _SocialBtn({required this.label, required this.icon, this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -80,8 +78,7 @@ class _SocialBtn extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white.withValues(alpha: 0.05),
           borderRadius: BorderRadius.circular(16),
-          border:
-              Border.all(color: Colors.white.withValues(alpha: 0.1)),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -117,7 +114,9 @@ class _GPainter extends CustomPainter {
     void arc(double start, double sweep, Color color) {
       canvas.drawArc(
         Rect.fromCircle(center: c, radius: r),
-        start, sweep, false,
+        start,
+        sweep,
+        false,
         Paint()
           ..color = color
           ..strokeWidth = w

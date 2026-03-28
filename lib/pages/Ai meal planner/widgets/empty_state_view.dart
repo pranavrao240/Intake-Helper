@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:intake_helper/l10n/app_localizations.dart';
 
 class EmptyStateView extends HookConsumerWidget {
   const EmptyStateView({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final locale = AppLocalizations.of(context)!;
     return Center(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 32),
@@ -32,9 +34,9 @@ class EmptyStateView extends HookConsumerWidget {
               ],
             ),
             const SizedBox(height: 24),
-            const Text(
-              'BUILD YOUR PERFECT',
-              style: TextStyle(
+            Text(
+              locale.emptyStateViewBuildYourPerfect,
+              style: const TextStyle(
                 fontFamily: 'Montserrat',
                 fontSize: 13,
                 fontWeight: FontWeight.w700,
@@ -43,9 +45,9 @@ class EmptyStateView extends HookConsumerWidget {
               ),
             ),
             const SizedBox(height: 8),
-            const Text(
-              'MEAL PLAN',
-              style: TextStyle(
+            Text(
+              locale.emptyStateViewMealPlan,
+              style: const TextStyle(
                 fontFamily: 'Montserrat',
                 fontSize: 32,
                 fontWeight: FontWeight.w900,
@@ -55,7 +57,7 @@ class EmptyStateView extends HookConsumerWidget {
             ),
             const SizedBox(height: 12),
             Text(
-              'Describe your goals, dietary needs,\nor favourite foods to get started.',
+              locale.emptyStateViewDescription,
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 14,

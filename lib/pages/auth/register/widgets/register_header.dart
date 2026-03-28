@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:intake_helper/l10n/app_localizations.dart';
 
 class RegisterHeader extends StatelessWidget {
   const RegisterHeader({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final locale = AppLocalizations.of(context)!;
     return Container(
       width: double.infinity,
       decoration: const BoxDecoration(
@@ -65,12 +67,12 @@ class RegisterHeader extends StatelessWidget {
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
-                  children: const [
-                    Text('🚀', style: TextStyle(fontSize: 12)),
-                    SizedBox(width: 6),
+                  children: [
+                    const Text('🚀', style: TextStyle(fontSize: 12)),
+                    const SizedBox(width: 6),
                     Text(
-                      'JOIN 10K+ MEMBERS',
-                      style: TextStyle(
+                      locale.registerHeaderJoinMembers,
+                      style: const TextStyle(
                         color: Colors.white70,
                         fontSize: 9,
                         fontWeight: FontWeight.w800,
@@ -104,9 +106,9 @@ class RegisterHeader extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 18),
-              const Text(
-                'Create Account',
-                style: TextStyle(
+              Text(
+                locale.registerHeaderCreateAccount,
+                style: const TextStyle(
                   color: Colors.white,
                   fontSize: 30,
                   fontWeight: FontWeight.w900,
@@ -114,9 +116,9 @@ class RegisterHeader extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 4),
-              const Text(
-                'Start your nutrition journey today 🥗',
-                style: TextStyle(
+              Text(
+                locale.registerHeaderStartJourney,
+                style: const TextStyle(
                   color: Colors.white60,
                   fontSize: 13,
                   fontWeight: FontWeight.w500,

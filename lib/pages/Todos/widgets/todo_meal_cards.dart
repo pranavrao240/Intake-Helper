@@ -3,6 +3,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intake_helper/Providers/settings_providers.dart';
 import 'package:intake_helper/common_functions/units_conversion.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:intake_helper/l10n/app_localizations.dart';
 
 enum MealStatus { completed, active, missed, upcoming }
 
@@ -96,6 +97,7 @@ class CompletedMealCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final locale = AppLocalizations.of(context)!;
     return _BaseMealCard(
       status: MealStatus.completed,
       onTap: data.onTap,
@@ -128,7 +130,7 @@ class CompletedMealCard extends StatelessWidget {
             ),
           ),
           _Tag(
-            text: "+${data.protein ?? '0'}g Protein",
+            text: locale.completedMealCardProtein(data.protein ?? '0'),
             color: Colors.orange,
           ),
           const SizedBox(width: 8),
@@ -145,6 +147,7 @@ class ActiveMealCard extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final locale = AppLocalizations.of(context)!;
     final unitsConversion = ref.read(weightUnitProvider);
 
     return _BaseMealCard(
@@ -173,7 +176,7 @@ class ActiveMealCard extends HookConsumerWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  "${data.time} · Active now",
+                  locale.activeMealCardActiveNow(data.time),
                   style: const TextStyle(
                       color: Colors.red,
                       fontSize: 12,
@@ -182,8 +185,14 @@ class ActiveMealCard extends HookConsumerWidget {
                 const SizedBox(height: 2),
                 Text(
                   unitsConversion == WeightUnit.kg
-                      ? "${double.parse(data.protein ?? '0').toStringAsFixed(2)} g Protein · ${double.parse(data.calories ?? '0').toStringAsFixed(0)} kcal"
-                      : "${kilogramsToPounds(double.parse(data.protein ?? '0')).toStringAsFixed(2)} lb Protein · ${double.parse(data.calories ?? '0').toStringAsFixed(0)} kcal",
+                      ? locale.activeMealCardMacrosKg(
+                          double.parse(data.protein ?? '0').toStringAsFixed(2),
+                          double.parse(data.calories ?? '0').toStringAsFixed(0))
+                      : locale.activeMealCardMacrosLb(
+                          kilogramsToPounds(double.parse(data.protein ?? '0'))
+                              .toStringAsFixed(2),
+                          double.parse(data.calories ?? '0')
+                              .toStringAsFixed(0)),
                   style: const TextStyle(color: Colors.white38, fontSize: 12),
                 ),
               ],
@@ -201,6 +210,7 @@ class MissedMealCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final locale = AppLocalizations.of(context)!;
     return _BaseMealCard(
       status: MealStatus.missed,
       onTap: data.onTap,
@@ -231,7 +241,10 @@ class MissedMealCard extends StatelessWidget {
               ],
             ),
           ),
-          const _Tag(text: "Missed", color: Colors.grey, isMissed: true),
+          _Tag(
+              text: locale.missedMealCardMissed,
+              color: Colors.grey,
+              isMissed: true),
         ],
       ),
     );
@@ -244,6 +257,7 @@ class UpcomingMealCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final locale = AppLocalizations.of(context)!;
     return _BaseMealCard(
       status: MealStatus.upcoming,
       onTap: data.onTap,
@@ -281,13 +295,14 @@ class UpcomingMealCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  "${data.protein ?? '0'}g Protein · ${data.calories ?? '0'} kcal",
+                  locale.upcomingMealCardMacros(
+                      data.protein ?? '0', data.calories ?? '0'),
                   style: const TextStyle(color: Colors.white24, fontSize: 12),
                 ),
               ],
             ),
           ),
-          const _Tag(text: "Tonight", color: Colors.blue),
+          _Tag(text: locale.upcomingMealCardTonight, color: Colors.blue),
         ],
       ),
     );

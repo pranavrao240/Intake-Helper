@@ -3,6 +3,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intake_helper/Providers/settings_providers.dart';
 import 'package:intake_helper/common_functions/units_conversion.dart';
+import 'package:intake_helper/l10n/app_localizations.dart';
 
 Widget buildMacrosCard(
     WidgetRef ref, Map<String, double> macros, Map<String, double> targets) {
@@ -28,9 +29,9 @@ Widget buildMacrosCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            "Today's Macros",
-            style: TextStyle(
+          Text(
+            AppLocalizations.of(ref.context)!.macrosCardTitle,
+            style: const TextStyle(
               color: Colors.white,
               fontSize: 20,
               fontWeight: FontWeight.w800,
@@ -39,7 +40,7 @@ Widget buildMacrosCard(
           ),
           const SizedBox(height: 28),
           _macroBar(
-            label: 'CALORIES',
+            label: AppLocalizations.of(ref.context)!.macrosCardCalories,
             current: macros['calories']!,
             target: targets['calories']!,
             unit: 'kcal',
@@ -48,7 +49,7 @@ Widget buildMacrosCard(
             ref: ref,
           ),
           _macroBar(
-            label: 'PROTEIN',
+            label: AppLocalizations.of(ref.context)!.macrosCardProtein,
             current: macros['protein']!,
             target: targets['protein']!,
             unit: 'g',
@@ -57,7 +58,7 @@ Widget buildMacrosCard(
             ref: ref,
           ),
           _macroBar(
-            label: 'CARBS',
+            label: AppLocalizations.of(ref.context)!.macrosCardCarbs,
             current: macros['carbs']!,
             target: targets['carbs']!,
             unit: 'g',
@@ -66,7 +67,7 @@ Widget buildMacrosCard(
             ref: ref,
           ),
           _macroBar(
-            label: 'FATS',
+            label: AppLocalizations.of(ref.context)!.macrosCardFats,
             current: macros['fats']!,
             target: targets['fats']!,
             unit: 'g',

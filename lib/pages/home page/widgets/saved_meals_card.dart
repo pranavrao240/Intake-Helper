@@ -5,8 +5,10 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intake_helper/api/api_service.dart';
 import 'package:intake_helper/router.dart';
+import 'package:intake_helper/l10n/app_localizations.dart';
 
 Widget buildSavedMeals(BuildContext context, WidgetRef ref) {
+  final locale = AppLocalizations.of(context)!;
   final theme = Theme.of(context);
   Future<void> getSavedMeals() async {
     await ref.read(apiServiceProvider.notifier).getSavedNutritions();
@@ -38,11 +40,11 @@ Widget buildSavedMeals(BuildContext context, WidgetRef ref) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      const Padding(
-        padding: EdgeInsets.symmetric(horizontal: 24),
+      Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24),
         child: Text(
-          'Saved Meals',
-          style: TextStyle(
+          locale.savedMealsTitle,
+          style: const TextStyle(
             color: Colors.white,
             fontSize: 20,
             fontWeight: FontWeight.w600,
@@ -55,7 +57,7 @@ Widget buildSavedMeals(BuildContext context, WidgetRef ref) {
               height: 200,
               child: Center(
                 child: Text(
-                  'No saved Meals',
+                  locale.savedMealsEmpty,
                   style: theme.textTheme.bodyLarge!.copyWith(
                       color: theme.colorScheme.surface.withValues(alpha: 0.8)),
                 ),
@@ -137,7 +139,7 @@ Widget buildSavedMeals(BuildContext context, WidgetRef ref) {
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
-                                  '${meal['protein']} Protein',
+                                  '${meal['protein']}${locale.savedMealsProtein}',
                                   style: const TextStyle(
                                     color: Color(0xFF71717A),
                                     fontSize: 12,

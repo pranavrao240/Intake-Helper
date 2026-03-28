@@ -3,6 +3,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intake_helper/pages/Ai%20meal%20planner/widgets/meal_info.dart';
 import 'selectable_meal_card.dart';
+import 'package:intake_helper/l10n/app_localizations.dart';
 
 class MealPlanDialog extends HookConsumerWidget {
   final List<MealInfo> mealInfos;
@@ -12,6 +13,7 @@ class MealPlanDialog extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final selected = useState<Set<MealInfo>>({});
+    final locale = AppLocalizations.of(context)!;
 
     void toggleMeal(MealInfo meal) {
       final updated = Set<MealInfo>.from(selected.value);
@@ -31,9 +33,9 @@ class MealPlanDialog extends HookConsumerWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Select Meals to Save',
-              style: TextStyle(
+            Text(
+              locale.mealPlanDialogTitle,
+              style: const TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.bold,
                 fontSize: 18,
@@ -41,7 +43,8 @@ class MealPlanDialog extends HookConsumerWidget {
             ),
             const SizedBox(height: 4),
             Text(
-              '${selected.value.length} of ${mealInfos.length} selected',
+              locale.mealPlanDialogSelectedCount(
+                  selected.value.length, mealInfos.length),
               style: const TextStyle(color: Colors.grey, fontSize: 13),
             ),
             const SizedBox(height: 16),
@@ -73,9 +76,9 @@ class MealPlanDialog extends HookConsumerWidget {
               children: [
                 TextButton(
                   onPressed: () => Navigator.pop(context),
-                  child: const Text(
-                    'Close',
-                    style: TextStyle(color: Colors.grey),
+                  child: Text(
+                    locale.mealPlanDialogClose,
+                    style: const TextStyle(color: Colors.grey),
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -94,9 +97,9 @@ class MealPlanDialog extends HookConsumerWidget {
                     padding: const EdgeInsets.symmetric(
                         horizontal: 20, vertical: 12),
                   ),
-                  child: const Text(
-                    'Save Selected',
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                  child: Text(
+                    locale.mealPlanDialogSaveSelected,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ),
               ],

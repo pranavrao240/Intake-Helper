@@ -71,9 +71,9 @@ class EmptyNotificationsState extends HookConsumerWidget {
               ),
             ),
             const SizedBox(height: 24),
-            const Text(
-              'All Caught Up!',
-              style: TextStyle(
+            Text(
+              'No notifications',
+              style: const TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w600,
                 color: Colors.black87,
@@ -81,9 +81,9 @@ class EmptyNotificationsState extends HookConsumerWidget {
               ),
             ),
             const SizedBox(height: 8),
-            const Text(
-              'You have no new notifications',
-              style: TextStyle(
+            Text(
+              'You\'re all caught up!',
+              style: const TextStyle(
                 fontSize: 14,
                 color: Color(0xFF6B7280),
               ),

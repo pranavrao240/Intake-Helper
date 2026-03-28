@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
+import 'package:intake_helper/l10n/app_localizations.dart';
 
 class EnergyMixCard extends StatelessWidget {
   final double? calories;
@@ -15,22 +16,23 @@ class EnergyMixCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final locale = AppLocalizations.of(context)!;
     final total = (calories ?? 0) + (protein ?? 0) + (carbs ?? 0);
     final safeTotal = total == 0 ? 1.0 : total;
 
     final segments = [
       _Segment(
-          label: 'Protein',
+          label: locale.energyMixProtein,
           value: protein ?? 0,
           percent: ((protein ?? 0) / safeTotal * 100).roundToDouble(),
           color: const Color(0xFFEF4444)),
       _Segment(
-          label: 'Carbs',
+          label: locale.energyMixCarbs,
           value: carbs ?? 0,
           percent: ((carbs ?? 0) / safeTotal * 100).roundToDouble(),
           color: const Color(0xFF3B82F6)),
       _Segment(
-          label: 'Calories',
+          label: locale.energyMixCalories,
           value: calories ?? 0,
           percent: ((calories ?? 0) / safeTotal * 100).roundToDouble(),
           color: const Color(0xFFA1A1AA)),
@@ -51,7 +53,7 @@ class EnergyMixCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'ENERGY MIX',
+                locale.energyMixTitle,
                 style: TextStyle(
                   color: Colors.white.withOpacity(0.4),
                   fontSize: 10,
@@ -68,9 +70,9 @@ class EnergyMixCard extends StatelessWidget {
                   border: Border.all(
                       color: const Color(0xFFEF4444).withOpacity(0.2)),
                 ),
-                child: const Text(
-                  'BALANCED',
-                  style: TextStyle(
+                child: Text(
+                  locale.energyMixBalanced,
+                  style: const TextStyle(
                     color: Color(0xFFEF4444),
                     fontSize: 8,
                     fontWeight: FontWeight.w900,
@@ -205,8 +207,7 @@ class _DonutPainter extends CustomPainter {
     double startAngle = -math.pi / 2;
 
     for (final seg in segments) {
-      final sweepAngle =
-          (seg.value / total) * (2 * math.pi) - gapAngle;
+      final sweepAngle = (seg.value / total) * (2 * math.pi) - gapAngle;
 
       final paint = Paint()
         ..color = seg.color

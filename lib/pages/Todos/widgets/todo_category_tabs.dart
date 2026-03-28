@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-
-const List<String> categories = ["All", "Breakfast", "Lunch", "Dinner"];
+import 'package:intake_helper/l10n/app_localizations.dart';
 
 class TodoCategoryTabs extends HookWidget {
   final ValueChanged<String>? onCategoryChanged;
@@ -10,7 +9,14 @@ class TodoCategoryTabs extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    final selectedCategory = useState("All");
+    final locale = AppLocalizations.of(context)!;
+    final List<String> categories = [
+      locale.categoryAll,
+      locale.categoryBreakfast,
+      locale.categoryLunch,
+      locale.categoryDinner
+    ];
+    final selectedCategory = useState(locale.categoryAll);
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 24),

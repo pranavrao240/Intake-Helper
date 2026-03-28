@@ -12,6 +12,7 @@ import 'package:intake_helper/pages/auth/forgot page/widgets/forgot_password_act
 import 'package:intake_helper/pages/auth/forgot%20page/widgets/forgot_password_provider.dart';
 import 'package:intake_helper/router.dart';
 import 'package:intake_helper/theme/app_tokens.dart';
+import 'package:intake_helper/l10n/app_localizations.dart';
 
 class ForgotPasswordPage extends HookConsumerWidget {
   final VoidCallback? onSignIn;
@@ -95,6 +96,7 @@ class _BottomCard extends HookConsumerWidget {
     final state = ref.watch(forgotPasswordProvider);
     final emailController = useTextEditingController();
     final formKey = useMemoized(() => GlobalKey<FormState>());
+    final locale = AppLocalizations.of(context)!;
 
     final cardFade = useAnimation(
       Tween<double>(begin: 0, end: 1).animate(
@@ -153,16 +155,16 @@ class _BottomCard extends HookConsumerWidget {
                     child: state.isSuccess
                         ? const SuccessInfoCard(key: ValueKey('success'))
                         : EmailInputField(
-                            label: 'Email',
-                            placeholder: 'Enter your email',
+                            label: locale.emailInputCardEmailLabel,
+                            placeholder: locale.emailInputCardEnterEmail,
                             prefixIcon: Icons.email,
                             validator: (value) {
                               if (value == null || value.isEmpty) {
-                                return 'Please enter your email';
+                                return locale.forgotPasswordEnterEmail;
                               }
-                              if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
+                              if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}')
                                   .hasMatch(value)) {
-                                return 'Please enter a valid email';
+                                return locale.forgotPasswordInvalidEmail;
                               }
                               return null;
                             },
@@ -194,7 +196,7 @@ class _BottomCard extends HookConsumerWidget {
                           });
                         }
                       },
-                      text: "Send Reset Link",
+                      text: locale.forgotPasswordSendResetLink,
                     ),
                   ),
                 ],

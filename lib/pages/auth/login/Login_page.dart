@@ -6,6 +6,7 @@ import 'package:intake_helper/pages/auth/login/widgets/login_form_card.dart';
 import 'package:intake_helper/pages/auth/login/widgets/login_header.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:intake_helper/l10n/app_localizations.dart';
 
 import 'package:intake_helper/api/api_service.dart';
 import 'package:intake_helper/router.dart';
@@ -20,6 +21,7 @@ class LoginPage extends HookConsumerWidget {
     final passwordController = useTextEditingController();
     final isLoading = useState(false);
     final errorMessage = useState('');
+    final locale = AppLocalizations.of(context)!;
 
     ref.listen<AsyncValue<ApiState>>(apiServiceProvider, (previous, next) {
       final value = next.value;
@@ -35,7 +37,7 @@ class LoginPage extends HookConsumerWidget {
 
       final form = formKey.currentState;
       if (form == null || !form.validate()) {
-        errorMessage.value = 'Please fill in all fields.';
+        errorMessage.value = locale.loginPageFillAllFields;
         return;
       }
       form.save();
@@ -53,11 +55,11 @@ class LoginPage extends HookConsumerWidget {
           final prefs = await SharedPreferences.getInstance();
           await prefs.setString('user_email', emailController.text.trim());
         } else {
-          errorMessage.value = 'Invalid email or password.';
+          errorMessage.value = locale.loginPageInvalidCredentials;
         }
       } catch (_) {
         isLoading.value = false;
-        errorMessage.value = 'Something went wrong. Please try again.';
+        errorMessage.value = locale.loginPageGenericError;
       }
     }
 

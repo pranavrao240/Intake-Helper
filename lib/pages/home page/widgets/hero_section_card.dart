@@ -4,6 +4,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intake_helper/common_functions/units_conversion.dart';
 import 'dart:math' as math;
 import 'package:intake_helper/models/user_model.dart';
+import 'package:intake_helper/l10n/app_localizations.dart';
 
 class CircularProgressPainter extends CustomPainter {
   final double progress;
@@ -51,12 +52,13 @@ Widget buildHeroSection(
   ProfileData? profile,
   WidgetRef ref,
 ) {
+  final locale = AppLocalizations.of(context)!;
   String getGreeting() {
     final hour = DateTime.now().hour;
-    if (hour < 12) return "Good Morning";
-    if (hour < 17) return "Good Afternoon";
-    if (hour < 21) return "Good Evening";
-    return "Good Night";
+    if (hour < 12) return locale.greetingGoodMorning;
+    if (hour < 17) return locale.greetingGoodAfternoon;
+    if (hour < 21) return locale.greetingGoodEvening;
+    return locale.greetingGoodNight;
   }
 
   final greeting = getGreeting();
@@ -126,7 +128,7 @@ Widget buildHeroSection(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        'PROTEIN',
+                        locale.heroSectionProtein,
                         style: TextStyle(
                           color: Colors.white.withOpacity(0.8),
                           fontSize: 11,

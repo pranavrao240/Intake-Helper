@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intake_helper/l10n/app_localizations.dart';
 
 class EmailSentMessage extends StatelessWidget {
   final String email;
@@ -7,6 +8,7 @@ class EmailSentMessage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final locale = AppLocalizations.of(context)!;
     return Column(
       children: [
         const Icon(
@@ -15,9 +17,9 @@ class EmailSentMessage extends StatelessWidget {
           color: Color(0xFFE31E24),
         ),
         const SizedBox(height: 20),
-        const Text(
-          "Verify your email",
-          style: TextStyle(
+        Text(
+          locale.emailSentMessageTitle,
+          style: const TextStyle(
             fontSize: 22,
             fontWeight: FontWeight.bold,
             color: Color(0xFF0F172A),
@@ -25,7 +27,7 @@ class EmailSentMessage extends StatelessWidget {
         ),
         const SizedBox(height: 12),
         Text(
-          "A verification link has been sent to",
+          locale.emailSentMessageLinkSentTo,
           textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: 14,
@@ -44,7 +46,7 @@ class EmailSentMessage extends StatelessWidget {
         ),
         const SizedBox(height: 20),
         Text(
-          "Please check your inbox and click the link to verify your account.",
+          locale.emailSentMessageCheckInbox,
           textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: 13,

@@ -1,8 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intake_helper/pages/auth/reset%20password/widgets/reset_password_model.dart';
+import 'package:intake_helper/l10n/app_localizations.dart';
+import 'package:flutter/material.dart';
 
 class ResetPasswordNotifier extends StateNotifier<ResetPasswordState> {
-  ResetPasswordNotifier() : super(const ResetPasswordState());
+  final BuildContext context;
+  ResetPasswordNotifier(this.context) : super(const ResetPasswordState());
 
   void updatePassword(String value) {
     state = state.copyWith(password: value, clearError: true);
@@ -20,7 +23,8 @@ class ResetPasswordNotifier extends StateNotifier<ResetPasswordState> {
   }
 
   Future<void> submit() async {
-    if (!state.canSubmit) return;
+    final locale = AppLocalizations.of(context)!;
+    if (!state.canSubmit(context)) return;
 
     state = state.copyWith(
       status: ResetPasswordStatus.submitting,
@@ -34,7 +38,7 @@ class ResetPasswordNotifier extends StateNotifier<ResetPasswordState> {
     } catch (e) {
       state = state.copyWith(
         status: ResetPasswordStatus.error,
-        errorMessage: 'Failed to reset password. Please try again.',
+        errorMessage: locale.resetPasswordProviderError,
       );
     }
   }
@@ -44,5 +48,8 @@ class ResetPasswordNotifier extends StateNotifier<ResetPasswordState> {
 
 final resetPasswordProvider = StateNotifierProvider.autoDispose<
     ResetPasswordNotifier, ResetPasswordState>(
-  (ref) => ResetPasswordNotifier(),
+  (ref) =>
+      ResetPasswordNotifier(ref.read(navigatorKeyProvider).currentContext!),
 );
+
+final navigatorKeyProvider = Provider((ref) => GlobalKey<NavigatorState>());

@@ -3,6 +3,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intake_helper/pages/auth/forgot%20page/widgets/forgot_password_provider.dart';
 import 'package:intake_helper/theme/app_tokens.dart';
+import 'package:intake_helper/l10n/app_localizations.dart';
 
 class ForgotPasswordHeader extends HookConsumerWidget {
   const ForgotPasswordHeader({super.key});
@@ -10,6 +11,7 @@ class ForgotPasswordHeader extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(forgotPasswordProvider);
+    final locale = AppLocalizations.of(context)!;
 
     final entranceCtrl = useAnimationController(
       duration: const Duration(milliseconds: 900),
@@ -52,7 +54,9 @@ class ForgotPasswordHeader extends HookConsumerWidget {
                   child: AnimatedSwitcher(
                     duration: const Duration(milliseconds: 350),
                     child: Text(
-                      state.isSuccess ? 'Check Inbox' : 'Forgot Password?',
+                      state.isSuccess
+                          ? locale.forgotPasswordHeaderCheckInbox
+                          : locale.forgotPasswordHeaderTitle,
                       key: ValueKey(state.isSuccess),
                       style: const TextStyle(
                         fontSize: 30,
@@ -77,8 +81,8 @@ class ForgotPasswordHeader extends HookConsumerWidget {
                       children: [
                         Text(
                           state.isSuccess
-                              ? 'Reset link sent to your email '
-                              : 'Enter your email to reset password ',
+                              ? locale.forgotPasswordHeaderResetLinkSent
+                              : locale.forgotPasswordHeaderEnterEmailToReset,
                           style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w500,
@@ -190,6 +194,8 @@ class _StatusBadge extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
+    final locale = AppLocalizations.of(context)!;
+
     final pulseCtrl = useAnimationController(
       duration: const Duration(milliseconds: 900),
     )..repeat(reverse: true);
@@ -225,7 +231,9 @@ class _StatusBadge extends HookWidget {
           ),
           const SizedBox(width: 6),
           Text(
-            isSuccess ? 'EMAIL SENT' : 'PASSWORD RESET',
+            isSuccess
+                ? locale.forgotPasswordHeaderEmailSent
+                : locale.forgotPasswordHeaderPasswordReset,
             style: const TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w700,

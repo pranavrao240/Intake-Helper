@@ -5,6 +5,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intake_helper/pages/auth/forgot%20page/widgets/forgot_password_provider.dart';
 import 'package:intake_helper/router.dart';
 import 'package:intake_helper/theme/app_tokens.dart';
+import 'package:intake_helper/l10n/app_localizations.dart';
 
 class ForgotBackButton extends HookWidget {
   final VoidCallback? onTap;
@@ -50,6 +51,7 @@ class ForgotBottomLinks extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(forgotPasswordProvider);
     final notifier = ref.read(forgotPasswordProvider.notifier);
+    final locale = AppLocalizations.of(context)!;
 
     final ctrl = useAnimationController(
       duration: const Duration(milliseconds: 400),
@@ -67,15 +69,15 @@ class ForgotBottomLinks extends HookConsumerWidget {
           if (state.isSuccess) ...[
             _LinkRow(
               prefix: '',
-              label: 'Try another email',
+              label: locale.forgotPasswordTryAnotherEmail,
               color: AppTokens.textSecondary,
               onTap: notifier.tryAnotherEmail,
             ),
             const SizedBox(height: 10),
           ],
           _LinkRow(
-            prefix: 'Remember your password?  ',
-            label: 'Sign in',
+            prefix: locale.forgotPasswordRememberPassword,
+            label: locale.forgotPasswordSignIn,
             color: AppTokens.red,
             fontWeight: FontWeight.w700,
             onTap: onSignIn ?? () => context.go(RouteConstants.login.path),
@@ -146,6 +148,8 @@ class ForgotOrDivider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final locale = AppLocalizations.of(context)!;
+
     return Row(
       children: [
         Expanded(
@@ -157,7 +161,7 @@ class ForgotOrDivider extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 14),
           child: Text(
-            'or continue with',
+            locale.forgotPasswordOrContinueWith,
             style: const TextStyle(
               fontSize: 12,
               color: AppTokens.textMuted,

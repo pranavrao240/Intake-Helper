@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intake_helper/pages/auth/forgot%20page/widgets/forgot_password_provider.dart';
 import 'package:intake_helper/theme/app_tokens.dart';
+import 'package:intake_helper/l10n/app_localizations.dart';
 
 class SuccessInfoCard extends HookConsumerWidget {
   const SuccessInfoCard({super.key});
@@ -11,6 +12,7 @@ class SuccessInfoCard extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(forgotPasswordProvider);
+    final locale = AppLocalizations.of(context)!;
 
     final ctrl = useAnimationController(
       duration: const Duration(milliseconds: 500),
@@ -25,6 +27,12 @@ class SuccessInfoCard extends HookConsumerWidget {
         CurvedAnimation(parent: ctrl, curve: Curves.easeOutCubic),
       ),
     );
+
+    final _steps = [
+      (Icons.inbox_outlined, locale.successInfoCardCheckInbox),
+      (Icons.touch_app_outlined, locale.successInfoCardClickResetLink),
+      (Icons.lock_reset_outlined, locale.successInfoCardCreateNewPassword),
+    ];
 
     return FadeTransition(
       opacity: AlwaysStoppedAnimation(fade),
@@ -61,9 +69,9 @@ class SuccessInfoCard extends HookConsumerWidget {
                         ),
                       ),
                       const SizedBox(width: 12),
-                      const Text(
-                        "What's next?",
-                        style: TextStyle(
+                      Text(
+                        locale.successInfoCardWhatsNext,
+                        style: const TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w700,
                           color: AppTokens.textPrimary,
@@ -85,18 +93,14 @@ class SuccessInfoCard extends HookConsumerWidget {
   }
 }
 
-const _steps = [
-  (Icons.inbox_outlined, 'Check your inbox and spam folder'),
-  (Icons.touch_app_outlined, 'Click the reset link in the email'),
-  (Icons.lock_reset_outlined, 'Create a new secure password'),
-];
-
 class _SentToField extends HookWidget {
   final String email;
   const _SentToField({required this.email});
 
   @override
   Widget build(BuildContext context) {
+    final locale = AppLocalizations.of(context)!;
+
     final ctrl = useAnimationController(
       duration: const Duration(milliseconds: 500),
     );
@@ -111,9 +115,9 @@ class _SentToField extends HookWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'EMAIL',
-          style: TextStyle(
+        Text(
+          locale.emailInputCardEmailLabel,
+          style: const TextStyle(
             fontSize: 11,
             fontWeight: FontWeight.w700,
             color: AppTokens.textLabel,
@@ -165,9 +169,9 @@ class _SentToField extends HookWidget {
                       color: const Color(0xFF22C55E).withValues(alpha: 0.4),
                     ),
                   ),
-                  child: const Text(
-                    'Sent ✓',
-                    style: TextStyle(
+                  child: Text(
+                    locale.emailVerificationSent,
+                    style: const TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.w600,
                       color: Color(0xFF4ADE80),
@@ -224,6 +228,8 @@ class _StepRow extends StatelessWidget {
 class _BackToLoginButton extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final locale = AppLocalizations.of(context)!;
+
     final isPressed = useState(false);
     final shimCtrl = useAnimationController(
       duration: const Duration(milliseconds: 1800),
@@ -278,10 +284,10 @@ class _BackToLoginButton extends HookConsumerWidget {
                     ),
                   ),
                 ),
-                const Center(
+                Center(
                   child: Text(
-                    'Back to Login',
-                    style: TextStyle(
+                    locale.successInfoCardBackToLogin,
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 16,
                       fontWeight: FontWeight.w700,

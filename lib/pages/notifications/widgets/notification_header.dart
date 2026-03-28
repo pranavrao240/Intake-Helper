@@ -51,11 +51,11 @@ class NotificationHeader extends HookConsumerWidget {
           Row(
             children: [
               _BackButton(),
-              const Expanded(
+              Expanded(
                 child: Center(
                   child: Text(
-                    'Notifications',
-                    style: TextStyle(
+                    "Notifications",
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 22,
                       fontWeight: FontWeight.w600,
@@ -136,9 +136,9 @@ class _MarkAllReadButton extends HookWidget {
             borderRadius: BorderRadius.circular(12),
             border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
           ),
-          child: const Text(
-            'Mark All Read',
-            style: TextStyle(
+          child: Text(
+            "Mark all read",
+            style: const TextStyle(
               color: Colors.white,
               fontSize: 13,
               fontWeight: FontWeight.w500,
@@ -169,7 +169,7 @@ class _UnreadBadge extends StatelessWidget {
           _PulsingDot(),
           const SizedBox(width: 8),
           Text(
-            '$count new notification${count > 1 ? 's' : ''}',
+            "Unread notifications: $count",
             style: const TextStyle(
               color: Colors.white,
               fontSize: 13,

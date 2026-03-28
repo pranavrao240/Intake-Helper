@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:intake_helper/l10n/app_localizations.dart';
 
 class TodoAlertBanner extends StatelessWidget {
   const TodoAlertBanner({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final locale = AppLocalizations.of(context)!;
     return Padding(
       padding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
       child: Container(
@@ -21,13 +23,13 @@ class TodoAlertBanner extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Row(
+            Row(
               children: [
-                Text("⚠️", style: TextStyle(fontSize: 16)),
-                SizedBox(width: 10),
+                const Text("⚠️", style: TextStyle(fontSize: 16)),
+                const SizedBox(width: 10),
                 Text(
-                  "Lunch in 20 minutes",
-                  style: TextStyle(
+                  locale.todoAlertBannerLunch,
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
@@ -37,9 +39,10 @@ class TodoAlertBanner extends StatelessWidget {
             ),
             Row(
               children: [
-                _ActionButton(text: "Mark Done", onTap: () {}),
+                _ActionButton(
+                    text: locale.todoAlertBannerMarkDone, onTap: () {}),
                 const SizedBox(width: 8),
-                _ActionButton(text: "Snooze", onTap: () {}),
+                _ActionButton(text: locale.todoAlertBannerSnooze, onTap: () {}),
               ],
             ),
           ],

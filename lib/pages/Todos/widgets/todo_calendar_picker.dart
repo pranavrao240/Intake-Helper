@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:intake_helper/l10n/app_localizations.dart';
 
 class TodoCalendarPicker extends HookConsumerWidget {
   final DateTime? initialDate;
@@ -121,23 +122,23 @@ class _CalendarHeader extends StatelessWidget {
     this.onClose,
   });
 
-  static const _months = [
-    'January',
-    'February',
-    'March',
-    'April',
-    'May',
-    'June',
-    'July',
-    'August',
-    'September',
-    'October',
-    'November',
-    'December'
-  ];
-
   @override
   Widget build(BuildContext context) {
+    final locale = AppLocalizations.of(context)!;
+    final _months = [
+      locale.monthJanuary,
+      locale.monthFebruary,
+      locale.monthMarch,
+      locale.monthApril,
+      locale.monthMay,
+      locale.monthJune,
+      locale.monthJuly,
+      locale.monthAugust,
+      locale.monthSeptember,
+      locale.monthOctober,
+      locale.monthNovember,
+      locale.monthDecember
+    ];
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 8),
       child: Row(
@@ -378,10 +379,11 @@ class _QuickSelectRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final locale = AppLocalizations.of(context)!;
     final chips = [
-      ('Today', today),
-      ('Yesterday', today.subtract(const Duration(days: 1))),
-      ('Last Week', today.subtract(const Duration(days: 7))),
+      (locale.quickSelectToday, today),
+      (locale.quickSelectYesterday, today.subtract(const Duration(days: 1))),
+      (locale.quickSelectLastWeek, today.subtract(const Duration(days: 7))),
     ];
 
     return Padding(

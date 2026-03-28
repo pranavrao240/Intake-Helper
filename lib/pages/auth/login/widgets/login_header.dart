@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:intake_helper/l10n/app_localizations.dart';
 
 class LoginHeader extends StatelessWidget {
   const LoginHeader({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final locale = AppLocalizations.of(context)!;
     return Container(
       width: double.infinity,
       decoration: const BoxDecoration(
@@ -67,9 +69,9 @@ class LoginHeader extends StatelessWidget {
                   children: [
                     _PulsingDot(),
                     const SizedBox(width: 6),
-                    const Text(
-                      'SYSTEM ONLINE',
-                      style: TextStyle(
+                    Text(
+                      locale.loginHeaderSystemOnline,
+                      style: const TextStyle(
                         color: Colors.white70,
                         fontSize: 9,
                         fontWeight: FontWeight.w800,
@@ -100,9 +102,9 @@ class LoginHeader extends StatelessWidget {
                     color: Colors.white, size: 28),
               ),
               const SizedBox(height: 18),
-              const Text(
-                'Welcome Back',
-                style: TextStyle(
+              Text(
+                locale.loginHeaderWelcomeBack,
+                style: const TextStyle(
                   color: Colors.white,
                   fontSize: 30,
                   fontWeight: FontWeight.w900,
@@ -110,9 +112,9 @@ class LoginHeader extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 4),
-              const Text(
-                'Sign in to continue your journey 💪',
-                style: TextStyle(
+              Text(
+                locale.loginHeaderSignInToContinue,
+                style: const TextStyle(
                   color: Colors.white60,
                   fontSize: 13,
                   fontWeight: FontWeight.w500,

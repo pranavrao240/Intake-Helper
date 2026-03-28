@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:intake_helper/l10n/app_localizations.dart';
 
 import 'register_input_field.dart';
 import 'register_social_buttons.dart';
@@ -37,6 +38,7 @@ class RegisterFormCard extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final hidePassword = useState(true);
     final hideConfirm = useState(true);
+    final locale = AppLocalizations.of(context)!;
 
     final confirmText = useState('');
 
@@ -77,36 +79,37 @@ class RegisterFormCard extends HookConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             RegisterInputField(
-              label: 'Full Name',
-              placeholder: 'Enter Name',
+              label: locale.registerFormCardFullNameLabel,
+              placeholder: locale.registerFormCardFullNamePlaceholder,
               prefixIcon: Icons.person_outline_rounded,
               controller: fullNameController,
               validator: (v) {
                 if (v == null || v.isEmpty)
-                  return 'Please enter your full name';
+                  return locale.registerFormCardEnterFullName;
                 return null;
               },
             ),
             const SizedBox(height: 20),
             RegisterInputField(
-              label: 'Email',
-              placeholder: 'you@example.com',
+              label: locale.registerFormCardEmailLabel,
+              placeholder: locale.registerFormCardEmailPlaceholder,
               prefixIcon: Icons.mail_outline_rounded,
               controller: emailController,
               keyboardType: TextInputType.emailAddress,
               validator: (v) {
-                if (v == null || v.isEmpty) return 'Please enter your email';
+                if (v == null || v.isEmpty)
+                  return locale.registerFormCardEnterEmail;
                 if (!RegExp(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$")
                     .hasMatch(v)) {
-                  return 'Please enter a valid email';
+                  return locale.registerFormCardInvalidEmail;
                 }
                 return null;
               },
             ),
             const SizedBox(height: 20),
             RegisterInputField(
-              label: 'Password',
-              placeholder: '••••••••',
+              label: locale.registerFormCardPasswordLabel,
+              placeholder: locale.registerFormCardPasswordPlaceholder,
               prefixIcon: Icons.lock_outline_rounded,
               controller: passwordController,
               obscureText: hidePassword.value,
@@ -114,16 +117,17 @@ class RegisterFormCard extends HookConsumerWidget {
               onToggleVisibility: () =>
                   hidePassword.value = !hidePassword.value,
               validator: (v) {
-                if (v == null || v.isEmpty) return 'Please enter your password';
+                if (v == null || v.isEmpty)
+                  return locale.registerFormCardEnterPassword;
                 if (v.length < 6)
-                  return 'Password must be at least 6 characters';
+                  return locale.registerFormCardPasswordTooShort;
                 return null;
               },
             ),
             const SizedBox(height: 20),
             RegisterInputField(
-              label: 'Confirm Password',
-              placeholder: '••••••••',
+              label: locale.registerFormCardConfirmPasswordLabel,
+              placeholder: locale.registerFormCardPasswordPlaceholder,
               prefixIcon: Icons.lock_outline_rounded,
               controller: confirmPasswordController,
               obscureText: hideConfirm.value,
@@ -132,9 +136,9 @@ class RegisterFormCard extends HookConsumerWidget {
               onToggleVisibility: () => hideConfirm.value = !hideConfirm.value,
               validator: (v) {
                 if (v == null || v.isEmpty)
-                  return 'Please confirm your password';
+                  return locale.registerFormCardConfirmPassword;
                 if (v != passwordController.text)
-                  return 'Passwords do not match';
+                  return locale.registerFormCardPasswordsDoNotMatch;
                 return null;
               },
             ),
@@ -167,7 +171,7 @@ class RegisterFormCard extends HookConsumerWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    'Already have an account? ',
+                    locale.registerFormCardHaveAccount,
                     style: TextStyle(
                       color: Colors.white.withValues(alpha: 0.4),
                       fontSize: 13.5,
@@ -175,9 +179,9 @@ class RegisterFormCard extends HookConsumerWidget {
                   ),
                   GestureDetector(
                     onTap: onLoginTap,
-                    child: const Text(
-                      'Sign In',
-                      style: TextStyle(
+                    child: Text(
+                      locale.registerFormCardSignIn,
+                      style: const TextStyle(
                         color: Color(0xFFF87171),
                         fontWeight: FontWeight.w900,
                         fontSize: 13.5,
@@ -190,7 +194,7 @@ class RegisterFormCard extends HookConsumerWidget {
             const SizedBox(height: 14),
             Center(
               child: Text(
-                'By signing up, you agree to our Terms of Service and Privacy Policy',
+                locale.registerFormCardTerms,
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: Colors.white.withValues(alpha: 0.25),
@@ -213,6 +217,7 @@ class _CreateAccountButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final locale = AppLocalizations.of(context)!;
     return GestureDetector(
       onTap: isLoading ? null : onTap,
       child: Container(
@@ -248,9 +253,9 @@ class _CreateAccountButton extends StatelessWidget {
                     strokeWidth: 2.5,
                   ),
                 )
-              : const Text(
-                  'Create Account',
-                  style: TextStyle(
+              : Text(
+                  locale.registerFormCardCreateAccount,
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 16,
                     fontWeight: FontWeight.w900,

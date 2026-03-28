@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intake_helper/router.dart';
 import 'package:intake_helper/theme/app_tokens.dart';
+import 'package:intake_helper/l10n/app_localizations.dart';
 
 class SuccessCard extends HookConsumerWidget {
   final VoidCallback? onContinue;
@@ -46,6 +47,7 @@ class SuccessCard extends HookConsumerWidget {
 class _SecurityStatusTile extends HookWidget {
   @override
   Widget build(BuildContext context) {
+    final locale = AppLocalizations.of(context)!;
     final ctrl = useAnimationController(
       duration: const Duration(milliseconds: 500),
     );
@@ -93,9 +95,10 @@ class _SecurityStatusTile extends HookWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Security Status',
-                style: TextStyle(fontSize: 12, color: AppTokens.textSecondary),
+              Text(
+                locale.successCardSecurityStatus,
+                style: const TextStyle(
+                    fontSize: 12, color: AppTokens.textSecondary),
               ),
               const SizedBox(height: 3),
               Row(
@@ -109,9 +112,9 @@ class _SecurityStatusTile extends HookWidget {
                       shape: BoxShape.circle,
                     ),
                   ),
-                  const Text(
-                    'Password Updated',
-                    style: TextStyle(
+                  Text(
+                    locale.successCardPasswordUpdated,
+                    style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
                       color: AppTokens.textPrimary,
@@ -130,6 +133,7 @@ class _SecurityStatusTile extends HookWidget {
 class _ProTipBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final locale = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -157,15 +161,13 @@ class _ProTipBanner extends StatelessWidget {
               text: TextSpan(
                 style: const TextStyle(
                     fontSize: 13, color: AppTokens.textSecondary, height: 1.45),
-                children: const [
+                children: [
                   TextSpan(
-                    text: 'Pro tip: ',
-                    style: TextStyle(
+                    text: locale.successCardProTip,
+                    style: const TextStyle(
                         fontWeight: FontWeight.w600, color: Colors.greenAccent),
                   ),
-                  TextSpan(
-                      text:
-                          'Use a password manager to securely store your credentials.'),
+                  TextSpan(text: locale.successCardPasswordManagerTip),
                 ],
               ),
             ),
@@ -182,6 +184,7 @@ class _ContinueButton extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final locale = AppLocalizations.of(context)!;
     final isPressed = useState(false);
     final shimCtrl = useAnimationController(
       duration: const Duration(milliseconds: 1800),
@@ -234,10 +237,10 @@ class _ContinueButton extends HookConsumerWidget {
                     ),
                   ),
                 ),
-                const Center(
+                Center(
                   child: Text(
-                    'Continue to Login',
-                    style: TextStyle(
+                    locale.successCardContinueToLogin,
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 16,
                       fontWeight: FontWeight.w700,

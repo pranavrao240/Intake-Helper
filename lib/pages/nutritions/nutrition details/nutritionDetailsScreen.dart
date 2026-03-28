@@ -16,6 +16,7 @@ import 'package:intake_helper/pages/nutritions/nutrition%20details/widgets/nutri
 import 'package:intake_helper/pages/nutritions/nutrition%20details/widgets/nutrition_stats_row.dart';
 import 'package:intake_helper/utility/notification.dart';
 import 'package:intl/intl.dart';
+import 'package:intake_helper/l10n/app_localizations.dart';
 
 class NutritionDetailScreen extends HookConsumerWidget {
   final String id;
@@ -23,6 +24,7 @@ class NutritionDetailScreen extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final locale = AppLocalizations.of(context)!;
     // ── State ──
     final portion = useState(1);
     final selectedTypes = useState<List<String>>([]);
@@ -37,7 +39,8 @@ class NutritionDetailScreen extends HookConsumerWidget {
           child: CircularProgressIndicator(color: Color(0xFFEF4444)),
         ),
         error: (e, _) => Center(
-          child: Text('Error: $e', style: const TextStyle(color: Colors.white)),
+          child: Text(locale.nutritionDetailsError(e.toString()),
+              style: const TextStyle(color: Colors.white)),
         ),
         data: (model) => _buildBody(
           context: context,
@@ -58,11 +61,11 @@ class NutritionDetailScreen extends HookConsumerWidget {
     required ValueNotifier<List<String>> selectedTypes,
   }) {
     final List<Map<String, String>> ingredients = _parseIngredients(model);
-
+    final locale = AppLocalizations.of(context)!;
     final calories = (model.calories ?? 0).toDouble();
     final protein = (model.protein ?? 0).toDouble();
     final carbs = (model.carbohydrates ?? 0).toDouble();
-    final dishName = model.dishName ?? 'Unknown Dish';
+    final dishName = model.dishName ?? locale.nutritionDetailsUnknownDish;
 
     return Stack(
       children: [
@@ -70,7 +73,8 @@ class NutritionDetailScreen extends HookConsumerWidget {
           slivers: [
             SliverToBoxAdapter(
               child: NutritionHeroSection(
-                  dishName: model.dishName ?? 'Unknown Dish',
+                  dishName:
+                      model.dishName ?? locale.nutritionDetailsUnknownDish,
                   isSaved: model.isSaved!,
                   id: model.id!,
                   tag: model.type?.isNotEmpty == true ? model.type!.first : '',
@@ -103,9 +107,8 @@ class NutritionDetailScreen extends HookConsumerWidget {
                   const SizedBox(height: 16),
                   GoalInsightCard(
                     insight: model.dishName != null
-                        ? 'This meal is optimized for your daily nutrition goals. '
-                            'Track consistently for best results.'
-                        : 'No insight available.',
+                        ? locale.nutritionDetailsInsight
+                        : locale.nutritionDetailsNoInsight,
                   ),
                   const SizedBox(height: 16),
                 ]),
@@ -150,8 +153,9 @@ class NutritionDetailScreen extends HookConsumerWidget {
     required ValueNotifier<List<String>> selectedTypes,
     required String dishName,
   }) async {
+    final locale = AppLocalizations.of(context)!;
     if (selectedTypes.value.isEmpty) {
-      showToast('Please select at least one meal type', context, 2);
+      showToast(locale.nutritionDetailsSelectMealType, context, 2);
 
       return;
     }
@@ -187,10 +191,10 @@ class NutritionDetailScreen extends HookConsumerWidget {
     if (!context.mounted) return;
 
     if (success == true) {
-      showToast('Added to Todo List', context, 1);
+      showToast(locale.nutritionDetailsAddedToTodo, context, 1);
       context.push('/todo');
     } else {
-      showToast('Failed to add to Todo List', context, 2);
+      showToast(locale.nutritionDetailsFailedToAdd, context, 2);
     }
   }
 }
@@ -199,15 +203,19 @@ class _MealTypeSelector extends StatelessWidget {
   final ValueNotifier<List<String>> selectedTypes;
   const _MealTypeSelector({required this.selectedTypes});
 
-  static const _types = ['Breakfast', 'Lunch', 'Dinner'];
-
   @override
   Widget build(BuildContext context) {
+    final locale = AppLocalizations.of(context)!;
+    final _types = [
+      locale.mealTypeBreakfast,
+      locale.mealTypeLunch,
+      locale.mealTypeDinner
+    ];
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'MEAL TYPE',
+          locale.nutritionDetailsMealType,
           style: TextStyle(
             color: Colors.white.withValues(alpha: 0.4),
             fontSize: 10,
@@ -277,13 +285,14 @@ class _TimeDayPickerDialog extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedTime = useState(TimeOfDay.now());
     final selectedDays = useState<Set<String>>({});
+    final locale = AppLocalizations.of(context)!;
 
     return AlertDialog(
       backgroundColor: const Color(0xFF18181B),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      title: const Text(
-        'Schedule Meal',
-        style: TextStyle(
+      title: Text(
+        locale.scheduleMealDialogTitle,
+        style: const TextStyle(
             color: Colors.white, fontWeight: FontWeight.w800, fontSize: 18),
       ),
       content: Column(
@@ -328,7 +337,7 @@ class _TimeDayPickerDialog extends HookConsumerWidget {
           ),
           const SizedBox(height: 16),
           Text(
-            'SELECT DAYS',
+            locale.scheduleMealDialogSelectDays,
             style: TextStyle(
               color: Colors.white.withOpacity(0.4),
               fontSize: 9,
@@ -384,7 +393,7 @@ class _TimeDayPickerDialog extends HookConsumerWidget {
       actions: [
         TextButton(
           onPressed: () => context.pop(),
-          child: Text('Cancel',
+          child: Text(locale.scheduleMealDialogCancel,
               style: TextStyle(color: Colors.white.withValues(alpha: 0.5))),
         ),
         TextButton(
@@ -392,24 +401,24 @@ class _TimeDayPickerDialog extends HookConsumerWidget {
             onConfirm(selectedTime.value, selectedDays.value.toList());
 
             ref.read(mealNotificationProvider.notifier).createNotification(
-                  title: '🍽️ Time to eat!',
-                  message: 'Your $dishName is scheduled now.',
+                  title: locale.notificationMealTimeTitle,
+                  message: locale.notificationMealTimeBody(dishName),
                   priority: NotificationPriority.high.name,
                   type: NotificationType.mealReminder.apiValue,
                 );
 
             await CustomNotification().showScheduleNotification(
               1,
-              '🍽️ Time to eat!',
-              'Your $dishName is scheduled now.',
+              locale.notificationMealTimeTitle,
+              locale.notificationMealTimeBody(dishName),
               selectedTime.value.hour,
               selectedTime.value.minute,
             );
 
             if (context.mounted) context.pop();
           },
-          child: const Text('Add',
-              style: TextStyle(
+          child: Text(locale.scheduleMealDialogAdd,
+              style: const TextStyle(
                   color: Color(0xFFEF4444), fontWeight: FontWeight.w800)),
         ),
       ],

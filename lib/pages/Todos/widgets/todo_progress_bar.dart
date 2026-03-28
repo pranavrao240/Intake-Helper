@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intake_helper/l10n/app_localizations.dart';
 
 class TodoProgressBar extends StatelessWidget {
   final int completed;
@@ -14,6 +15,7 @@ class TodoProgressBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final locale = AppLocalizations.of(context)!;
     final double progress = total > 0 ? completed / total : 0;
 
     return Container(
@@ -31,7 +33,7 @@ class TodoProgressBar extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                "$completed/$total Meals Completed",
+                locale.todoProgressBarMealsCompleted(completed, total),
                 style: const TextStyle(
                   color: Colors.white54,
                   fontSize: 12,

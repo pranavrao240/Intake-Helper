@@ -1,3 +1,6 @@
+import 'package:flutter/material.dart';
+import 'package:intake_helper/l10n/app_localizations.dart';
+
 enum ResetPasswordStatus { idle, submitting, success, error }
 
 class PasswordRequirement {
@@ -19,36 +22,43 @@ class ResetPasswordState {
     this.errorMessage,
   });
 
-  static final requirements = <PasswordRequirement>[
-    PasswordRequirement(
-        label: 'At least 8 characters', check: (p) => p.length >= 8),
-    PasswordRequirement(
-        label: 'Contains uppercase letter',
-        check: (p) => RegExp(r'[A-Z]').hasMatch(p)),
-    PasswordRequirement(
-        label: 'Contains lowercase letter',
-        check: (p) => RegExp(r'[a-z]').hasMatch(p)),
-    PasswordRequirement(
-        label: 'Contains number', check: (p) => RegExp(r'\d').hasMatch(p)),
-    PasswordRequirement(
-        label: 'Contains special character',
-        check: (p) => RegExp(r'[!@#\$%\^&\*(),.?":{}|<>]').hasMatch(p)),
-  ];
+  static List<PasswordRequirement> requirements(BuildContext context) {
+    final locale = AppLocalizations.of(context)!;
+    return <PasswordRequirement>[
+      PasswordRequirement(
+          label: locale.passwordRequirementLength, check: (p) => p.length >= 8),
+      PasswordRequirement(
+          label: locale.passwordRequirementUppercase,
+          check: (p) => RegExp(r'[A-Z]').hasMatch(p)),
+      PasswordRequirement(
+          label: locale.passwordRequirementLowercase,
+          check: (p) => RegExp(r'[a-z]').hasMatch(p)),
+      PasswordRequirement(
+          label: locale.passwordRequirementNumber,
+          check: (p) => RegExp(r'\d').hasMatch(p)),
+      PasswordRequirement(
+          label: locale.passwordRequirementSpecial,
+          check: (p) => RegExp(r'[!@#\$%\^&\*(),.?":{}|<>]').hasMatch(p)),
+    ];
+  }
 
-  bool get allRequirementsMet => requirements.every((r) => r.check(password));
+  bool allRequirementsMet(BuildContext context) =>
+      requirements(context).every((r) => r.check(password));
 
   bool get passwordsMatch =>
       password.isNotEmpty &&
       confirmPassword.isNotEmpty &&
       password == confirmPassword;
 
-  bool get canSubmit => allRequirementsMet && passwordsMatch;
+  bool canSubmit(BuildContext context) =>
+      allRequirementsMet(context) && passwordsMatch;
 
   bool get isSubmitting => status == ResetPasswordStatus.submitting;
   bool get isSuccess => status == ResetPasswordStatus.success;
   bool get isError => status == ResetPasswordStatus.error;
 
-  int get strengthScore => requirements.where((r) => r.check(password)).length;
+  int strengthScore(BuildContext context) =>
+      requirements(context).where((r) => r.check(password)).length;
 
   ResetPasswordState copyWith({
     String? password,

@@ -3,7 +3,10 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intake_helper/Providers/locale_provider.dart';
+import 'package:intake_helper/l10n/app_localizations.dart';
 import 'package:intake_helper/router.dart';
 import 'package:intake_helper/theme/app_theme.dart';
 import 'package:intake_helper/utility/fcm_services.dart';
@@ -69,12 +72,29 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return Consumer(
       builder: (context, ref, _) {
+        final locale = ref.watch(localeProvider);
         return MaterialApp.router(
           debugShowCheckedModeBanner: false,
+          locale: locale,
+
           themeMode: ThemeMode.light,
           theme: AppTheme.lightTheme,
           darkTheme: AppTheme.lightTheme,
+
           routerConfig: appRouter,
+
+          // 🌍 ADD THESE 👇
+          localizationsDelegates: [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+          ],
+
+          supportedLocales: const [
+            Locale('en'),
+            Locale('hi'),
+          ],
         );
       },
     );

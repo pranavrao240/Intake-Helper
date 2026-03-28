@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:intake_helper/l10n/app_localizations.dart';
 
 // ── Goal Insight card ────────────────────────────────────────────────────────
 class GoalInsightCard extends StatelessWidget {
@@ -8,17 +9,17 @@ class GoalInsightCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final locale = AppLocalizations.of(context)!;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
       decoration: BoxDecoration(
         color: const Color(0xFFEF4444).withOpacity(0.07),
         borderRadius: BorderRadius.circular(24),
-        border:
-            Border.all(color: const Color(0xFFEF4444).withOpacity(0.2)),
+        border: Border.all(color: const Color(0xFFEF4444).withOpacity(0.2)),
       ),
       child: Text(
-        '"$insight"',
+        locale.goalInsightCardQuote(insight),
         textAlign: TextAlign.center,
         style: TextStyle(
           color: Colors.white.withOpacity(0.75),
@@ -48,6 +49,7 @@ class NutritionBottomBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final locale = AppLocalizations.of(context)!;
     return Positioned(
       bottom: 28,
       left: 40,
@@ -101,11 +103,11 @@ class NutritionBottomBar extends StatelessWidget {
             ),
 
             // Add Meal label
-            const Expanded(
+            Expanded(
               child: Text(
-                'ADD MEAL',
+                locale.nutritionBottomBarAddMeal,
                 textAlign: TextAlign.center,
-                style: TextStyle(
+                style: const TextStyle(
                   color: Colors.black,
                   fontSize: 10,
                   fontWeight: FontWeight.w900,

@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intake_helper/router.dart';
 import 'package:intl/intl.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:intake_helper/l10n/app_localizations.dart';
 
 class TodoAppBar extends StatelessWidget {
   final DateTime date;
@@ -20,6 +21,7 @@ class TodoAppBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final locale = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.fromLTRB(24, 60, 24, 24),
       decoration: const BoxDecoration(
@@ -58,9 +60,9 @@ class TodoAppBar extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  const Text(
-                    "Today's Meals",
-                    style: TextStyle(
+                  Text(
+                    locale.todoAppBarTitle,
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 32,
                       fontWeight: FontWeight.w900,
@@ -79,9 +81,11 @@ class TodoAppBar extends StatelessWidget {
           const SizedBox(height: 16),
           Row(
             children: [
-              _Badge(text: "$streak day streak"),
+              _Badge(text: locale.todoAppBarStreak(streak)),
               const SizedBox(width: 8),
-              _Badge(text: "$completed / $total done", secondary: true),
+              _Badge(
+                  text: locale.todoAppBarProgress(completed, total),
+                  secondary: true),
             ],
           ),
         ],

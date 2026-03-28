@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intake_helper/pages/Todos/widgets/todo_meal_cards.dart';
+import 'package:intake_helper/l10n/app_localizations.dart';
 
 class MealActionDialog extends HookConsumerWidget {
   final MealCardData meal;
@@ -65,6 +66,7 @@ class _MainView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final locale = AppLocalizations.of(context)!;
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -86,9 +88,9 @@ class _MainView extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Meal Action',
-                    style: TextStyle(
+                  Text(
+                    locale.mealActionDialogTitle,
+                    style: const TextStyle(
                       color: Color(0xFF71717A),
                       fontSize: 12,
                       fontWeight: FontWeight.w500,
@@ -135,9 +137,9 @@ class _MainView extends StatelessWidget {
         const SizedBox(height: 24),
         const Divider(color: Color(0xFF27272A), height: 1),
         const SizedBox(height: 20),
-        const Text(
-          'What would you like to do?',
-          style: TextStyle(
+        Text(
+          locale.mealActionDialogQuestion,
+          style: const TextStyle(
             color: Color(0xFFA1A1AA),
             fontSize: 13,
             fontWeight: FontWeight.w500,
@@ -148,8 +150,8 @@ class _MainView extends StatelessWidget {
           icon: Icons.check_circle_rounded,
           iconColor: const Color(0xFF22C55E),
           iconBgColor: const Color(0xFF22C55E).withValues(alpha: 0.12),
-          title: 'Mark as Completed',
-          subtitle: 'Confirm completion for today',
+          title: locale.mealActionDialogMarkAsCompleted,
+          subtitle: locale.mealActionDialogConfirmCompletion,
           borderColor: const Color(0xFF22C55E).withValues(alpha: 0.3),
           onTap: onMarkComplete,
         ),
@@ -158,8 +160,8 @@ class _MainView extends StatelessWidget {
           icon: Icons.delete_rounded,
           iconColor: const Color(0xFFEF4444),
           iconBgColor: const Color(0xFFEF4444).withValues(alpha: 0.12),
-          title: 'Delete Meal',
-          subtitle: 'Remove this meal from your plan',
+          title: locale.mealActionDialogDeleteMeal,
+          subtitle: locale.mealActionDialogRemoveMeal,
           borderColor: const Color(0xFFEF4444).withValues(alpha: 0.3),
           onTap: onDelete,
         ),
@@ -175,9 +177,9 @@ class _MainView extends StatelessWidget {
                 side: const BorderSide(color: Color(0xFF3F3F46)),
               ),
             ),
-            child: const Text(
-              'Cancel',
-              style: TextStyle(
+            child: Text(
+              locale.mealActionDialogCancel,
+              style: const TextStyle(
                   color: Color(0xFF71717A),
                   fontSize: 14,
                   fontWeight: FontWeight.w500),

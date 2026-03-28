@@ -4,6 +4,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intake_helper/router.dart';
+import 'package:intake_helper/l10n/app_localizations.dart';
 
 class _Tokens {
   static const bgBase = Color(0xFF12111A);
@@ -157,6 +158,8 @@ class _TopSection extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
+    final locale = AppLocalizations.of(context)!;
+
     return SafeArea(
       bottom: false,
       child: Padding(
@@ -185,9 +188,9 @@ class _TopSection extends HookWidget {
               start: 0.12,
               end: 0.5,
               slideFrom: const Offset(0, 0.2),
-              child: const Text(
-                'Verify Email',
-                style: TextStyle(
+              child: Text(
+                locale.emailVerificationTitle,
+                style: const TextStyle(
                   fontSize: 32,
                   fontWeight: FontWeight.w800,
                   color: Colors.white,
@@ -203,16 +206,16 @@ class _TopSection extends HookWidget {
               end: 0.55,
               slideFrom: const Offset(0, 0.15),
               child: Row(
-                children: const [
+                children: [
                   Text(
-                    'Check your inbox to get started ',
-                    style: TextStyle(
+                    locale.emailVerificationCheckInbox,
+                    style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
                       color: Color(0xFFB8B5D0),
                     ),
                   ),
-                  Text('📬', style: TextStyle(fontSize: 14)),
+                  const Text('📬', style: TextStyle(fontSize: 14)),
                 ],
               ),
             ),
@@ -228,6 +231,8 @@ class _StatusBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final locale = AppLocalizations.of(context)!;
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
       decoration: BoxDecoration(
@@ -240,9 +245,9 @@ class _StatusBadge extends StatelessWidget {
         children: [
           _PulsingDot(),
           const SizedBox(width: 6),
-          const Text(
-            'VERIFICATION PENDING',
-            style: TextStyle(
+          Text(
+            locale.emailVerificationPending,
+            style: const TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w700,
               color: Colors.white,
@@ -428,12 +433,14 @@ class _EmailDisplayField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final locale = AppLocalizations.of(context)!;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'EMAIL',
-          style: TextStyle(
+        Text(
+          locale.emailVerificationEmailLabel,
+          style: const TextStyle(
             fontSize: 11,
             fontWeight: FontWeight.w700,
             color: _Tokens.textMuted,
@@ -480,9 +487,9 @@ class _EmailDisplayField extends StatelessWidget {
                     color: const Color(0xFF8B3CF7).withValues(alpha: 0.35),
                   ),
                 ),
-                child: const Text(
-                  'Sent',
-                  style: TextStyle(
+                child: Text(
+                  locale.emailVerificationSent,
+                  style: const TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
                     color: Color(0xFFA78BFA),
@@ -500,6 +507,8 @@ class _EmailDisplayField extends StatelessWidget {
 class _InfoText extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final locale = AppLocalizations.of(context)!;
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
@@ -514,7 +523,7 @@ class _InfoText extends StatelessWidget {
           const SizedBox(width: 10),
           Expanded(
             child: Text(
-              'A verification link was sent. Click it to activate your account.',
+              locale.emailVerificationLinkSent,
               style: TextStyle(
                 fontSize: 13,
                 color: Colors.white.withValues(alpha: 0.55),
@@ -531,14 +540,15 @@ class _InfoText extends StatelessWidget {
 class _StepsRow extends HookWidget {
   const _StepsRow();
 
-  static const _steps = [
-    (Icons.inbox_rounded, 'Check inbox'),
-    (Icons.touch_app_rounded, 'Click link'),
-    (Icons.verified_rounded, 'Verified'),
-  ];
-
   @override
   Widget build(BuildContext context) {
+    final locale = AppLocalizations.of(context)!;
+
+    final _steps = [
+      (Icons.inbox_rounded, locale.emailVerificationStepCheckInbox),
+      (Icons.touch_app_rounded, locale.emailVerificationStepClickLink),
+      (Icons.verified_rounded, locale.emailVerificationStepVerified),
+    ];
     final ctrl = useAnimationController(
       duration: const Duration(milliseconds: 900),
     );
@@ -692,6 +702,7 @@ class _ContinueButton extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isPressed = useState(false);
+    final locale = AppLocalizations.of(context)!;
 
     final shimCtrl = useAnimationController(
       duration: const Duration(milliseconds: 1800),
@@ -749,10 +760,10 @@ class _ContinueButton extends HookConsumerWidget {
                     ),
                   ),
                 ),
-                const Center(
+                Center(
                   child: Text(
-                    'Go to Login',
-                    style: TextStyle(
+                    locale.emailVerificationGoToLogin,
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 17,
                       fontWeight: FontWeight.w700,
@@ -774,14 +785,16 @@ class _OrDivider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final locale = AppLocalizations.of(context)!;
+
     return Row(
       children: [
         Expanded(child: Divider(color: _Tokens.inputBorder, thickness: 1)),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 14),
           child: Text(
-            'or continue with',
-            style: TextStyle(
+            locale.emailVerificationOrContinueWith,
+            style: const TextStyle(
               fontSize: 12,
               color: _Tokens.textMuted,
             ),
@@ -801,6 +814,7 @@ class _ResendRow extends HookConsumerWidget {
     final cooldown = useState(30);
     final hasSent = useState(false);
     final isPressed = useState(false);
+    final locale = AppLocalizations.of(context)!;
 
     useEffect(() {
       final s = Stream.periodic(const Duration(seconds: 1));
@@ -816,8 +830,8 @@ class _ResendRow extends HookConsumerWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text(
-          "Didn't receive the email? ",
-          style: TextStyle(
+          locale.emailVerificationDidNotReceive,
+          style: const TextStyle(
             fontSize: 13,
             color: _Tokens.textSecondary,
           ),
@@ -836,9 +850,9 @@ class _ResendRow extends HookConsumerWidget {
             scale: isPressed.value ? 0.93 : 1.0,
             duration: const Duration(milliseconds: 100),
             child: hasSent.value
-                ? const Text(
-                    'Sent ✓',
-                    style: TextStyle(
+                ? Text(
+                    locale.emailVerificationResent,
+                    style: const TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w700,
                       color: Color(0xFF4ADE80),
@@ -846,9 +860,9 @@ class _ResendRow extends HookConsumerWidget {
                   )
                 : cooldown.value > 0
                     ? _CountdownChip(seconds: cooldown.value)
-                    : const Text(
-                        'Resend',
-                        style: TextStyle(
+                    : Text(
+                        locale.emailVerificationResend,
+                        style: const TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w700,
                           color: Color(0xFFE31E24),
@@ -925,18 +939,20 @@ class _Footer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final locale = AppLocalizations.of(context)!;
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text(
-          'Need help? ',
+          locale.emailVerificationNeedHelp,
           style: const TextStyle(
             fontSize: 13,
             color: _Tokens.textSecondary,
           ),
         ),
         Text(
-          'Contact Support',
+          locale.emailVerificationContactSupport,
           style: const TextStyle(
             fontSize: 13,
             fontWeight: FontWeight.w700,

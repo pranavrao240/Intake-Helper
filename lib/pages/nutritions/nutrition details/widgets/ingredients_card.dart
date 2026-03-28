@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intake_helper/Providers/settings_providers.dart';
+import 'package:intake_helper/l10n/app_localizations.dart';
 
 class IngredientsCard extends HookConsumerWidget {
   /// Pass a list of maps with keys 'name' and 'amount'
@@ -11,6 +12,7 @@ class IngredientsCard extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final locale = AppLocalizations.of(context)!;
     if (ingredients.isEmpty) return const SizedBox.shrink();
     final unitsConversion = ref.read(weightUnitProvider);
 
@@ -41,7 +43,7 @@ class IngredientsCard extends HookConsumerWidget {
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 18, 20, 10),
             child: Text(
-              'INGREDIENTS',
+              locale.ingredientsTitle,
               style: TextStyle(
                 color: Colors.white.withOpacity(0.4),
                 fontSize: 10,

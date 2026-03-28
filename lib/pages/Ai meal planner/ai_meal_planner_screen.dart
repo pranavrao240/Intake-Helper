@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intake_helper/Providers/openAi_provider.dart';
 import 'package:intake_helper/api/api_service.dart';
+import 'package:intake_helper/l10n/app_localizations.dart';
 import 'package:intake_helper/pages/Ai%20meal%20planner/widgets/chat_input_bar.dart';
 import 'package:intake_helper/pages/Ai%20meal%20planner/widgets/empty_state_view.dart';
 import 'package:intake_helper/pages/Ai%20meal%20planner/widgets/meal_info.dart';
@@ -143,6 +144,7 @@ class AiMealPlannerScreen extends HookConsumerWidget {
     final isGenerating = useState(false);
     final bottomInsets = MediaQuery.of(context).viewInsets.bottom;
     final isKeyboardOpen = useState(bottomInsets > 0);
+    final locale = AppLocalizations.of(context)!;
 
     // Redirect listener
     ref.listen(apiServiceProvider, (prev, next) {
@@ -200,7 +202,7 @@ class AiMealPlannerScreen extends HookConsumerWidget {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('${selected.length} meal(s) saved!'),
+            content: Text(locale.aiMealPlannerMealsSaved(selected.length)),
             backgroundColor: const Color(0xFF00E599),
           ),
         );
@@ -224,7 +226,7 @@ class AiMealPlannerScreen extends HookConsumerWidget {
 
       final openAiState = ref.read(openAiProvider);
       final aiText = openAiState.maybeWhen(
-        orElse: () => 'Sorry, I could not generate a meal plan.',
+        orElse: () => locale.aiMealPlannerSorryMessage,
         data: (data) => data.openAiModel!.output.first.content.first.text,
       );
 
@@ -238,7 +240,7 @@ class AiMealPlannerScreen extends HookConsumerWidget {
     return Scaffold(
       resizeToAvoidBottomInset: true,
       backgroundColor: const Color(0xFF000000),
-      appBar: customAppbar(title: '✨ AI Meal Planner', context),
+      appBar: customAppbar(title: locale.aiMealPlannerTitle, context),
       body: Stack(
         children: [
           // Top-right green glow

@@ -146,10 +146,10 @@ class _NotificationIcon extends StatelessWidget {
       width: 54,
       height: 54,
       decoration: BoxDecoration(
-        gradient: LinearGradient(
+        gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [const Color(0xFFEF4444), const Color(0xFFF97316)],
+          colors: [Color(0xFFEF4444), Color(0xFFF97316)],
         ),
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
@@ -165,10 +165,10 @@ class _NotificationIcon extends StatelessWidget {
           width: 34,
           height: 34,
           decoration: BoxDecoration(
-            gradient: LinearGradient(
+            gradient: const LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: [const Color(0xFFEF4444), const Color(0xFFF97316)],
+              colors: [Color(0xFFEF4444), Color(0xFFF97316)],
             ),
             borderRadius: BorderRadius.circular(10),
             boxShadow: [
@@ -179,8 +179,8 @@ class _NotificationIcon extends StatelessWidget {
               ),
             ],
           ),
-          child:
-              Icon(Icons.notifications_rounded, color: Colors.white, size: 18),
+          child: const Icon(Icons.notifications_rounded,
+              color: Colors.white, size: 18),
         ),
       ),
     );
@@ -278,12 +278,12 @@ class _DismissBackground extends StatelessWidget {
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
-        children: const [
-          Icon(Icons.delete_rounded, color: Colors.white, size: 24),
-          SizedBox(height: 4),
+        children: [
+          const Icon(Icons.delete_rounded, color: Colors.white, size: 24),
+          const SizedBox(height: 4),
           Text(
             'Delete',
-            style: TextStyle(color: Colors.white, fontSize: 11),
+            style: const TextStyle(color: Colors.white, fontSize: 11),
           ),
         ],
       ),

@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:intake_helper/router.dart';
+import 'package:intake_helper/l10n/app_localizations.dart';
 
 class BottomNavbar extends HookConsumerWidget {
   const BottomNavbar({super.key});
@@ -11,6 +12,7 @@ class BottomNavbar extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final currentPath = GoRouterState.of(context).uri.path;
+    final locale = AppLocalizations.of(context)!;
 
     bool isActive(String path) {
       if (path == "/") return currentPath == "/";
@@ -40,34 +42,30 @@ class BottomNavbar extends HookConsumerWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                // Home
                 _NavItem(
                   icon: Icons.home_rounded,
-                  label: 'Home',
+                  label: locale.navHome,
                   path: '/',
                   isActive: isActive(RouteConstants.home.path),
                   onTap: () => context.go(RouteConstants.home.path),
                 ),
-                // Meals
                 _NavItem(
                   icon: Icons.check_box_rounded,
-                  label: 'Meals',
+                  label: locale.navMeals,
                   path: '/todo',
                   isActive: isActive(RouteConstants.todo.path),
                   onTap: () => context.go(RouteConstants.todo.path),
                 ),
-                // Nutrition
                 _NavItem(
                   icon: Icons.restaurant_rounded,
-                  label: 'Nutrition',
+                  label: locale.navNutrition,
                   path: '/nutrition-list',
                   isActive: isActive(RouteConstants.nutrition.path),
                   onTap: () => context.go(RouteConstants.nutrition.path),
                 ),
-                // Profile
                 _NavItem(
                   icon: Icons.person_rounded,
-                  label: 'Profile',
+                  label: locale.navProfile,
                   path: '/profile',
                   isActive: isActive(RouteConstants.profile.path),
                   onTap: () => context.go(RouteConstants.profile.path),
