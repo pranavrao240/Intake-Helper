@@ -46,5 +46,5 @@ app.*.map.json
 # Environment variables
 .env
 *.env
-.env.* 
-
+.env.*
+google-services.json

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:intake_helper/l10n/app_localizations.dart';
 
 class ChatInputBar extends StatelessWidget {
   final TextEditingController controller;
@@ -13,39 +14,62 @@ class ChatInputBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final locale = AppLocalizations.of(context)!;
     return SafeArea(
-      child: Container(
-        padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
-        decoration: BoxDecoration(
-          color: const Color(0xFF121212),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.6),
-              blurRadius: 10,
-              offset: const Offset(0, -2),
-            ),
-          ],
-        ),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
         child: Row(
           children: [
             Expanded(
-              child: TextField(
-                controller: controller,
-                style: const TextStyle(color: Colors.white),
-                cursorColor: const Color(0xFF00FFAA),
-                decoration: InputDecoration(
-                  hintText: 'Edit or send a new prompt...',
-                  hintStyle: TextStyle(color: Colors.grey.shade500),
-                  filled: true,
-                  fillColor: const Color(0xFF1E1E1E),
-                  contentPadding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(24),
-                    borderSide: BorderSide.none,
+              child: Container(
+                height: 52,
+                decoration: BoxDecoration(
+                  color: Colors.transparent,
+                  borderRadius: BorderRadius.circular(32),
+                  border: Border.all(
+                    color: const Color(0xFF00E599).withValues(alpha: 0.35),
+                    width: 1.4,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFF00E599).withValues(alpha: 0.08),
+                      blurRadius: 16,
+                      spreadRadius: 2,
+                    ),
+                  ],
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 18),
+                alignment: Alignment.centerLeft,
+                child: TextField(
+                  controller: controller,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w400,
+                  ),
+                  cursorColor: const Color(0xFF00E599),
+                  maxLines: 1,
+                  textInputAction: TextInputAction.send,
+                  onSubmitted: (_) => onSend(),
+                  decoration: InputDecoration(
+                    fillColor: Colors.transparent,
+                    hintText: locale.chatInputBarHint,
+                    hintStyle: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.35),
+                      fontSize: 15,
+                      fontWeight: FontWeight.w400,
+                    ),
+                    border: InputBorder.none,
+                    enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(32),
+                        borderSide: BorderSide.none),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide.none,
+                    ),
+                    isDense: true,
+                    contentPadding: EdgeInsets.zero,
                   ),
                 ),
-                onSubmitted: (_) => onSend(),
               ),
             ),
             const SizedBox(width: 10),
@@ -69,7 +93,7 @@ class _SendButton extends StatelessWidget {
       child: Container(
         height: 48,
         width: 48,
-        padding: const EdgeInsets.all(8),
+        padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           gradient: const LinearGradient(
@@ -87,8 +111,8 @@ class _SendButton extends StatelessWidget {
         ),
         child: SvgPicture.asset(
           'lib/assets/images/send_arrow.svg',
-          width: 20,
-          height: 20,
+          width: 10,
+          height: 10,
         ),
       ),
     );

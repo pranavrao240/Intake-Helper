@@ -24,13 +24,10 @@ class CustomNotification {
     if (_initialized) return;
 
     try {
-      // 🔥 MUST CALL THIS FIRST
       tz.initializeTimeZones();
 
-      // 🔥 Set local timezone
       tz.setLocalLocation(tz.getLocation("Asia/Kolkata"));
 
-      // Request notification permission (Android 13+)
       if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
         final status = await Permission.notification.status;
         final alarmstatud = await Permission.scheduleExactAlarm.status;
@@ -46,12 +43,15 @@ class CustomNotification {
       const iosInit = DarwinInitializationSettings();
 
       await _notificationsPlugin.initialize(
-        const InitializationSettings(android: androidInit, iOS: iosInit),
         onDidReceiveNotificationResponse: (response) {
           if (kDebugMode) {
             print('Notification tapped: ${response.payload}');
           }
         },
+        settings: InitializationSettings(
+          android: AndroidInitializationSettings('@mipmap/ic_launcher'),
+          iOS: iosInit,
+        ),
       );
 
       await _createNotificationChannel();
@@ -65,7 +65,7 @@ class CustomNotification {
   }
 
   Future<void> cancelNotification(int id) async {
-    await _notificationsPlugin.cancel(id);
+    await _notificationsPlugin.cancel(id: id);
   }
 
   Future<void> _createNotificationChannel() async {
@@ -83,7 +83,6 @@ class CustomNotification {
         ?.createNotificationChannel(channel);
   }
 
-// Function to show a simple notification
   Future<void> showSimpleNotification() async {
     if (!_initialized) await init();
 
@@ -99,14 +98,13 @@ class CustomNotification {
     );
 
     await _notificationsPlugin.show(
-      0,
-      'Hello 👋',
-      'This is a local notification!',
-      details,
+      id: 0,
+      title: 'Hello 👋',
+      body: 'This is a local notification!',
+      payload: 'test',
     );
   }
 
-// Function to schedule a notification for a specific time
   Future<void> showScheduleNotification(
     int id,
     String title,
@@ -121,7 +119,6 @@ class CustomNotification {
 
     final now = tz.TZDateTime.now(tz.local);
 
-    // Create scheduled date
     tz.TZDateTime scheduleDate = tz.TZDateTime(
       tz.local,
       now.year,
@@ -131,12 +128,10 @@ class CustomNotification {
       minute,
     );
 
-    // If the scheduled time has already passed today, schedule for tomorrow
     if (scheduleDate.isBefore(now)) {
       scheduleDate = scheduleDate.add(const Duration(days: 1));
     }
 
-    // Create notification details
     const androidDetails = AndroidNotificationDetails(
       'channel_id',
       'General Notifications',
@@ -157,11 +152,11 @@ class CustomNotification {
 
     try {
       await _notificationsPlugin.zonedSchedule(
-        id,
-        title,
-        body,
-        scheduleDate,
-        details,
+        id: id,
+        title: title,
+        body: body,
+        scheduledDate: scheduleDate,
+        notificationDetails: details,
         androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
         matchDateTimeComponents: DateTimeComponents.time,
         payload: payload ?? 'scheduled_notification_$id',
@@ -174,7 +169,6 @@ class CustomNotification {
   }
 }
 
-// Function to get the next instance of a specific weekday
 tz.TZDateTime _nextInstanceOfWeekday(int weekday, int hour, int minute) {
   final now = tz.TZDateTime.now(tz.local);
 
@@ -194,12 +188,11 @@ tz.TZDateTime _nextInstanceOfWeekday(int weekday, int hour, int minute) {
   return scheduledDate;
 }
 
-// Function to schedule notifications for multiple days
 Future<void> scheduleForMultipleDays({
   required String title,
   required String body,
   required TimeOfDay time,
-  required List<String> days, // ["Mon", "Wed"]
+  required List<String> days,
 }) async {
   final now = tz.TZDateTime.now(tz.local);
 
@@ -217,7 +210,6 @@ Future<void> scheduleForMultipleDays({
     int weekday = dayMap[day]!;
     int id = now.millisecondsSinceEpoch ~/ 1000 + weekday;
 
-    // Next occurrence of selected weekday
     _nextInstanceOfWeekday(
       weekday,
       time.hour,

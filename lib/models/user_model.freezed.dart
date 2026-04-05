@@ -13,385 +13,25 @@ part of 'user_model.dart';
 T _$identity<T>(T value) => value;
 
 /// @nodoc
-mixin _$ProfileResponse {
-  bool get success;
-  ProfileData? get data; // made nullable because JSON might not include it
-  String? get message;
-
-  /// Create a copy of ProfileResponse
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @pragma('vm:prefer-inline')
-  $ProfileResponseCopyWith<ProfileResponse> get copyWith =>
-      _$ProfileResponseCopyWithImpl<ProfileResponse>(
-          this as ProfileResponse, _$identity);
-
-  /// Serializes this ProfileResponse to a JSON map.
-  Map<String, dynamic> toJson();
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is ProfileResponse &&
-            (identical(other.success, success) || other.success == success) &&
-            (identical(other.data, data) || other.data == data) &&
-            (identical(other.message, message) || other.message == message));
-  }
-
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  int get hashCode => Object.hash(runtimeType, success, data, message);
-
-  @override
-  String toString() {
-    return 'ProfileResponse(success: $success, data: $data, message: $message)';
-  }
-}
-
-/// @nodoc
-abstract mixin class $ProfileResponseCopyWith<$Res> {
-  factory $ProfileResponseCopyWith(
-          ProfileResponse value, $Res Function(ProfileResponse) _then) =
-      _$ProfileResponseCopyWithImpl;
-  @useResult
-  $Res call({bool success, ProfileData? data, String? message});
-
-  $ProfileDataCopyWith<$Res>? get data;
-}
-
-/// @nodoc
-class _$ProfileResponseCopyWithImpl<$Res>
-    implements $ProfileResponseCopyWith<$Res> {
-  _$ProfileResponseCopyWithImpl(this._self, this._then);
-
-  final ProfileResponse _self;
-  final $Res Function(ProfileResponse) _then;
-
-  /// Create a copy of ProfileResponse
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? success = null,
-    Object? data = freezed,
-    Object? message = freezed,
-  }) {
-    return _then(_self.copyWith(
-      success: null == success
-          ? _self.success
-          : success // ignore: cast_nullable_to_non_nullable
-              as bool,
-      data: freezed == data
-          ? _self.data
-          : data // ignore: cast_nullable_to_non_nullable
-              as ProfileData?,
-      message: freezed == message
-          ? _self.message
-          : message // ignore: cast_nullable_to_non_nullable
-              as String?,
-    ));
-  }
-
-  /// Create a copy of ProfileResponse
-  /// with the given fields replaced by the non-null parameter values.
-  @override
-  @pragma('vm:prefer-inline')
-  $ProfileDataCopyWith<$Res>? get data {
-    if (_self.data == null) {
-      return null;
-    }
-
-    return $ProfileDataCopyWith<$Res>(_self.data!, (value) {
-      return _then(_self.copyWith(data: value));
-    });
-  }
-}
-
-/// Adds pattern-matching-related methods to [ProfileResponse].
-extension ProfileResponsePatterns on ProfileResponse {
-  /// A variant of `map` that fallback to returning `orElse`.
-  ///
-  /// It is equivalent to doing:
-  /// ```dart
-  /// switch (sealedClass) {
-  ///   case final Subclass value:
-  ///     return ...;
-  ///   case _:
-  ///     return orElse();
-  /// }
-  /// ```
-
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>(
-    TResult Function(_ProfileResponse value)? $default, {
-    required TResult orElse(),
-  }) {
-    final _that = this;
-    switch (_that) {
-      case _ProfileResponse() when $default != null:
-        return $default(_that);
-      case _:
-        return orElse();
-    }
-  }
-
-  /// A `switch`-like method, using callbacks.
-  ///
-  /// Callbacks receives the raw object, upcasted.
-  /// It is equivalent to doing:
-  /// ```dart
-  /// switch (sealedClass) {
-  ///   case final Subclass value:
-  ///     return ...;
-  ///   case final Subclass2 value:
-  ///     return ...;
-  /// }
-  /// ```
-
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>(
-    TResult Function(_ProfileResponse value) $default,
-  ) {
-    final _that = this;
-    switch (_that) {
-      case _ProfileResponse():
-        return $default(_that);
-      case _:
-        throw StateError('Unexpected subclass');
-    }
-  }
-
-  /// A variant of `map` that fallback to returning `null`.
-  ///
-  /// It is equivalent to doing:
-  /// ```dart
-  /// switch (sealedClass) {
-  ///   case final Subclass value:
-  ///     return ...;
-  ///   case _:
-  ///     return null;
-  /// }
-  /// ```
-
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>(
-    TResult? Function(_ProfileResponse value)? $default,
-  ) {
-    final _that = this;
-    switch (_that) {
-      case _ProfileResponse() when $default != null:
-        return $default(_that);
-      case _:
-        return null;
-    }
-  }
-
-  /// A variant of `when` that fallback to an `orElse` callback.
-  ///
-  /// It is equivalent to doing:
-  /// ```dart
-  /// switch (sealedClass) {
-  ///   case Subclass(:final field):
-  ///     return ...;
-  ///   case _:
-  ///     return orElse();
-  /// }
-  /// ```
-
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>(
-    TResult Function(bool success, ProfileData? data, String? message)?
-        $default, {
-    required TResult orElse(),
-  }) {
-    final _that = this;
-    switch (_that) {
-      case _ProfileResponse() when $default != null:
-        return $default(_that.success, _that.data, _that.message);
-      case _:
-        return orElse();
-    }
-  }
-
-  /// A `switch`-like method, using callbacks.
-  ///
-  /// As opposed to `map`, this offers destructuring.
-  /// It is equivalent to doing:
-  /// ```dart
-  /// switch (sealedClass) {
-  ///   case Subclass(:final field):
-  ///     return ...;
-  ///   case Subclass2(:final field2):
-  ///     return ...;
-  /// }
-  /// ```
-
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>(
-    TResult Function(bool success, ProfileData? data, String? message) $default,
-  ) {
-    final _that = this;
-    switch (_that) {
-      case _ProfileResponse():
-        return $default(_that.success, _that.data, _that.message);
-      case _:
-        throw StateError('Unexpected subclass');
-    }
-  }
-
-  /// A variant of `when` that fallback to returning `null`
-  ///
-  /// It is equivalent to doing:
-  /// ```dart
-  /// switch (sealedClass) {
-  ///   case Subclass(:final field):
-  ///     return ...;
-  ///   case _:
-  ///     return null;
-  /// }
-  /// ```
-
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>(
-    TResult? Function(bool success, ProfileData? data, String? message)?
-        $default,
-  ) {
-    final _that = this;
-    switch (_that) {
-      case _ProfileResponse() when $default != null:
-        return $default(_that.success, _that.data, _that.message);
-      case _:
-        return null;
-    }
-  }
-}
-
-/// @nodoc
-@JsonSerializable()
-class _ProfileResponse implements ProfileResponse {
-  const _ProfileResponse({required this.success, this.data, this.message});
-  factory _ProfileResponse.fromJson(Map<String, dynamic> json) =>
-      _$ProfileResponseFromJson(json);
-
-  @override
-  final bool success;
-  @override
-  final ProfileData? data;
-// made nullable because JSON might not include it
-  @override
-  final String? message;
-
-  /// Create a copy of ProfileResponse
-  /// with the given fields replaced by the non-null parameter values.
-  @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @pragma('vm:prefer-inline')
-  _$ProfileResponseCopyWith<_ProfileResponse> get copyWith =>
-      __$ProfileResponseCopyWithImpl<_ProfileResponse>(this, _$identity);
-
-  @override
-  Map<String, dynamic> toJson() {
-    return _$ProfileResponseToJson(
-      this,
-    );
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _ProfileResponse &&
-            (identical(other.success, success) || other.success == success) &&
-            (identical(other.data, data) || other.data == data) &&
-            (identical(other.message, message) || other.message == message));
-  }
-
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  int get hashCode => Object.hash(runtimeType, success, data, message);
-
-  @override
-  String toString() {
-    return 'ProfileResponse(success: $success, data: $data, message: $message)';
-  }
-}
-
-/// @nodoc
-abstract mixin class _$ProfileResponseCopyWith<$Res>
-    implements $ProfileResponseCopyWith<$Res> {
-  factory _$ProfileResponseCopyWith(
-          _ProfileResponse value, $Res Function(_ProfileResponse) _then) =
-      __$ProfileResponseCopyWithImpl;
-  @override
-  @useResult
-  $Res call({bool success, ProfileData? data, String? message});
-
-  @override
-  $ProfileDataCopyWith<$Res>? get data;
-}
-
-/// @nodoc
-class __$ProfileResponseCopyWithImpl<$Res>
-    implements _$ProfileResponseCopyWith<$Res> {
-  __$ProfileResponseCopyWithImpl(this._self, this._then);
-
-  final _ProfileResponse _self;
-  final $Res Function(_ProfileResponse) _then;
-
-  /// Create a copy of ProfileResponse
-  /// with the given fields replaced by the non-null parameter values.
-  @override
-  @pragma('vm:prefer-inline')
-  $Res call({
-    Object? success = null,
-    Object? data = freezed,
-    Object? message = freezed,
-  }) {
-    return _then(_ProfileResponse(
-      success: null == success
-          ? _self.success
-          : success // ignore: cast_nullable_to_non_nullable
-              as bool,
-      data: freezed == data
-          ? _self.data
-          : data // ignore: cast_nullable_to_non_nullable
-              as ProfileData?,
-      message: freezed == message
-          ? _self.message
-          : message // ignore: cast_nullable_to_non_nullable
-              as String?,
-    ));
-  }
-
-  /// Create a copy of ProfileResponse
-  /// with the given fields replaced by the non-null parameter values.
-  @override
-  @pragma('vm:prefer-inline')
-  $ProfileDataCopyWith<$Res>? get data {
-    if (_self.data == null) {
-      return null;
-    }
-
-    return $ProfileDataCopyWith<$Res>(_self.data!, (value) {
-      return _then(_self.copyWith(data: value));
-    });
-  }
-}
-
-/// @nodoc
 mixin _$ProfileData {
-  @JsonKey(name: "_id")
-  String get id;
+// ✅ FIXED id
+  String? get id;
   String? get fullName;
   String? get email;
-  int? get age;
-  double? get height; // corrected type
-  double? get weight; // corrected type
-  @JsonKey(name: "dateOfBirth")
+  int? get age; // ✅ FIXED double parsing
+  double? get height;
+  double? get weight;
+  @JsonKey(name: "FCMToken")
+  String? get fcmToken;
   String? get dateOfBirth;
+  String? get profileImage;
+  double? get bodyFat;
+  String? get gender;
   DateTime? get createdAt;
-  DateTime? get updatedAt;
+  DateTime? get updatedAt; // ✅ OPTIONAL (recommended)
+  bool? get emailVerified;
+  String? get emailVerificationToken;
+  DateTime? get emailVerificationExpires;
 
   /// Create a copy of ProfileData
   /// with the given fields replaced by the non-null parameter values.
@@ -415,22 +55,51 @@ mixin _$ProfileData {
             (identical(other.age, age) || other.age == age) &&
             (identical(other.height, height) || other.height == height) &&
             (identical(other.weight, weight) || other.weight == weight) &&
+            (identical(other.fcmToken, fcmToken) ||
+                other.fcmToken == fcmToken) &&
             (identical(other.dateOfBirth, dateOfBirth) ||
                 other.dateOfBirth == dateOfBirth) &&
+            (identical(other.profileImage, profileImage) ||
+                other.profileImage == profileImage) &&
+            (identical(other.bodyFat, bodyFat) || other.bodyFat == bodyFat) &&
+            (identical(other.gender, gender) || other.gender == gender) &&
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt) &&
             (identical(other.updatedAt, updatedAt) ||
-                other.updatedAt == updatedAt));
+                other.updatedAt == updatedAt) &&
+            (identical(other.emailVerified, emailVerified) ||
+                other.emailVerified == emailVerified) &&
+            (identical(other.emailVerificationToken, emailVerificationToken) ||
+                other.emailVerificationToken == emailVerificationToken) &&
+            (identical(
+                    other.emailVerificationExpires, emailVerificationExpires) ||
+                other.emailVerificationExpires == emailVerificationExpires));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, id, fullName, email, age, height,
-      weight, dateOfBirth, createdAt, updatedAt);
+  int get hashCode => Object.hash(
+      runtimeType,
+      id,
+      fullName,
+      email,
+      age,
+      height,
+      weight,
+      fcmToken,
+      dateOfBirth,
+      profileImage,
+      bodyFat,
+      gender,
+      createdAt,
+      updatedAt,
+      emailVerified,
+      emailVerificationToken,
+      emailVerificationExpires);
 
   @override
   String toString() {
-    return 'ProfileData(id: $id, fullName: $fullName, email: $email, age: $age, height: $height, weight: $weight, dateOfBirth: $dateOfBirth, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'ProfileData(id: $id, fullName: $fullName, email: $email, age: $age, height: $height, weight: $weight, fcmToken: $fcmToken, dateOfBirth: $dateOfBirth, profileImage: $profileImage, bodyFat: $bodyFat, gender: $gender, createdAt: $createdAt, updatedAt: $updatedAt, emailVerified: $emailVerified, emailVerificationToken: $emailVerificationToken, emailVerificationExpires: $emailVerificationExpires)';
   }
 }
 
@@ -441,15 +110,22 @@ abstract mixin class $ProfileDataCopyWith<$Res> {
       _$ProfileDataCopyWithImpl;
   @useResult
   $Res call(
-      {@JsonKey(name: "_id") String id,
+      {String? id,
       String? fullName,
       String? email,
       int? age,
       double? height,
       double? weight,
-      @JsonKey(name: "dateOfBirth") String? dateOfBirth,
+      @JsonKey(name: "FCMToken") String? fcmToken,
+      String? dateOfBirth,
+      String? profileImage,
+      double? bodyFat,
+      String? gender,
       DateTime? createdAt,
-      DateTime? updatedAt});
+      DateTime? updatedAt,
+      bool? emailVerified,
+      String? emailVerificationToken,
+      DateTime? emailVerificationExpires});
 }
 
 /// @nodoc
@@ -464,21 +140,28 @@ class _$ProfileDataCopyWithImpl<$Res> implements $ProfileDataCopyWith<$Res> {
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? id = null,
+    Object? id = freezed,
     Object? fullName = freezed,
     Object? email = freezed,
     Object? age = freezed,
     Object? height = freezed,
     Object? weight = freezed,
+    Object? fcmToken = freezed,
     Object? dateOfBirth = freezed,
+    Object? profileImage = freezed,
+    Object? bodyFat = freezed,
+    Object? gender = freezed,
     Object? createdAt = freezed,
     Object? updatedAt = freezed,
+    Object? emailVerified = freezed,
+    Object? emailVerificationToken = freezed,
+    Object? emailVerificationExpires = freezed,
   }) {
     return _then(_self.copyWith(
-      id: null == id
+      id: freezed == id
           ? _self.id
           : id // ignore: cast_nullable_to_non_nullable
-              as String,
+              as String?,
       fullName: freezed == fullName
           ? _self.fullName
           : fullName // ignore: cast_nullable_to_non_nullable
@@ -499,9 +182,25 @@ class _$ProfileDataCopyWithImpl<$Res> implements $ProfileDataCopyWith<$Res> {
           ? _self.weight
           : weight // ignore: cast_nullable_to_non_nullable
               as double?,
+      fcmToken: freezed == fcmToken
+          ? _self.fcmToken
+          : fcmToken // ignore: cast_nullable_to_non_nullable
+              as String?,
       dateOfBirth: freezed == dateOfBirth
           ? _self.dateOfBirth
           : dateOfBirth // ignore: cast_nullable_to_non_nullable
+              as String?,
+      profileImage: freezed == profileImage
+          ? _self.profileImage
+          : profileImage // ignore: cast_nullable_to_non_nullable
+              as String?,
+      bodyFat: freezed == bodyFat
+          ? _self.bodyFat
+          : bodyFat // ignore: cast_nullable_to_non_nullable
+              as double?,
+      gender: freezed == gender
+          ? _self.gender
+          : gender // ignore: cast_nullable_to_non_nullable
               as String?,
       createdAt: freezed == createdAt
           ? _self.createdAt
@@ -510,6 +209,18 @@ class _$ProfileDataCopyWithImpl<$Res> implements $ProfileDataCopyWith<$Res> {
       updatedAt: freezed == updatedAt
           ? _self.updatedAt
           : updatedAt // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+      emailVerified: freezed == emailVerified
+          ? _self.emailVerified
+          : emailVerified // ignore: cast_nullable_to_non_nullable
+              as bool?,
+      emailVerificationToken: freezed == emailVerificationToken
+          ? _self.emailVerificationToken
+          : emailVerificationToken // ignore: cast_nullable_to_non_nullable
+              as String?,
+      emailVerificationExpires: freezed == emailVerificationExpires
+          ? _self.emailVerificationExpires
+          : emailVerificationExpires // ignore: cast_nullable_to_non_nullable
               as DateTime?,
     ));
   }
@@ -609,15 +320,22 @@ extension ProfileDataPatterns on ProfileData {
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>(
     TResult Function(
-            @JsonKey(name: "_id") String id,
+            String? id,
             String? fullName,
             String? email,
             int? age,
             double? height,
             double? weight,
-            @JsonKey(name: "dateOfBirth") String? dateOfBirth,
+            @JsonKey(name: "FCMToken") String? fcmToken,
+            String? dateOfBirth,
+            String? profileImage,
+            double? bodyFat,
+            String? gender,
             DateTime? createdAt,
-            DateTime? updatedAt)?
+            DateTime? updatedAt,
+            bool? emailVerified,
+            String? emailVerificationToken,
+            DateTime? emailVerificationExpires)?
         $default, {
     required TResult orElse(),
   }) {
@@ -631,9 +349,16 @@ extension ProfileDataPatterns on ProfileData {
             _that.age,
             _that.height,
             _that.weight,
+            _that.fcmToken,
             _that.dateOfBirth,
+            _that.profileImage,
+            _that.bodyFat,
+            _that.gender,
             _that.createdAt,
-            _that.updatedAt);
+            _that.updatedAt,
+            _that.emailVerified,
+            _that.emailVerificationToken,
+            _that.emailVerificationExpires);
       case _:
         return orElse();
     }
@@ -655,15 +380,22 @@ extension ProfileDataPatterns on ProfileData {
   @optionalTypeArgs
   TResult when<TResult extends Object?>(
     TResult Function(
-            @JsonKey(name: "_id") String id,
+            String? id,
             String? fullName,
             String? email,
             int? age,
             double? height,
             double? weight,
-            @JsonKey(name: "dateOfBirth") String? dateOfBirth,
+            @JsonKey(name: "FCMToken") String? fcmToken,
+            String? dateOfBirth,
+            String? profileImage,
+            double? bodyFat,
+            String? gender,
             DateTime? createdAt,
-            DateTime? updatedAt)
+            DateTime? updatedAt,
+            bool? emailVerified,
+            String? emailVerificationToken,
+            DateTime? emailVerificationExpires)
         $default,
   ) {
     final _that = this;
@@ -676,9 +408,16 @@ extension ProfileDataPatterns on ProfileData {
             _that.age,
             _that.height,
             _that.weight,
+            _that.fcmToken,
             _that.dateOfBirth,
+            _that.profileImage,
+            _that.bodyFat,
+            _that.gender,
             _that.createdAt,
-            _that.updatedAt);
+            _that.updatedAt,
+            _that.emailVerified,
+            _that.emailVerificationToken,
+            _that.emailVerificationExpires);
       case _:
         throw StateError('Unexpected subclass');
     }
@@ -699,15 +438,22 @@ extension ProfileDataPatterns on ProfileData {
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>(
     TResult? Function(
-            @JsonKey(name: "_id") String id,
+            String? id,
             String? fullName,
             String? email,
             int? age,
             double? height,
             double? weight,
-            @JsonKey(name: "dateOfBirth") String? dateOfBirth,
+            @JsonKey(name: "FCMToken") String? fcmToken,
+            String? dateOfBirth,
+            String? profileImage,
+            double? bodyFat,
+            String? gender,
             DateTime? createdAt,
-            DateTime? updatedAt)?
+            DateTime? updatedAt,
+            bool? emailVerified,
+            String? emailVerificationToken,
+            DateTime? emailVerificationExpires)?
         $default,
   ) {
     final _that = this;
@@ -720,9 +466,16 @@ extension ProfileDataPatterns on ProfileData {
             _that.age,
             _that.height,
             _that.weight,
+            _that.fcmToken,
             _that.dateOfBirth,
+            _that.profileImage,
+            _that.bodyFat,
+            _that.gender,
             _that.createdAt,
-            _that.updatedAt);
+            _that.updatedAt,
+            _that.emailVerified,
+            _that.emailVerificationToken,
+            _that.emailVerificationExpires);
       case _:
         return null;
     }
@@ -733,40 +486,61 @@ extension ProfileDataPatterns on ProfileData {
 @JsonSerializable()
 class _ProfileData implements ProfileData {
   const _ProfileData(
-      {@JsonKey(name: "_id") required this.id,
+      {this.id,
       this.fullName,
       this.email,
       this.age,
       this.height,
       this.weight,
-      @JsonKey(name: "dateOfBirth") this.dateOfBirth,
+      @JsonKey(name: "FCMToken") this.fcmToken,
+      this.dateOfBirth,
+      this.profileImage,
+      this.bodyFat,
+      this.gender,
       this.createdAt,
-      this.updatedAt});
+      this.updatedAt,
+      this.emailVerified,
+      this.emailVerificationToken,
+      this.emailVerificationExpires});
   factory _ProfileData.fromJson(Map<String, dynamic> json) =>
       _$ProfileDataFromJson(json);
 
+// ✅ FIXED id
   @override
-  @JsonKey(name: "_id")
-  final String id;
+  final String? id;
   @override
   final String? fullName;
   @override
   final String? email;
   @override
   final int? age;
+// ✅ FIXED double parsing
   @override
   final double? height;
-// corrected type
   @override
   final double? weight;
-// corrected type
   @override
-  @JsonKey(name: "dateOfBirth")
+  @JsonKey(name: "FCMToken")
+  final String? fcmToken;
+  @override
   final String? dateOfBirth;
+  @override
+  final String? profileImage;
+  @override
+  final double? bodyFat;
+  @override
+  final String? gender;
   @override
   final DateTime? createdAt;
   @override
   final DateTime? updatedAt;
+// ✅ OPTIONAL (recommended)
+  @override
+  final bool? emailVerified;
+  @override
+  final String? emailVerificationToken;
+  @override
+  final DateTime? emailVerificationExpires;
 
   /// Create a copy of ProfileData
   /// with the given fields replaced by the non-null parameter values.
@@ -795,22 +569,51 @@ class _ProfileData implements ProfileData {
             (identical(other.age, age) || other.age == age) &&
             (identical(other.height, height) || other.height == height) &&
             (identical(other.weight, weight) || other.weight == weight) &&
+            (identical(other.fcmToken, fcmToken) ||
+                other.fcmToken == fcmToken) &&
             (identical(other.dateOfBirth, dateOfBirth) ||
                 other.dateOfBirth == dateOfBirth) &&
+            (identical(other.profileImage, profileImage) ||
+                other.profileImage == profileImage) &&
+            (identical(other.bodyFat, bodyFat) || other.bodyFat == bodyFat) &&
+            (identical(other.gender, gender) || other.gender == gender) &&
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt) &&
             (identical(other.updatedAt, updatedAt) ||
-                other.updatedAt == updatedAt));
+                other.updatedAt == updatedAt) &&
+            (identical(other.emailVerified, emailVerified) ||
+                other.emailVerified == emailVerified) &&
+            (identical(other.emailVerificationToken, emailVerificationToken) ||
+                other.emailVerificationToken == emailVerificationToken) &&
+            (identical(
+                    other.emailVerificationExpires, emailVerificationExpires) ||
+                other.emailVerificationExpires == emailVerificationExpires));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, id, fullName, email, age, height,
-      weight, dateOfBirth, createdAt, updatedAt);
+  int get hashCode => Object.hash(
+      runtimeType,
+      id,
+      fullName,
+      email,
+      age,
+      height,
+      weight,
+      fcmToken,
+      dateOfBirth,
+      profileImage,
+      bodyFat,
+      gender,
+      createdAt,
+      updatedAt,
+      emailVerified,
+      emailVerificationToken,
+      emailVerificationExpires);
 
   @override
   String toString() {
-    return 'ProfileData(id: $id, fullName: $fullName, email: $email, age: $age, height: $height, weight: $weight, dateOfBirth: $dateOfBirth, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'ProfileData(id: $id, fullName: $fullName, email: $email, age: $age, height: $height, weight: $weight, fcmToken: $fcmToken, dateOfBirth: $dateOfBirth, profileImage: $profileImage, bodyFat: $bodyFat, gender: $gender, createdAt: $createdAt, updatedAt: $updatedAt, emailVerified: $emailVerified, emailVerificationToken: $emailVerificationToken, emailVerificationExpires: $emailVerificationExpires)';
   }
 }
 
@@ -823,15 +626,22 @@ abstract mixin class _$ProfileDataCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {@JsonKey(name: "_id") String id,
+      {String? id,
       String? fullName,
       String? email,
       int? age,
       double? height,
       double? weight,
-      @JsonKey(name: "dateOfBirth") String? dateOfBirth,
+      @JsonKey(name: "FCMToken") String? fcmToken,
+      String? dateOfBirth,
+      String? profileImage,
+      double? bodyFat,
+      String? gender,
       DateTime? createdAt,
-      DateTime? updatedAt});
+      DateTime? updatedAt,
+      bool? emailVerified,
+      String? emailVerificationToken,
+      DateTime? emailVerificationExpires});
 }
 
 /// @nodoc
@@ -846,21 +656,28 @@ class __$ProfileDataCopyWithImpl<$Res> implements _$ProfileDataCopyWith<$Res> {
   @override
   @pragma('vm:prefer-inline')
   $Res call({
-    Object? id = null,
+    Object? id = freezed,
     Object? fullName = freezed,
     Object? email = freezed,
     Object? age = freezed,
     Object? height = freezed,
     Object? weight = freezed,
+    Object? fcmToken = freezed,
     Object? dateOfBirth = freezed,
+    Object? profileImage = freezed,
+    Object? bodyFat = freezed,
+    Object? gender = freezed,
     Object? createdAt = freezed,
     Object? updatedAt = freezed,
+    Object? emailVerified = freezed,
+    Object? emailVerificationToken = freezed,
+    Object? emailVerificationExpires = freezed,
   }) {
     return _then(_ProfileData(
-      id: null == id
+      id: freezed == id
           ? _self.id
           : id // ignore: cast_nullable_to_non_nullable
-              as String,
+              as String?,
       fullName: freezed == fullName
           ? _self.fullName
           : fullName // ignore: cast_nullable_to_non_nullable
@@ -881,9 +698,25 @@ class __$ProfileDataCopyWithImpl<$Res> implements _$ProfileDataCopyWith<$Res> {
           ? _self.weight
           : weight // ignore: cast_nullable_to_non_nullable
               as double?,
+      fcmToken: freezed == fcmToken
+          ? _self.fcmToken
+          : fcmToken // ignore: cast_nullable_to_non_nullable
+              as String?,
       dateOfBirth: freezed == dateOfBirth
           ? _self.dateOfBirth
           : dateOfBirth // ignore: cast_nullable_to_non_nullable
+              as String?,
+      profileImage: freezed == profileImage
+          ? _self.profileImage
+          : profileImage // ignore: cast_nullable_to_non_nullable
+              as String?,
+      bodyFat: freezed == bodyFat
+          ? _self.bodyFat
+          : bodyFat // ignore: cast_nullable_to_non_nullable
+              as double?,
+      gender: freezed == gender
+          ? _self.gender
+          : gender // ignore: cast_nullable_to_non_nullable
               as String?,
       createdAt: freezed == createdAt
           ? _self.createdAt
@@ -892,6 +725,18 @@ class __$ProfileDataCopyWithImpl<$Res> implements _$ProfileDataCopyWith<$Res> {
       updatedAt: freezed == updatedAt
           ? _self.updatedAt
           : updatedAt // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+      emailVerified: freezed == emailVerified
+          ? _self.emailVerified
+          : emailVerified // ignore: cast_nullable_to_non_nullable
+              as bool?,
+      emailVerificationToken: freezed == emailVerificationToken
+          ? _self.emailVerificationToken
+          : emailVerificationToken // ignore: cast_nullable_to_non_nullable
+              as String?,
+      emailVerificationExpires: freezed == emailVerificationExpires
+          ? _self.emailVerificationExpires
+          : emailVerificationExpires // ignore: cast_nullable_to_non_nullable
               as DateTime?,
     ));
   }
