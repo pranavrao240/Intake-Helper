@@ -4,7 +4,7 @@ import 'package:intake_helper/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 
 class ResetPasswordNotifier extends StateNotifier<ResetPasswordState> {
-  final BuildContext context;
+  final BuildContext? context;
   ResetPasswordNotifier(this.context) : super(const ResetPasswordState());
 
   void updatePassword(String value) {
@@ -23,8 +23,24 @@ class ResetPasswordNotifier extends StateNotifier<ResetPasswordState> {
   }
 
   Future<void> submit() async {
-    final locale = AppLocalizations.of(context)!;
-    if (!state.canSubmit(context)) return;
+    if (context == null) return;
+    final locale = AppLocalizations.of(context!)!;
+
+    if (state.password.length < 6) {
+      state = state.copyWith(
+        status: ResetPasswordStatus.error,
+        errorMessage: 'Password must be at least 6 characters',
+      );
+      return;
+    }
+
+    if (state.password != state.confirmPassword) {
+      state = state.copyWith(
+        status: ResetPasswordStatus.error,
+        errorMessage: 'Passwords do not match',
+      );
+      return;
+    }
 
     state = state.copyWith(
       status: ResetPasswordStatus.submitting,
@@ -48,8 +64,5 @@ class ResetPasswordNotifier extends StateNotifier<ResetPasswordState> {
 
 final resetPasswordProvider = StateNotifierProvider.autoDispose<
     ResetPasswordNotifier, ResetPasswordState>(
-  (ref) =>
-      ResetPasswordNotifier(ref.read(navigatorKeyProvider).currentContext!),
+  (ref) => ResetPasswordNotifier(null),
 );
-
-final navigatorKeyProvider = Provider((ref) => GlobalKey<NavigatorState>());

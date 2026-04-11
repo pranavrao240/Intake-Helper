@@ -308,7 +308,6 @@ class ApiService extends AsyncNotifier<ApiState> {
     try {
       if (response.statusCode == 200) {
         final data = ProfileData.fromJson(response.data['data']);
-        print('Profile data: $data');
 
         state = AsyncValue.data(state.value!.copyWith(profileData: data));
         prefs.setString('userId', data.id ?? '');

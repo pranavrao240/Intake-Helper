@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:intake_helper/Providers/providers.dart';
 import 'package:intake_helper/api/api_service.dart';
@@ -27,16 +29,34 @@ class Homepage extends HookConsumerWidget {
     final todoData = useState<TodoModel?>(null);
     final completedTasks = useState<List<String>>([]);
     final macros = useState<Map<String, double>>({});
-    final targets = useState<Map<String, double>>({});
-    targets.value = {
-      'protein': 150,
-      'calories': 2200,
-      'carbs': 250,
-      'fats': 70,
-    };
+    final targets = useState<Map<String, double>?>(null);
+    final weeklyProtein = useState<Map<String, double>>({});
 
     final isLoading = useState(true);
     final error = useState<String?>(null);
+
+    // Save targets locally
+    Future<void> saveTargetsLocal(Map<String, double> targets) async {
+      final prefs = await SharedPreferences.getInstance();
+      final targetsJson = jsonEncode(targets);
+      await prefs.setString('user_targets', targetsJson);
+    }
+
+// Load targets locally
+    Future<Map<String, double>?> loadTargetsLocal() async {
+      try {
+        final prefs = await SharedPreferences.getInstance();
+        final targetsJson = prefs.getString('user_targets');
+        if (targetsJson != null) {
+          final decoded = jsonDecode(targetsJson) as Map<String, dynamic>;
+          return decoded.map((key, value) => MapEntry(key, value.toDouble()));
+        }
+      } catch (e) {
+        // Handle JSON parsing errors
+        debugPrint('Error loading targets: $e');
+      }
+      return null;
+    }
 
     void calculateMacros(TodoModel data, List<String> completedIds) {
       double protein = 0, carbs = 0, calories = 0;
@@ -58,13 +78,46 @@ class Homepage extends HookConsumerWidget {
       };
     }
 
+    String _getWeekKey() {
+      final now = DateTime.now();
+      // ISO week: Monday = start of week
+      final monday = now.subtract(Duration(days: now.weekday - 1));
+      return '${monday.year}-${monday.month}-${monday.day}';
+    }
+
+    Future<void> saveWeeklyProtein(Map<String, double> proteinByDay) async {
+      final prefs = await SharedPreferences.getInstance();
+      final weekKey = _getWeekKey();
+      await prefs.setString('weekly_protein_key', weekKey);
+      await prefs.setString('weekly_protein_data', jsonEncode(proteinByDay));
+    }
+
+    Future<Map<String, double>?> loadWeeklyProtein() async {
+      final prefs = await SharedPreferences.getInstance();
+      final savedKey = prefs.getString('weekly_protein_key');
+      final currentKey = _getWeekKey();
+
+      // If saved week != current week → reset
+      if (savedKey != currentKey) {
+        await prefs.remove('weekly_protein_data');
+        await prefs.remove('weekly_protein_key');
+        return null; // Fresh week
+      }
+
+      final data = prefs.getString('weekly_protein_data');
+      if (data != null) {
+        final decoded = jsonDecode(data) as Map<String, dynamic>;
+        return decoded.map((k, v) => MapEntry(k, (v as num).toDouble()));
+      }
+      return null;
+    }
+
     Future<void> loadAll() async {
       try {
         isLoading.value = true;
         error.value = null;
 
         final data = await api.getTodo();
-
         final completed = await SharedService.getCompletedTasks();
 
         todoData.value = data?.data;
@@ -73,6 +126,26 @@ class Homepage extends HookConsumerWidget {
         if (data != null) {
           calculateMacros(data.data!, completed);
         }
+
+        // Load persisted weekly protein (resets if new week)
+        final savedWeekly = await loadWeeklyProtein();
+
+        // Build this week's protein from COMPLETED meals only
+        final Map<String, double> freshProteinByDay = {};
+        for (final item in data?.data?.meals ?? []) {
+          if (item.status != MealStatus.completed.name) continue;
+
+          final days = item.nutrition.day ?? [];
+          for (final d in days) {
+            final day = d.trim();
+            if (day.isEmpty) continue;
+            freshProteinByDay[day] =
+                (freshProteinByDay[day] ?? 0) + (item.nutrition.protein ?? 0);
+          }
+        }
+
+        weeklyProtein.value = freshProteinByDay;
+        await saveWeeklyProtein(freshProteinByDay);
       } catch (e) {
         error.value = locale.homePageFailedToLoad;
       } finally {
@@ -84,7 +157,7 @@ class Homepage extends HookConsumerWidget {
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('token');
       if (token != null) {
-        await ref.read(appProvider.notifier).getProfile(token);
+        await ref.read(apiServiceProvider.notifier).getProfile(token);
       }
     }
 
@@ -92,40 +165,33 @@ class Homepage extends HookConsumerWidget {
       Future.microtask(() async {
         await loadAll();
         await getProfileDetails();
+
+        // Load saved targets after initial data
+        final savedTargets = await loadTargetsLocal();
+        if (savedTargets != null) {
+          targets.value = savedTargets;
+        }
       });
       return null;
     }, []);
-
-    final profileDetailState = ref.watch(appProvider);
+    final profileDetailState = ref.watch(apiServiceProvider);
     final profile = profileDetailState.value?.profileData;
 
     final chartData = () {
-      final Map<String, double> proteinByDay = {};
-
-      for (final item in todoData.value?.meals ?? []) {
-        final days = item.nutrition.day ?? [];
-        for (final d in days) {
-          final day = d.trim();
-          if (day.isEmpty) continue;
-          proteinByDay[day] =
-              (proteinByDay[day] ?? 0) + (item.nutrition.protein ?? 0);
-        }
-      }
-
       const orderedDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
       return orderedDays
-          .where((d) => proteinByDay.containsKey(d))
-          .map((d) => {'day': d, 'protein': proteinByDay[d]!})
+          .where((d) => weeklyProtein.value.containsKey(d))
+          .map((d) => {'day': d, 'protein': weeklyProtein.value[d]!})
           .toList();
     }();
 
     final proteinPercent =
-        (macros.value['protein'] ?? 0) / (targets.value['protein'] ?? 1) * 100;
+        (macros.value['protein'] ?? 0) / (targets.value?['protein'] ?? 1) * 100;
+
+    loadTargetsLocal();
 
     return Scaffold(
       backgroundColor: Colors.black,
-      // In your Homepage build() method, replace the SingleChildScrollView body with this:
-
       body: isLoading.value
           ? const Center(child: CircularProgressIndicator())
           : error.value != null
@@ -138,19 +204,32 @@ class Homepage extends HookConsumerWidget {
                       Stack(
                         clipBehavior: Clip.none,
                         children: [
-                          buildHeroSection(context, macros.value, targets.value,
-                              proteinPercent, profile, ref),
+                          buildHeroSection(
+                              context,
+                              macros.value,
+                              targets.value ?? {},
+                              proteinPercent,
+                              profile?.fullName,
+                              ref),
                           Positioned(
                             bottom: -250,
                             left: 0,
                             right: 0,
-                            child: buildMacrosCard(
-                                ref, macros.value, targets.value),
+                            child: MacrosCard(
+                              macros: macros.value,
+                              targets: targets.value,
+                              onTargetSaved: (newTargets) {
+                                targets.value = newTargets;
+                              },
+                            ),
                           ),
                         ],
                       ),
                       const SizedBox(height: 280),
-                      buildQuickActions(context),
+                      buildQuickActions(context, targets.value, (newTargets) {
+                        targets.value = newTargets;
+                        saveTargetsLocal(newTargets);
+                      }),
                       const SizedBox(height: 24),
                       buildScheduledMeals(
                           context, todoData.value, completedTasks.value),
@@ -162,7 +241,6 @@ class Homepage extends HookConsumerWidget {
                     ],
                   ),
                 ),
-
       bottomNavigationBar: BottomNavbar(),
     );
   }

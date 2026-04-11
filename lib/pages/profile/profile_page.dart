@@ -57,7 +57,8 @@ class ProfilePage extends HookConsumerWidget {
                 const SizedBox(height: 24),
                 const PhysicalStatsCard(),
                 const SizedBox(height: 24),
-                AchievementsWidget(),
+                // Todos-
+                // AchievementsWidget(),
                 // const buildWeeklyChart(),
                 const SizedBox(height: 24),
                 SettingsWidget(),

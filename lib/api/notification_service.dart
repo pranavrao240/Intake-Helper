@@ -182,4 +182,23 @@ class NotificationService extends AsyncNotifier<NotificationState> {
       log.e('Error deleting notification: $e');
     }
   }
+
+  Future<void> updateLastActive() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    await http.post(
+      _url(Config.updateActivityAPI),
+      headers: {'Authorization': 'Bearer $token'},
+    );
+  }
+
+// Call this when task is completed
+  Future<void> updateTaskCompleted() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    await http.post(
+      _url(Config.taskCompletedAPI),
+      headers: {'Authorization': 'Bearer $token'},
+    );
+  }
 }

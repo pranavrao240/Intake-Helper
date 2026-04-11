@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intake_helper/router.dart';
 import 'package:intake_helper/l10n/app_localizations.dart';
+import 'package:intake_helper/pages/home page/widgets/macros_card.dart';
 
-Widget buildQuickActions(BuildContext context) {
+Widget buildQuickActions(BuildContext context, Map<String, double>? targets,
+    ValueChanged<Map<String, double>> onTargetSaved) {
   final locale = AppLocalizations.of(context)!;
   return Padding(
     padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -13,24 +15,31 @@ Widget buildQuickActions(BuildContext context) {
           width: double.infinity,
           child: ElevatedButton(
             onPressed: () {
-              context.push(RouteConstants.nutrition.path);
+              if (targets == null) {
+                showSetTargetSheet(context, onTargetSaved);
+              } else {
+                context.push(RouteConstants.nutrition.path);
+              }
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF6D28D9),
+              backgroundColor: targets == null
+                  ? const Color(0xFF2563EB)
+                  : const Color(0xFF6D28D9),
               padding: const EdgeInsets.symmetric(vertical: 16),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16),
               ),
               elevation: 8,
-              shadowColor: const Color(0xFFDC2626).withOpacity(0.3),
+              shadowColor: const Color(0xFFDC2626).withValues(alpha: 0.3),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(Icons.add, color: Colors.white),
+                Icon(targets == null ? Icons.track_changes : Icons.add,
+                    color: Colors.white),
                 const SizedBox(width: 8),
                 Text(
-                  locale.quickActionsAddMeal,
+                  targets == null ? 'Set target' : locale.quickActionsAddMeal,
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 16,

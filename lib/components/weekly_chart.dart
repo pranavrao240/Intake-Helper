@@ -10,7 +10,6 @@ Widget buildWeeklyChart({
   required WidgetRef ref,
   required List<Map<String, dynamic>> chartData,
 }) {
-  print("chartData: $chartData");
   final unitsConversion = ref.read(weightUnitProvider);
 
   final allDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];

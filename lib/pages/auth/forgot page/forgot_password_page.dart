@@ -23,6 +23,7 @@ class ForgotPasswordPage extends HookConsumerWidget {
     final masterCtrl = useAnimationController(
       duration: const Duration(milliseconds: 1400),
     );
+    final isloading = useState(false);
     useEffect(() {
       masterCtrl.forward();
       return null;
@@ -97,6 +98,7 @@ class _BottomCard extends HookConsumerWidget {
     final emailController = useTextEditingController();
     final formKey = useMemoized(() => GlobalKey<FormState>());
     final locale = AppLocalizations.of(context)!;
+    final isLoading = useState(false);
 
     final cardFade = useAnimation(
       Tween<double>(begin: 0, end: 1).animate(
@@ -179,25 +181,20 @@ class _BottomCard extends HookConsumerWidget {
                   SizedBox(
                     height: MediaQuery.of(context).padding.bottom + 24,
                   ),
-                  Positioned(
-                    bottom: 20,
-                    left: 20,
-                    right: 20,
-                    child: CustomSubmitButton(
-                      isLoading:
-                          ref.read(apiServiceProvider.notifier).state.isLoading,
-                      onTap: () async {
-                        if (formKey.currentState!.validate()) {
-                          await ref
-                              .read(apiServiceProvider.notifier)
-                              .sendForgotPasswordEmail(emailController.text)
-                              .then((value) {
-                            context.push(RouteConstants.resetPassword.path);
-                          });
-                        }
-                      },
-                      text: locale.forgotPasswordSendResetLink,
-                    ),
+                  CustomSubmitButton(
+                    isLoading: isLoading.value,
+                    onTap: () async {
+                      if (formKey.currentState!.validate()) {
+                        isLoading.value = true;
+                        await ref
+                            .read(apiServiceProvider.notifier)
+                            .sendForgotPasswordEmail(emailController.text)
+                            .then((value) {
+                          context.push(RouteConstants.resetPassword.path);
+                        });
+                      }
+                    },
+                    text: locale.forgotPasswordSendResetLink,
                   ),
                 ],
               ),

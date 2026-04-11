@@ -6,6 +6,8 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intake_helper/Providers/locale_provider.dart';
+import 'package:intake_helper/Providers/meal_notifications_provider.dart';
+import 'package:intake_helper/Providers/notifications_provider.dart';
 import 'package:intake_helper/l10n/app_localizations.dart';
 import 'package:intake_helper/router.dart';
 import 'package:intake_helper/theme/app_theme.dart';
@@ -101,18 +103,19 @@ class _MyAppState extends State<MyApp> {
   }
 }
 
-class AppWrapper extends StatefulWidget {
+class AppWrapper extends ConsumerStatefulWidget {
   const AppWrapper({required this.child, super.key});
   final Widget child;
 
   @override
-  State<AppWrapper> createState() => _AppWrapperState();
+  ConsumerState<AppWrapper> createState() => _AppWrapperState();
 }
 
-class _AppWrapperState extends State<AppWrapper> {
+class _AppWrapperState extends ConsumerState<AppWrapper> {
   @override
   void initState() {
     super.initState();
+    updateActivity();
     FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
       final notification = message.notification;
 
@@ -124,6 +127,17 @@ class _AppWrapperState extends State<AppWrapper> {
         );
       }
     });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    updateActivity();
+  }
+
+  Future<void> updateActivity() async {
+    final notificationService = ref.read(mealNotificationProvider.notifier);
+    await notificationService.updateLastActive();
   }
 
   @override

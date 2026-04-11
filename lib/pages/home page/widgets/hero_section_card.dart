@@ -49,7 +49,7 @@ Widget buildHeroSection(
   Map<String, double> macros,
   Map<String, double> targets,
   double proteinPercent,
-  ProfileData? profile,
+  String? name,
   WidgetRef ref,
 ) {
   final locale = AppLocalizations.of(context)!;
@@ -93,7 +93,7 @@ Widget buildHeroSection(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          '$greeting, ${profile?.fullName ?? 'User'}',
+          '$greeting, ${name ?? 'User'}',
           style: const TextStyle(
             color: Colors.white,
             fontSize: 28,
