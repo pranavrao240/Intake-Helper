@@ -53,6 +53,7 @@ class ProfilePage extends HookConsumerWidget {
                 ProfileHeader(
                   selectedAvatar: safeAvatar,
                   onEditAvatar: () => isModalOpen.value = true,
+                  userName: profileState.value?.profileData?.fullName ?? 'User',
                 ),
                 const SizedBox(height: 24),
                 const PhysicalStatsCard(),

@@ -73,17 +73,7 @@ class SettingsWidget extends HookConsumerWidget {
                   );
                 },
               ),
-              _Divider(),
 
-              // Dark Mode (inline toggle, no sub-page needed)
-              _SettingsTileToggle(
-                emoji: '🌙',
-                title: appLocale.settingsDarkMode,
-                value: darkMode,
-                onChanged: (val) {
-                  ref.read(darkModeProvider.notifier).state = val;
-                },
-              ),
               _Divider(),
               // Language
               _SettingsTile(

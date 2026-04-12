@@ -1,26 +1,41 @@
 {
-    // Use IntelliSense to learn about possible attributes.
-    // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
-    "version": "0.2.0",
-    "configurations": [
-    
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "intake_helper",
+      "request": "launch",
+      "type": "dart"
+    },
+    {
+      "name": "intake_helper (profile mode)",
+      "request": "launch",
+      "type": "dart",
+      "flutterMode": "profile"
+    },
+    {
+      "name": "intake_helper (release mode)",
+      "request": "launch",
+      "type": "dart",
+      "flutterMode": "release"
+    },
+    {
+      "name": "C/C++ Runner: Debug Session",
+      "type": "cppdbg",
+      "request": "launch",
+      "args": [],
+      "stopAtEntry": false,
+      "externalConsole": true,
+      "cwd": "c:/Users/omkar/pranav/GitHub Repos/intake_helper",
+      "program": "c:/Users/omkar/pranav/GitHub Repos/intake_helper/build/Debug/outDebug",
+      "MIMode": "gdb",
+      "miDebuggerPath": "gdb",
+      "setupCommands": [
         {
-            "name": "intake_helper",
-            "request": "launch",
-            "type": "dart"
-        },
-        {
-            "name": "intake_helper (profile mode)",
-            "request": "launch",
-            "type": "dart",
-            "flutterMode": "profile"
-        },
-        {
-            "name": "intake_helper (release mode)",
-            "request": "launch",
-            "type": "dart",
-            "flutterMode": "release"
+          "description": "Enable pretty-printing for gdb",
+          "text": "-enable-pretty-printing",
+          "ignoreFailures": true
         }
-    ]
+      ]
+    }
+  ]
 }

@@ -20,6 +20,27 @@ android {
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
+    configurations.all {
+        resolutionStrategy {
+            eachDependency {
+                if (requested.group == "com.github.yuki-f") {
+                    useVersion("0.6.0+2")
+                }
+            }
+        }
+    }
+
+    // Fix uni_links2 namespace issue
+    subprojects {
+        afterEvaluate {
+            if (name == "uni_links2") {
+                android {
+                    namespace = "uni_links2"
+                }
+            }
+        }
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
@@ -36,6 +57,7 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = 4               // increment integer each release
         versionName = "1.0.3"
+        manifestPlaceholders["appAuthRedirectScheme"] = "intakehelper"
     }
 
     signingConfigs {

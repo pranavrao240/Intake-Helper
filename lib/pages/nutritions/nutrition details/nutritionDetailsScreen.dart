@@ -28,6 +28,7 @@ class NutritionDetailScreen extends HookConsumerWidget {
     // ── State ──
     final portion = useState(1);
     final selectedTypes = useState<List<String>>([]);
+    final showTypeError = useState(false);
 
     // ── Data ──
     final details = ref.watch(NutritionDetailsProvider(id));
@@ -48,6 +49,7 @@ class NutritionDetailScreen extends HookConsumerWidget {
           model: model,
           portion: portion,
           selectedTypes: selectedTypes,
+          showTypeError: showTypeError,
         ),
       ),
     );
@@ -59,6 +61,7 @@ class NutritionDetailScreen extends HookConsumerWidget {
     required Nutrition model,
     required ValueNotifier<int> portion,
     required ValueNotifier<List<String>> selectedTypes,
+    required ValueNotifier<bool> showTypeError,
   }) {
     final List<Map<String, String>> ingredients = _parseIngredients(model);
     final locale = AppLocalizations.of(context)!;
@@ -77,7 +80,6 @@ class NutritionDetailScreen extends HookConsumerWidget {
                       model.dishName ?? locale.nutritionDetailsUnknownDish,
                   isSaved: model.isSaved!,
                   id: model.id!,
-                  tag: model.type?.isNotEmpty == true ? model.type!.first : '',
                   imageUrl: model.dishImage),
             ),
             SliverPadding(
@@ -103,6 +105,7 @@ class NutritionDetailScreen extends HookConsumerWidget {
                   ],
                   _MealTypeSelector(
                     selectedTypes: selectedTypes,
+                    showTypeError: showTypeError,
                   ),
                   const SizedBox(height: 16),
                   GoalInsightCard(
@@ -127,6 +130,7 @@ class NutritionDetailScreen extends HookConsumerWidget {
               ref: ref,
               model: model,
               selectedTypes: selectedTypes,
+              showTypeError: showTypeError,
               dishName: dishName),
         ),
       ],
@@ -151,11 +155,12 @@ class NutritionDetailScreen extends HookConsumerWidget {
     required WidgetRef ref,
     required Nutrition model,
     required ValueNotifier<List<String>> selectedTypes,
+    required ValueNotifier<bool> showTypeError,
     required String dishName,
   }) async {
     final locale = AppLocalizations.of(context)!;
     if (selectedTypes.value.isEmpty) {
-      showToast(locale.nutritionDetailsSelectMealType, context, 2);
+      showTypeError.value = true;
 
       return;
     }
@@ -201,7 +206,11 @@ class NutritionDetailScreen extends HookConsumerWidget {
 
 class _MealTypeSelector extends StatelessWidget {
   final ValueNotifier<List<String>> selectedTypes;
-  const _MealTypeSelector({required this.selectedTypes});
+  final ValueNotifier<bool> showTypeError;
+  const _MealTypeSelector({
+    required this.selectedTypes,
+    required this.showTypeError,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -214,14 +223,30 @@ class _MealTypeSelector extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          locale.nutritionDetailsMealType,
-          style: TextStyle(
-            color: Colors.white.withValues(alpha: 0.4),
-            fontSize: 10,
-            fontWeight: FontWeight.w900,
-            letterSpacing: 2,
-          ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              locale.nutritionDetailsMealType,
+              style: TextStyle(
+                color: showTypeError.value
+                    ? const Color(0xFFEF4444)
+                    : Colors.white.withValues(alpha: 0.4),
+                fontSize: 10,
+                fontWeight: FontWeight.w900,
+                letterSpacing: 2,
+              ),
+            ),
+            if (showTypeError.value)
+              Text(
+                locale.nutritionDetailsSelectMealType,
+                style: const TextStyle(
+                  color: Color(0xFFEF4444),
+                  fontSize: 10,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+          ],
         ),
         const SizedBox(height: 12),
         Row(
@@ -234,6 +259,9 @@ class _MealTypeSelector extends StatelessWidget {
                   final updated = List<String>.from(selectedTypes.value);
                   isSelected ? updated.remove(type) : updated.add(type);
                   selectedTypes.value = updated;
+                  if (updated.isNotEmpty) {
+                    showTypeError.value = false;
+                  }
                 },
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 200),
@@ -398,6 +426,11 @@ class _TimeDayPickerDialog extends HookConsumerWidget {
         ),
         TextButton(
           onPressed: () async {
+            if (selectedDays.value.isEmpty) {
+              showToast(locale.nutritionDetailsSelectDay, context, 2);
+              return;
+            }
+
             onConfirm(selectedTime.value, selectedDays.value.toList());
 
             ref.read(mealNotificationProvider.notifier).createNotification(

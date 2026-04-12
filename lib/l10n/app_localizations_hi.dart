@@ -276,6 +276,16 @@ class AppLocalizationsHi extends AppLocalizations {
   String get emailVerificationStepVerified => 'सत्यापित';
 
   @override
+  String get emailVerificationVerifyNow => 'अभी सत्यापित करें';
+
+  @override
+  String get emailVerificationSuccessTitle => 'ईमेल सत्यापित हो गया!';
+
+  @override
+  String get emailVerificationSuccessSubtitle =>
+      'आपका खाता सफलतापूर्वक सत्यापित हो गया है।\nअब आप लॉगिन कर सकते हैं।';
+
+  @override
   String get emailVerificationGoToLogin => 'लॉगिन पर जाएं';
 
   @override
@@ -729,6 +739,9 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get nutritionDetailsMealType => 'मील का प्रकार';
+
+  @override
+  String get nutritionDetailsSelectDay => 'कृपया कम से कम एक दिन चुनें';
 
   @override
   String get mealTypeBreakfast => 'नाश्ता';

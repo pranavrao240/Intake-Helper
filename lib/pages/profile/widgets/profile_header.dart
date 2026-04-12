@@ -4,11 +4,13 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 class ProfileHeader extends HookConsumerWidget {
   final String selectedAvatar;
   final VoidCallback onEditAvatar;
+  final String userName;
 
   const ProfileHeader({
     super.key,
     required this.selectedAvatar,
     required this.onEditAvatar,
+    required this.userName,
   });
 
   @override
@@ -106,8 +108,8 @@ class ProfileHeader extends HookConsumerWidget {
 
           const SizedBox(height: 16),
 
-          const Text(
-            'Pranav',
+          Text(
+            userName,
             style: TextStyle(
               color: Colors.white,
               fontSize: 28,

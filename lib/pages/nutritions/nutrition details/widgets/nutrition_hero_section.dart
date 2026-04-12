@@ -7,7 +7,6 @@ import 'package:lucide_icons/lucide_icons.dart';
 
 class NutritionHeroSection extends HookConsumerWidget {
   final String dishName;
-  final String tag;
   final String? imageUrl;
   final bool isSaved;
   final String id;
@@ -15,7 +14,6 @@ class NutritionHeroSection extends HookConsumerWidget {
   const NutritionHeroSection({
     super.key,
     required this.dishName,
-    required this.tag,
     required this.isSaved,
     required this.id,
     this.imageUrl,
@@ -94,26 +92,6 @@ class NutritionHeroSection extends HookConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if (tag != '')
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.15),
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: Colors.white.withOpacity(0.2)),
-                    ),
-                    child: Text(
-                      tag.toUpperCase(),
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 9,
-                        fontWeight: FontWeight.w900,
-                        letterSpacing: 1.8,
-                      ),
-                    ),
-                  ),
-                const SizedBox(height: 10),
                 Text(
                   dishName,
                   style: const TextStyle(

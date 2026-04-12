@@ -174,7 +174,7 @@ class TodoPage extends HookConsumerWidget {
                 showStreakCelebrationDialog(
                   context,
                   streakCount: currentStreak,
-                  avatar: avatar!,
+                  avatar: avatar ?? 'male1',
                 );
               }
             }

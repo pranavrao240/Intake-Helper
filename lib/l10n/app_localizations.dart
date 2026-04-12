@@ -566,6 +566,24 @@ abstract class AppLocalizations {
   /// **'Verified'**
   String get emailVerificationStepVerified;
 
+  /// No description provided for @emailVerificationVerifyNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify Now'**
+  String get emailVerificationVerifyNow;
+
+  /// No description provided for @emailVerificationSuccessTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Email Verified!'**
+  String get emailVerificationSuccessTitle;
+
+  /// No description provided for @emailVerificationSuccessSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account has been verified successfully.\nYou can now login to your account.'**
+  String get emailVerificationSuccessSubtitle;
+
   /// No description provided for @emailVerificationGoToLogin.
   ///
   /// In en, this message translates to:
@@ -1417,6 +1435,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'MEAL TYPE'**
   String get nutritionDetailsMealType;
+
+  /// No description provided for @nutritionDetailsSelectDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Please select at least one day'**
+  String get nutritionDetailsSelectDay;
 
   /// No description provided for @mealTypeBreakfast.
   ///

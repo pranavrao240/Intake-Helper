@@ -273,6 +273,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get emailVerificationStepVerified => 'Verified';
 
   @override
+  String get emailVerificationVerifyNow => 'Verify Now';
+
+  @override
+  String get emailVerificationSuccessTitle => 'Email Verified!';
+
+  @override
+  String get emailVerificationSuccessSubtitle =>
+      'Your account has been verified successfully.\nYou can now login to your account.';
+
+  @override
   String get emailVerificationGoToLogin => 'Go to Login';
 
   @override
@@ -725,6 +735,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get nutritionDetailsMealType => 'MEAL TYPE';
+
+  @override
+  String get nutritionDetailsSelectDay => 'Please select at least one day';
 
   @override
   String get mealTypeBreakfast => 'Breakfast';

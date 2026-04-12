@@ -18,6 +18,8 @@ samples, guidance on mobile development, and a full API reference.
 <!-- command to generate  a bundle file  -->
 flutter build appbundle --release
 
+<!-- command to generate  a bundle file  -->
+adb shell am start -a android.intent.action.VIEW -d "intakehelper://route_name"
 
 
 
