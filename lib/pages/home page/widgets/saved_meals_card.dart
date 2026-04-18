@@ -1,17 +1,16 @@
-//TODO: CURRENTLY HARDCODED - NEED TO FETCH FROM DATABASE
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:intake_helper/api/api_service.dart';
 import 'package:intake_helper/router.dart';
 import 'package:intake_helper/l10n/app_localizations.dart';
+import 'package:intake_helper/Providers/save_meal_provider.dart';
 
 Widget buildSavedMeals(BuildContext context, WidgetRef ref) {
   final locale = AppLocalizations.of(context)!;
   final theme = Theme.of(context);
   Future<void> getSavedMeals() async {
-    await ref.read(apiServiceProvider.notifier).getSavedNutritions();
+    await ref.read(saveMealProvider.notifier).getSavedMeals();
   }
 
   useEffect(() {
@@ -20,22 +19,23 @@ Widget buildSavedMeals(BuildContext context, WidgetRef ref) {
     });
     return null;
   }, []);
-  final meals = ref.watch(apiServiceProvider);
-  print(meals.value?.savedNutrition?.length);
+  final meals = ref.watch(saveMealProvider);
+  print(meals.value?.savedMeals?.length);
 
-  final savedMeals = meals.value?.savedNutrition
+  final savedMeals = meals.value?.savedMeals
           ?.map(
             (meal) => {
-              'id': meal.id,
-              'name': meal.dishName,
-              'protein': meal.protein.toString(),
-              'image': meal.dishImage,
+              'id': meal.nutritionId.id, // Use nutritionId for navigation
+              'savedMealId': meal.id, // Keep saved meal ID for reference
+              'name': meal.nutritionId.dishName,
+              'protein': meal.nutritionId.protein.toString(),
+              'image': meal.nutritionId.dishImage,
             },
           )
           .toList() ??
       [];
 
-  print('saved meals: ${meals.value?.savedNutrition?.length}');
+  print('saved meals: ${meals.value?.savedMeals?.length}');
 
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
@@ -73,6 +73,7 @@ Widget buildSavedMeals(BuildContext context, WidgetRef ref) {
                   final meal = savedMeals[index];
                   return GestureDetector(
                     onTap: () {
+                      print('meal: ${meal['id']}');
                       context.pushNamed(
                         RouteConstants.mealDetails.name,
                         pathParameters: {'id': meal['id']!},

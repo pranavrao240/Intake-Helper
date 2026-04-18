@@ -371,8 +371,6 @@ mixin _$Nutrition {
   double? get iron;
   @JsonKey(name: 'Calcium', fromJson: _numToDouble)
   double? get calcium;
-  @JsonKey(name: 'isSaved')
-  bool? get isSaved;
   @JsonKey(fromJson: _stringOrListToStringList)
   List<String>? get type;
   @JsonKey(fromJson: _stringOrListToStringList)
@@ -420,7 +418,6 @@ mixin _$Nutrition {
             (identical(other.sodium, sodium) || other.sodium == sodium) &&
             (identical(other.iron, iron) || other.iron == iron) &&
             (identical(other.calcium, calcium) || other.calcium == calcium) &&
-            (identical(other.isSaved, isSaved) || other.isSaved == isSaved) &&
             const DeepCollectionEquality().equals(other.type, type) &&
             const DeepCollectionEquality().equals(other.time, time) &&
             const DeepCollectionEquality().equals(other.day, day) &&
@@ -448,7 +445,6 @@ mixin _$Nutrition {
         sodium,
         iron,
         calcium,
-        isSaved,
         const DeepCollectionEquality().hash(type),
         const DeepCollectionEquality().hash(time),
         const DeepCollectionEquality().hash(day),
@@ -457,7 +453,7 @@ mixin _$Nutrition {
 
   @override
   String toString() {
-    return 'Nutrition(id: $id, nutritionId: $nutritionId, localId: $localId, createdAt: $createdAt, dishName: $dishName, dishImage: $dishImage, quantityRequired: $quantityRequired, calories: $calories, protein: $protein, carbohydrates: $carbohydrates, fats: $fats, fibre: $fibre, sugar: $sugar, sodium: $sodium, iron: $iron, calcium: $calcium, isSaved: $isSaved, type: $type, time: $time, day: $day, selected: $selected)';
+    return 'Nutrition(id: $id, nutritionId: $nutritionId, localId: $localId, createdAt: $createdAt, dishName: $dishName, dishImage: $dishImage, quantityRequired: $quantityRequired, calories: $calories, protein: $protein, carbohydrates: $carbohydrates, fats: $fats, fibre: $fibre, sugar: $sugar, sodium: $sodium, iron: $iron, calcium: $calcium, type: $type, time: $time, day: $day, selected: $selected)';
   }
 }
 
@@ -484,7 +480,6 @@ abstract mixin class $NutritionCopyWith<$Res> {
       @JsonKey(name: 'Sodium', fromJson: _numToDouble) double? sodium,
       @JsonKey(name: 'Iron', fromJson: _numToDouble) double? iron,
       @JsonKey(name: 'Calcium', fromJson: _numToDouble) double? calcium,
-      @JsonKey(name: 'isSaved') bool? isSaved,
       @JsonKey(fromJson: _stringOrListToStringList) List<String>? type,
       @JsonKey(fromJson: _stringOrListToStringList) List<String>? time,
       @JsonKey(fromJson: _stringOrListToStringList) List<String>? day,
@@ -519,7 +514,6 @@ class _$NutritionCopyWithImpl<$Res> implements $NutritionCopyWith<$Res> {
     Object? sodium = freezed,
     Object? iron = freezed,
     Object? calcium = freezed,
-    Object? isSaved = freezed,
     Object? type = freezed,
     Object? time = freezed,
     Object? day = freezed,
@@ -590,10 +584,6 @@ class _$NutritionCopyWithImpl<$Res> implements $NutritionCopyWith<$Res> {
           ? _self.calcium
           : calcium // ignore: cast_nullable_to_non_nullable
               as double?,
-      isSaved: freezed == isSaved
-          ? _self.isSaved
-          : isSaved // ignore: cast_nullable_to_non_nullable
-              as bool?,
       type: freezed == type
           ? _self.type
           : type // ignore: cast_nullable_to_non_nullable
@@ -726,7 +716,6 @@ extension NutritionPatterns on Nutrition {
             @JsonKey(name: 'Sodium', fromJson: _numToDouble) double? sodium,
             @JsonKey(name: 'Iron', fromJson: _numToDouble) double? iron,
             @JsonKey(name: 'Calcium', fromJson: _numToDouble) double? calcium,
-            @JsonKey(name: 'isSaved') bool? isSaved,
             @JsonKey(fromJson: _stringOrListToStringList) List<String>? type,
             @JsonKey(fromJson: _stringOrListToStringList) List<String>? time,
             @JsonKey(fromJson: _stringOrListToStringList) List<String>? day,
@@ -754,7 +743,6 @@ extension NutritionPatterns on Nutrition {
             _that.sodium,
             _that.iron,
             _that.calcium,
-            _that.isSaved,
             _that.type,
             _that.time,
             _that.day,
@@ -798,7 +786,6 @@ extension NutritionPatterns on Nutrition {
             @JsonKey(name: 'Sodium', fromJson: _numToDouble) double? sodium,
             @JsonKey(name: 'Iron', fromJson: _numToDouble) double? iron,
             @JsonKey(name: 'Calcium', fromJson: _numToDouble) double? calcium,
-            @JsonKey(name: 'isSaved') bool? isSaved,
             @JsonKey(fromJson: _stringOrListToStringList) List<String>? type,
             @JsonKey(fromJson: _stringOrListToStringList) List<String>? time,
             @JsonKey(fromJson: _stringOrListToStringList) List<String>? day,
@@ -825,7 +812,6 @@ extension NutritionPatterns on Nutrition {
             _that.sodium,
             _that.iron,
             _that.calcium,
-            _that.isSaved,
             _that.type,
             _that.time,
             _that.day,
@@ -868,7 +854,6 @@ extension NutritionPatterns on Nutrition {
             @JsonKey(name: 'Sodium', fromJson: _numToDouble) double? sodium,
             @JsonKey(name: 'Iron', fromJson: _numToDouble) double? iron,
             @JsonKey(name: 'Calcium', fromJson: _numToDouble) double? calcium,
-            @JsonKey(name: 'isSaved') bool? isSaved,
             @JsonKey(fromJson: _stringOrListToStringList) List<String>? type,
             @JsonKey(fromJson: _stringOrListToStringList) List<String>? time,
             @JsonKey(fromJson: _stringOrListToStringList) List<String>? day,
@@ -895,7 +880,6 @@ extension NutritionPatterns on Nutrition {
             _that.sodium,
             _that.iron,
             _that.calcium,
-            _that.isSaved,
             _that.type,
             _that.time,
             _that.day,
@@ -927,7 +911,6 @@ class _Nutrition implements Nutrition {
       @JsonKey(name: 'Sodium', fromJson: _numToDouble) this.sodium,
       @JsonKey(name: 'Iron', fromJson: _numToDouble) this.iron,
       @JsonKey(name: 'Calcium', fromJson: _numToDouble) this.calcium,
-      @JsonKey(name: 'isSaved') this.isSaved,
       @JsonKey(fromJson: _stringOrListToStringList) final List<String>? type,
       @JsonKey(fromJson: _stringOrListToStringList) final List<String>? time,
       @JsonKey(fromJson: _stringOrListToStringList) final List<String>? day,
@@ -986,9 +969,6 @@ class _Nutrition implements Nutrition {
   @override
   @JsonKey(name: 'Calcium', fromJson: _numToDouble)
   final double? calcium;
-  @override
-  @JsonKey(name: 'isSaved')
-  final bool? isSaved;
   final List<String>? _type;
   @override
   @JsonKey(fromJson: _stringOrListToStringList)
@@ -1069,7 +1049,6 @@ class _Nutrition implements Nutrition {
             (identical(other.sodium, sodium) || other.sodium == sodium) &&
             (identical(other.iron, iron) || other.iron == iron) &&
             (identical(other.calcium, calcium) || other.calcium == calcium) &&
-            (identical(other.isSaved, isSaved) || other.isSaved == isSaved) &&
             const DeepCollectionEquality().equals(other._type, _type) &&
             const DeepCollectionEquality().equals(other._time, _time) &&
             const DeepCollectionEquality().equals(other._day, _day) &&
@@ -1097,7 +1076,6 @@ class _Nutrition implements Nutrition {
         sodium,
         iron,
         calcium,
-        isSaved,
         const DeepCollectionEquality().hash(_type),
         const DeepCollectionEquality().hash(_time),
         const DeepCollectionEquality().hash(_day),
@@ -1106,7 +1084,7 @@ class _Nutrition implements Nutrition {
 
   @override
   String toString() {
-    return 'Nutrition(id: $id, nutritionId: $nutritionId, localId: $localId, createdAt: $createdAt, dishName: $dishName, dishImage: $dishImage, quantityRequired: $quantityRequired, calories: $calories, protein: $protein, carbohydrates: $carbohydrates, fats: $fats, fibre: $fibre, sugar: $sugar, sodium: $sodium, iron: $iron, calcium: $calcium, isSaved: $isSaved, type: $type, time: $time, day: $day, selected: $selected)';
+    return 'Nutrition(id: $id, nutritionId: $nutritionId, localId: $localId, createdAt: $createdAt, dishName: $dishName, dishImage: $dishImage, quantityRequired: $quantityRequired, calories: $calories, protein: $protein, carbohydrates: $carbohydrates, fats: $fats, fibre: $fibre, sugar: $sugar, sodium: $sodium, iron: $iron, calcium: $calcium, type: $type, time: $time, day: $day, selected: $selected)';
   }
 }
 
@@ -1136,7 +1114,6 @@ abstract mixin class _$NutritionCopyWith<$Res>
       @JsonKey(name: 'Sodium', fromJson: _numToDouble) double? sodium,
       @JsonKey(name: 'Iron', fromJson: _numToDouble) double? iron,
       @JsonKey(name: 'Calcium', fromJson: _numToDouble) double? calcium,
-      @JsonKey(name: 'isSaved') bool? isSaved,
       @JsonKey(fromJson: _stringOrListToStringList) List<String>? type,
       @JsonKey(fromJson: _stringOrListToStringList) List<String>? time,
       @JsonKey(fromJson: _stringOrListToStringList) List<String>? day,
@@ -1171,7 +1148,6 @@ class __$NutritionCopyWithImpl<$Res> implements _$NutritionCopyWith<$Res> {
     Object? sodium = freezed,
     Object? iron = freezed,
     Object? calcium = freezed,
-    Object? isSaved = freezed,
     Object? type = freezed,
     Object? time = freezed,
     Object? day = freezed,
@@ -1242,10 +1218,6 @@ class __$NutritionCopyWithImpl<$Res> implements _$NutritionCopyWith<$Res> {
           ? _self.calcium
           : calcium // ignore: cast_nullable_to_non_nullable
               as double?,
-      isSaved: freezed == isSaved
-          ? _self.isSaved
-          : isSaved // ignore: cast_nullable_to_non_nullable
-              as bool?,
       type: freezed == type
           ? _self._type
           : type // ignore: cast_nullable_to_non_nullable

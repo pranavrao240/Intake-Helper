@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intake_helper/Providers/meal_notifications_provider.dart';
 import 'package:intake_helper/Providers/providers.dart';
+import 'package:intake_helper/Providers/save_meal_provider.dart';
 import 'package:intake_helper/api/api_service.dart';
 import 'package:intake_helper/components/toast/toast.dart';
 import 'package:intake_helper/constants/notification_priority.dart';
@@ -29,6 +30,21 @@ class NutritionDetailScreen extends HookConsumerWidget {
     final portion = useState(1);
     final selectedTypes = useState<List<String>>([]);
     final showTypeError = useState(false);
+    final savedMealState = ref.watch(saveMealProvider);
+    final isLiked = useState<bool>(savedMealState.value?.isSaved ?? false);
+
+    print('isLiked: ${isLiked.value}');
+
+    Future<void> checkSavedMeal() async {
+      await ref.read(saveMealProvider.notifier).checkSavedMeal(nutritionId: id);
+    }
+
+    useEffect(() {
+      Future.microtask(() {
+        checkSavedMeal();
+      });
+      return null;
+    }, []);
 
     // ── Data ──
     final details = ref.watch(NutritionDetailsProvider(id));
@@ -50,6 +66,7 @@ class NutritionDetailScreen extends HookConsumerWidget {
           portion: portion,
           selectedTypes: selectedTypes,
           showTypeError: showTypeError,
+          isLiked: isLiked,
         ),
       ),
     );
@@ -62,6 +79,7 @@ class NutritionDetailScreen extends HookConsumerWidget {
     required ValueNotifier<int> portion,
     required ValueNotifier<List<String>> selectedTypes,
     required ValueNotifier<bool> showTypeError,
+    required ValueNotifier<bool> isLiked,
   }) {
     final List<Map<String, String>> ingredients = _parseIngredients(model);
     final locale = AppLocalizations.of(context)!;
@@ -78,7 +96,7 @@ class NutritionDetailScreen extends HookConsumerWidget {
               child: NutritionHeroSection(
                   dishName:
                       model.dishName ?? locale.nutritionDetailsUnknownDish,
-                  isSaved: model.isSaved!,
+                  isSaved: isLiked.value,
                   id: model.id!,
                   imageUrl: model.dishImage),
             ),

@@ -65,7 +65,6 @@ abstract class Nutrition with _$Nutrition {
     @JsonKey(name: 'Sodium', fromJson: _numToDouble) double? sodium,
     @JsonKey(name: 'Iron', fromJson: _numToDouble) double? iron,
     @JsonKey(name: 'Calcium', fromJson: _numToDouble) double? calcium,
-    @JsonKey(name: 'isSaved') bool? isSaved,
     @JsonKey(fromJson: _stringOrListToStringList) List<String>? type,
     @JsonKey(fromJson: _stringOrListToStringList) List<String>? time,
     @JsonKey(fromJson: _stringOrListToStringList) List<String>? day,

@@ -751,7 +751,7 @@ mixin _$StreakHistory {
   DateTime? get date;
   int get todosCompleted;
   int get todosAdded;
-  bool? get streakMaintained;
+  bool get streakMaintained;
   @JsonKey(name: "_id")
   String? get id;
 
@@ -802,7 +802,7 @@ abstract mixin class $StreakHistoryCopyWith<$Res> {
       {DateTime? date,
       int todosCompleted,
       int todosAdded,
-      bool? streakMaintained,
+      bool streakMaintained,
       @JsonKey(name: "_id") String? id});
 }
 
@@ -822,7 +822,7 @@ class _$StreakHistoryCopyWithImpl<$Res>
     Object? date = freezed,
     Object? todosCompleted = null,
     Object? todosAdded = null,
-    Object? streakMaintained = freezed,
+    Object? streakMaintained = null,
     Object? id = freezed,
   }) {
     return _then(_self.copyWith(
@@ -838,10 +838,10 @@ class _$StreakHistoryCopyWithImpl<$Res>
           ? _self.todosAdded
           : todosAdded // ignore: cast_nullable_to_non_nullable
               as int,
-      streakMaintained: freezed == streakMaintained
+      streakMaintained: null == streakMaintained
           ? _self.streakMaintained
           : streakMaintained // ignore: cast_nullable_to_non_nullable
-              as bool?,
+              as bool,
       id: freezed == id
           ? _self.id
           : id // ignore: cast_nullable_to_non_nullable
@@ -944,7 +944,7 @@ extension StreakHistoryPatterns on StreakHistory {
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>(
     TResult Function(DateTime? date, int todosCompleted, int todosAdded,
-            bool? streakMaintained, @JsonKey(name: "_id") String? id)?
+            bool streakMaintained, @JsonKey(name: "_id") String? id)?
         $default, {
     required TResult orElse(),
   }) {
@@ -974,7 +974,7 @@ extension StreakHistoryPatterns on StreakHistory {
   @optionalTypeArgs
   TResult when<TResult extends Object?>(
     TResult Function(DateTime? date, int todosCompleted, int todosAdded,
-            bool? streakMaintained, @JsonKey(name: "_id") String? id)
+            bool streakMaintained, @JsonKey(name: "_id") String? id)
         $default,
   ) {
     final _that = this;
@@ -1002,7 +1002,7 @@ extension StreakHistoryPatterns on StreakHistory {
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>(
     TResult? Function(DateTime? date, int todosCompleted, int todosAdded,
-            bool? streakMaintained, @JsonKey(name: "_id") String? id)?
+            bool streakMaintained, @JsonKey(name: "_id") String? id)?
         $default,
   ) {
     final _that = this;
@@ -1023,7 +1023,7 @@ class _StreakHistory implements StreakHistory {
       {this.date,
       required this.todosCompleted,
       required this.todosAdded,
-      this.streakMaintained,
+      this.streakMaintained = false,
       @JsonKey(name: "_id") this.id});
   factory _StreakHistory.fromJson(Map<String, dynamic> json) =>
       _$StreakHistoryFromJson(json);
@@ -1035,7 +1035,8 @@ class _StreakHistory implements StreakHistory {
   @override
   final int todosAdded;
   @override
-  final bool? streakMaintained;
+  @JsonKey()
+  final bool streakMaintained;
   @override
   @JsonKey(name: "_id")
   final String? id;
@@ -1093,7 +1094,7 @@ abstract mixin class _$StreakHistoryCopyWith<$Res>
       {DateTime? date,
       int todosCompleted,
       int todosAdded,
-      bool? streakMaintained,
+      bool streakMaintained,
       @JsonKey(name: "_id") String? id});
 }
 
@@ -1113,7 +1114,7 @@ class __$StreakHistoryCopyWithImpl<$Res>
     Object? date = freezed,
     Object? todosCompleted = null,
     Object? todosAdded = null,
-    Object? streakMaintained = freezed,
+    Object? streakMaintained = null,
     Object? id = freezed,
   }) {
     return _then(_StreakHistory(
@@ -1129,10 +1130,10 @@ class __$StreakHistoryCopyWithImpl<$Res>
           ? _self.todosAdded
           : todosAdded // ignore: cast_nullable_to_non_nullable
               as int,
-      streakMaintained: freezed == streakMaintained
+      streakMaintained: null == streakMaintained
           ? _self.streakMaintained
           : streakMaintained // ignore: cast_nullable_to_non_nullable
-              as bool?,
+              as bool,
       id: freezed == id
           ? _self.id
           : id // ignore: cast_nullable_to_non_nullable

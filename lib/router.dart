@@ -193,8 +193,11 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: RouteConstants.emailVerification.path,
       name: RouteConstants.emailVerification.name,
-      builder: (_, state) =>
-          EmailVerificationPage(email: state.extra as String),
+      builder: (_, state) {
+        final email = state.uri.queryParameters['email'] ??
+            (state.extra as String? ?? '');
+        return EmailVerificationPage(email: email);
+      },
     ),
   ],
 );

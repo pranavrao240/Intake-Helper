@@ -44,7 +44,7 @@ _StreakHistory _$StreakHistoryFromJson(Map<String, dynamic> json) =>
           json['date'] == null ? null : DateTime.parse(json['date'] as String),
       todosCompleted: (json['todosCompleted'] as num).toInt(),
       todosAdded: (json['todosAdded'] as num).toInt(),
-      streakMaintained: json['streakMaintained'] as bool?,
+      streakMaintained: json['streakMaintained'] as bool? ?? false,
       id: json['_id'] as String?,
     );
 

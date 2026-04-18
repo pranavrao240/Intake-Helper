@@ -31,15 +31,21 @@ class RegisterPage extends HookConsumerWidget {
       if (value == null) return;
 
       if (value.message?.isNotEmpty ?? false) {
-        showToast(value.message!, context, 1);
+        if (context.mounted) {
+          showToast(value.message!, context, 1);
+        }
       }
 
       if (value.errorMessage?.isNotEmpty ?? false) {
-        showToast(value.errorMessage!, context, 2);
+        if (context.mounted) {
+          showToast(value.errorMessage!, context, 2);
+        }
       }
 
       if (value.redirect != null) {
-        context.goNamed(value.redirect!, extra: emailController.text.trim());
+        if (context.mounted) {
+          context.goNamed(value.redirect!, extra: emailController.text.trim());
+        }
       }
     });
 
@@ -48,20 +54,44 @@ class RegisterPage extends HookConsumerWidget {
 
       final form = formKey.currentState;
       if (form == null || !form.validate()) return;
-      form.save();
+
+      try {
+        form.save();
+      } catch (e) {
+        if (context.mounted) {
+          errorMessage.value = 'Form validation error: $e';
+        }
+        return;
+      }
 
       isLoading.value = true;
       try {
+        final fullName = fullNameController.text.trim();
+        final email = emailController.text.trim();
+        final password = passwordController.text.trim();
+
+        if (fullName.isEmpty || email.isEmpty || password.isEmpty) {
+          if (context.mounted) {
+            errorMessage.value = locale.loginPageFillAllFields;
+            isLoading.value = false;
+          }
+          return;
+        }
+
         await ref.read(apiServiceProvider.notifier).registerUser(
-              fullNameController.text.trim(),
-              emailController.text.trim(),
-              passwordController.text.trim(),
+              fullName,
+              email,
+              password,
             );
 
-        isLoading.value = false;
-      } catch (_) {
-        isLoading.value = false;
-        errorMessage.value = locale.registerPageGenericError;
+        if (context.mounted) {
+          isLoading.value = false;
+        }
+      } catch (e) {
+        if (context.mounted) {
+          isLoading.value = false;
+          errorMessage.value = '${locale.registerPageGenericError}: $e';
+        }
       }
     }
 
@@ -76,7 +106,6 @@ class RegisterPage extends HookConsumerWidget {
         body: ModalProgressHUD(
           inAsyncCall: isLoading.value,
           opacity: 0.3,
-          key: UniqueKey(),
           child: SingleChildScrollView(
             child: Column(
               children: [

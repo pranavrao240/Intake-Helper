@@ -81,6 +81,15 @@ class ApiState {
       streak: streak ?? this.streak,
     );
   }
+
+  ApiState clearErrors() {
+    return copyWith(
+      errorMessage: null,
+      error: null,
+      redirect: null,
+      message: null,
+    );
+  }
 }
 
 final apiServiceProvider =
@@ -89,6 +98,7 @@ final apiServiceProvider =
 class ApiService extends AsyncNotifier<ApiState> {
   final Logger log = CustomLogger.getLogger('ApiService');
   static final client = _createHttpClient();
+  DateTime? _lastClearTime;
 
   static http.Client _createHttpClient() {
     final httpClient = HttpClient()
@@ -112,7 +122,6 @@ class ApiService extends AsyncNotifier<ApiState> {
         message: null,
         errorMessage: null,
         error: null,
-        redirect: null,
       ),
     );
   }
@@ -140,22 +149,25 @@ class ApiService extends AsyncNotifier<ApiState> {
 
         debugPrint('model: $model');
 
-        state = AsyncValue.data(state.value!.copyWith(
-            token: model.data.token,
+        final currentState = state.value ?? ApiState(null);
+        state = AsyncValue.data(currentState.copyWith(
+            // Don't save token until email is verified
             message: 'Email Sent for verification',
             register: model,
             redirect: RouteConstants.emailVerification.name));
-        debugPrint("Registration successful");
+        debugPrint("Registration successful - email verification required");
         return true;
       } else {
         debugPrint("Registration failed");
-        state = AsyncValue.data(state.value!.copyWith(
+        final currentState = state.value ?? ApiState(null);
+        state = AsyncValue.data(currentState.copyWith(
           errorMessage: 'Registration failed. Please try again.',
         ));
       }
     } catch (e) {
       print('Registration error: $e');
-      state = AsyncValue.data(state.value!.copyWith(
+      final currentState = state.value ?? ApiState(null);
+      state = AsyncValue.data(currentState.copyWith(
         errorMessage: e.toString(),
       ));
     }
@@ -200,9 +212,29 @@ class ApiService extends AsyncNotifier<ApiState> {
 
         return true;
       } else {
-        state = AsyncValue.data(state.value!.copyWith(
-          errorMessage: 'Invalid email or password.',
-        ));
+        // Parse error response to check for email verification message
+        try {
+          final errorResponse = jsonDecode(res.body);
+          final errorMessage =
+              errorResponse['message'] ?? 'Invalid email or password.';
+
+          // Check if error is about email verification
+          if (errorMessage.toLowerCase().contains('verify your email') ||
+              errorMessage.toLowerCase().contains('email verification')) {
+            state = AsyncValue.data(state.value!.copyWith(
+              errorMessage: errorMessage,
+              redirect: RouteConstants.emailVerification.name,
+            ));
+          } else {
+            state = AsyncValue.data(state.value!.copyWith(
+              errorMessage: errorMessage,
+            ));
+          }
+        } catch (e) {
+          state = AsyncValue.data(state.value!.copyWith(
+            errorMessage: 'Invalid email or password.',
+          ));
+        }
       }
     } catch (e) {
       state = AsyncValue.data(state.value!.copyWith(
@@ -254,6 +286,70 @@ class ApiService extends AsyncNotifier<ApiState> {
         ),
       );
     }
+  }
+
+  void clearState() {
+    final now = DateTime.now();
+    if (_lastClearTime != null &&
+        now.difference(_lastClearTime!).inMilliseconds < 100) {
+      return;
+    }
+    _lastClearTime = now;
+
+    final currentState = state.value;
+    if (currentState != null &&
+        (currentState.errorMessage != null ||
+            currentState.error != null ||
+            currentState.redirect != null ||
+            currentState.message != null)) {
+      state = AsyncValue.data(currentState.clearErrors());
+    }
+  }
+
+  Future<bool> verifyEmail(String token) async {
+    try {
+      final res = await client.post(
+        _url(Config.verifyEmailAPI),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          "token": token,
+        }),
+      );
+
+      if (res.statusCode == 200) {
+        final model = LoginResponseModel.fromJson(jsonDecode(res.body));
+
+        final preferences = await SharedPreferences.getInstance();
+        preferences.setString('token', model.data.token!);
+        preferences.setString('userId', model.data.id ?? '');
+
+        // Trigger backend sync of FCM token after verification
+        try {
+          await FCMService().init();
+        } catch (e) {
+          debugPrint('Error initializing FCM token after verification: $e');
+        }
+
+        state = AsyncValue.data(state.value!.copyWith(
+          token: model.data.token,
+          message: 'Email verified successfully',
+          redirect: RouteConstants.home.name,
+        ));
+        return true;
+      } else {
+        state = AsyncValue.data(state.value!.copyWith(
+          errorMessage: 'Email verification failed. Please try again.',
+        ));
+      }
+    } catch (e) {
+      log.i('Error verifying email: $e');
+      state = AsyncValue.data(state.value!.copyWith(
+        errorMessage: 'Email verification failed',
+      ));
+    }
+    return false;
   }
 
   Future<void> resetPassword(String token, String newPassword) async {
@@ -458,52 +554,6 @@ class ApiService extends AsyncNotifier<ApiState> {
       state = AsyncValue.data(
         state.value!.copyWith(message: "Failed to update status"),
       );
-    }
-  }
-
-  Future<void> getSavedNutritions() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString('token');
-      final res = await client.get(_url(Config.getSavedNutritionAPI), headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token',
-      });
-
-      print('res: ${res.body}');
-
-      final decoded = json.decode(res.body) as Map<String, dynamic>;
-      final list = decoded['data'] as List;
-      final nutritionModels = list
-          .map((e) => SavedNutritionModel.fromJson(e as Map<String, dynamic>))
-          .toList();
-
-      state = AsyncValue.data(
-        state.value!.copyWith(savedNutrition: nutritionModels),
-      );
-    } catch (e) {
-      state = AsyncValue.data(
-        state.value!.copyWith(message: "Failed to get saved nutritions"),
-      );
-    }
-  }
-
-  Future<void> updateSavedNutritions(String id) async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString('token');
-      final res =
-          await client.put(_url('${Config.changeSavedStateAPI}/$id'), headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token',
-      });
-      if (res.statusCode == 200) {
-        state = AsyncValue.data(
-            state.value!.copyWith(message: "Meal Saved successfully!"));
-      }
-    } catch (e) {
-      state = AsyncValue.data(
-          state.value!.copyWith(message: "Failed to save meal"));
     }
   }
 

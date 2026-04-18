@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -5,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intake_helper/router.dart';
 import 'package:intake_helper/l10n/app_localizations.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class _Tokens {
   static const bgBase = Color(0xFF12111A);
@@ -19,40 +21,23 @@ class _Tokens {
   static const textMuted = Color(0xFF5C5A75);
 }
 
-class EmailVerificationPage extends HookConsumerWidget {
-  final String email;
+// ─── Page ────────────────────────────────────────────────────────────────────
 
-  const EmailVerificationPage({
-    super.key,
-    required this.email,
-  });
+class EmailVerificationPage extends StatelessWidget {
+  final String email;
+  const EmailVerificationPage({super.key, required this.email});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final masterCtrl = useAnimationController(
-      duration: const Duration(milliseconds: 1600),
-    );
-
-    useEffect(() {
-      masterCtrl.forward();
-      return null;
-    }, const []);
-
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: _Tokens.bgBase,
       body: Stack(
         children: [
-          _HeaderBackground(),
+          const _HeaderBackground(),
           Column(
             children: [
-              Expanded(
-                flex: 42,
-                child: _TopSection(masterCtrl: masterCtrl),
-              ),
-              _BottomCard(
-                email: email,
-                masterCtrl: masterCtrl,
-              ),
+              const Expanded(flex: 42, child: _TopSection()),
+              _BottomCard(email: email),
             ],
           ),
         ],
@@ -61,31 +46,27 @@ class EmailVerificationPage extends HookConsumerWidget {
   }
 }
 
-class _HeaderBackground extends HookWidget {
+// ─── Header background (static gradient, no animation) ───────────────────────
+
+class _HeaderBackground extends StatelessWidget {
+  const _HeaderBackground();
+
   @override
   Widget build(BuildContext context) {
-    final ctrl = useAnimationController(
-      duration: const Duration(seconds: 7),
-    )..repeat(reverse: true);
-    final anim = useAnimation(ctrl);
+    final size = MediaQuery.of(context).size;
+    final h = size.height * 0.4;
 
-    return LayoutBuilder(builder: (context, constraints) {
-      final h = MediaQuery.of(context).size.height * 0.48;
-      return SizedBox(
-        height: h,
-        child: CustomPaint(
-          painter: _HeaderPainter(progress: anim),
-          size: Size(constraints.maxWidth, h),
-        ),
-      );
-    });
+    return SizedBox(
+      height: h,
+      width: double.infinity,
+      child: CustomPaint(
+        painter: _HeaderPainter(),
+      ),
+    );
   }
 }
 
 class _HeaderPainter extends CustomPainter {
-  final double progress;
-  _HeaderPainter({required this.progress});
-
   @override
   void paint(Canvas canvas, Size size) {
     // Base gradient
@@ -99,9 +80,9 @@ class _HeaderPainter extends CustomPainter {
         ).createShader(Rect.fromLTWH(0, 0, size.width, size.height)),
     );
 
-    // Soft orb right-top
+    // Orb right-top (static)
     canvas.drawCircle(
-      Offset(size.width * 0.78, size.height * (0.28 + progress * 0.08)),
+      Offset(size.width * 0.78, size.height * 0.28),
       size.width * 0.38,
       Paint()
         ..shader = RadialGradient(
@@ -110,14 +91,14 @@ class _HeaderPainter extends CustomPainter {
             Colors.transparent,
           ],
         ).createShader(Rect.fromCircle(
-          center: Offset(size.width * 0.78, size.height * 0.3),
+          center: Offset(size.width * 0.78, size.height * 0.28),
           radius: size.width * 0.38,
         )),
     );
 
-    // Soft orb left-center
+    // Orb left-center (static)
     canvas.drawCircle(
-      Offset(size.width * 0.25, size.height * (0.55 - progress * 0.05)),
+      Offset(size.width * 0.25, size.height * 0.55),
       size.width * 0.28,
       Paint()
         ..shader = RadialGradient(
@@ -131,6 +112,7 @@ class _HeaderPainter extends CustomPainter {
         )),
     );
 
+    // Fade to bg at bottom
     final fadeRect =
         Rect.fromLTWH(0, size.height * 0.6, size.width, size.height * 0.4);
     canvas.drawRect(
@@ -149,12 +131,13 @@ class _HeaderPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(_HeaderPainter old) => old.progress != progress;
+  bool shouldRepaint(_HeaderPainter old) => false; // never repaints
 }
 
-class _TopSection extends HookWidget {
-  final AnimationController masterCtrl;
-  const _TopSection({required this.masterCtrl});
+// ─── Top section ─────────────────────────────────────────────────────────────
+
+class _TopSection extends StatelessWidget {
+  const _TopSection();
 
   @override
   Widget build(BuildContext context) {
@@ -168,56 +151,33 @@ class _TopSection extends HookWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 16),
-            _StaggerFade(
-              ctrl: masterCtrl,
-              start: 0.0,
-              end: 0.3,
-              child: const _StatusBadge(),
-            ),
+            const _StatusBadge(),
             const SizedBox(height: 22),
-            _StaggerFade(
-              ctrl: masterCtrl,
-              start: 0.05,
-              end: 0.4,
-              slideFrom: const Offset(0, 0.25),
-              child: _IconBox(),
-            ),
+            const _IconBox(),
             const SizedBox(height: 18),
-            _StaggerFade(
-              ctrl: masterCtrl,
-              start: 0.12,
-              end: 0.5,
-              slideFrom: const Offset(0, 0.2),
-              child: Text(
-                locale.emailVerificationTitle,
-                style: const TextStyle(
-                  fontSize: 32,
-                  fontWeight: FontWeight.w800,
-                  color: Colors.white,
-                  letterSpacing: -0.8,
-                  height: 1.1,
-                ),
+            Text(
+              locale.emailVerificationTitle,
+              style: const TextStyle(
+                fontSize: 32,
+                fontWeight: FontWeight.w800,
+                color: Colors.white,
+                letterSpacing: -0.8,
+                height: 1.1,
               ),
             ),
             const SizedBox(height: 6),
-            _StaggerFade(
-              ctrl: masterCtrl,
-              start: 0.18,
-              end: 0.55,
-              slideFrom: const Offset(0, 0.15),
-              child: Row(
-                children: [
-                  Text(
-                    locale.emailVerificationCheckInbox,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: Color(0xFFB8B5D0),
-                    ),
+            Row(
+              children: [
+                Text(
+                  locale.emailVerificationCheckInbox,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: Color(0xFFB8B5D0),
                   ),
-                  const Text('📬', style: TextStyle(fontSize: 14)),
-                ],
-              ),
+                ),
+                const Text('📬', style: TextStyle(fontSize: 14)),
+              ],
             ),
           ],
         ),
@@ -225,6 +185,8 @@ class _TopSection extends HookWidget {
     );
   }
 }
+
+// ─── Status badge (static dot, no pulse) ─────────────────────────────────────
 
 class _StatusBadge extends StatelessWidget {
   const _StatusBadge();
@@ -243,7 +205,14 @@ class _StatusBadge extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          _PulsingDot(),
+          Container(
+            width: 7,
+            height: 7,
+            decoration: const BoxDecoration(
+              color: Color(0xFFF59E0B),
+              shape: BoxShape.circle,
+            ),
+          ),
           const SizedBox(width: 6),
           Text(
             locale.emailVerificationPending,
@@ -260,172 +229,97 @@ class _StatusBadge extends StatelessWidget {
   }
 }
 
-class _PulsingDot extends HookWidget {
+// ─── Icon box (static, no float) ─────────────────────────────────────────────
+
+class _IconBox extends StatelessWidget {
+  const _IconBox();
+
   @override
   Widget build(BuildContext context) {
-    final ctrl = useAnimationController(
-      duration: const Duration(milliseconds: 900),
-    )..repeat(reverse: true);
-    final opacity = useAnimation(
-      Tween<double>(begin: 0.4, end: 1.0).animate(
-        CurvedAnimation(parent: ctrl, curve: Curves.easeInOut),
+    return Container(
+      width: 62,
+      height: 62,
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: Colors.white.withOpacity(0.15)),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF8B3CF7).withOpacity(0.25),
+            blurRadius: 20,
+            offset: const Offset(0, 6),
+          ),
+        ],
       ),
-    );
-    return Opacity(
-      opacity: opacity,
-      child: Container(
-        width: 7,
-        height: 7,
-        decoration: const BoxDecoration(
-          color: Color(0xFFF59E0B),
-          shape: BoxShape.circle,
-        ),
+      child: const Icon(
+        Icons.mark_email_read_rounded,
+        color: Colors.white,
+        size: 30,
       ),
     );
   }
 }
 
-class _IconBox extends HookWidget {
-  @override
-  Widget build(BuildContext context) {
-    final floatCtrl = useAnimationController(
-      duration: const Duration(milliseconds: 2200),
-    )..repeat(reverse: true);
-    final floatAnim = useAnimation(
-      Tween<double>(begin: 0, end: -5).animate(
-        CurvedAnimation(parent: floatCtrl, curve: Curves.easeInOut),
-      ),
-    );
+// ─── Bottom card ─────────────────────────────────────────────────────────────
 
-    return Transform.translate(
-      offset: Offset(0, floatAnim),
-      child: Container(
-        width: 62,
-        height: 62,
-        decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: Colors.white.withOpacity(0.15)),
-          boxShadow: [
-            BoxShadow(
-              color: const Color(0xFF8B3CF7).withOpacity(0.25),
-              blurRadius: 20,
-              offset: const Offset(0, 6),
-            ),
-          ],
-        ),
-        child: const Icon(
-          Icons.mark_email_read_rounded,
-          color: Colors.white,
-          size: 30,
-        ),
-      ),
-    );
-  }
-}
-
-class _BottomCard extends HookConsumerWidget {
+class _BottomCard extends StatelessWidget {
   final String email;
-  final AnimationController masterCtrl;
-
-  const _BottomCard({required this.email, required this.masterCtrl});
+  const _BottomCard({required this.email});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final cardSlide = useAnimation(
-      Tween<Offset>(begin: const Offset(0, 0.18), end: Offset.zero).animate(
-        CurvedAnimation(
-          parent: masterCtrl,
-          curve: const Interval(0.25, 0.75, curve: Curves.easeOutCubic),
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: const BoxDecoration(
+        color: _Tokens.cardBg,
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(32),
+          topRight: Radius.circular(32),
         ),
       ),
-    );
-    final cardFade = useAnimation(
-      Tween<double>(begin: 0, end: 1).animate(
-        CurvedAnimation(
-          parent: masterCtrl,
-          curve: const Interval(0.2, 0.6, curve: Curves.easeOut),
-        ),
-      ),
-    );
-
-    return FadeTransition(
-      opacity: AlwaysStoppedAnimation(cardFade),
-      child: SlideTransition(
-        position: AlwaysStoppedAnimation(cardSlide),
-        child: Container(
-          decoration: const BoxDecoration(
-            color: _Tokens.cardBg,
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(32),
-              topRight: Radius.circular(32),
-            ),
+      padding: const EdgeInsets.fromLTRB(24, 32, 24, 0),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _EmailDisplayField(email: email),
+          const SizedBox(height: 24),
+          const _InfoText(),
+          const SizedBox(height: 28),
+          const _StepsRow(),
+          const SizedBox(height: 28),
+          _ContinueButton(
+            onTap: () async {
+              debugPrint('Continue button clicked');
+              try {
+                final preferences = await SharedPreferences.getInstance();
+                debugPrint('SharedPreferences instance created');
+                await preferences.remove('token');
+                debugPrint('Token removed successfully');
+                if (context.mounted) {
+                  debugPrint('Context mounted, navigating to login');
+                  context.go(RouteConstants.login.path);
+                } else {
+                  debugPrint('Context not mounted');
+                }
+              } catch (e) {
+                debugPrint('Error in continue button: $e');
+              }
+            },
           ),
-          padding: const EdgeInsets.fromLTRB(24, 32, 24, 0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              _StaggerFade(
-                ctrl: masterCtrl,
-                start: 0.35,
-                end: 0.65,
-                child: _EmailDisplayField(email: email),
-              ),
-              const SizedBox(height: 24),
-              _StaggerFade(
-                ctrl: masterCtrl,
-                start: 0.42,
-                end: 0.72,
-                child: _InfoText(),
-              ),
-              const SizedBox(height: 28),
-              _StaggerFade(
-                ctrl: masterCtrl,
-                start: 0.5,
-                end: 0.8,
-                child: const _StepsRow(),
-              ),
-              const SizedBox(height: 28),
-              _StaggerFade(
-                ctrl: masterCtrl,
-                start: 0.58,
-                end: 0.88,
-                child: _ContinueButton(
-                  onTap: () => context.go(RouteConstants.login.path),
-                ),
-              ),
-              const SizedBox(height: 16),
-              _StaggerFade(
-                ctrl: masterCtrl,
-                start: 0.65,
-                end: 0.9,
-                child: const _OrDivider(),
-              ),
-              const SizedBox(height: 16),
-              _StaggerFade(
-                ctrl: masterCtrl,
-                start: 0.7,
-                end: 0.95,
-                child: const _ResendRow(),
-              ),
-              const SizedBox(height: 20),
-              _StaggerFade(
-                ctrl: masterCtrl,
-                start: 0.75,
-                end: 1.0,
-                child: const _Footer(),
-              ),
-              SizedBox(
-                height: MediaQuery.of(context).padding.bottom + 16,
-              ),
-            ],
-          ),
-        ),
+          const SizedBox(height: 16),
+          const _OrDivider(),
+          const SizedBox(height: 16),
+          const _ResendRow(),
+          const SizedBox(height: 20),
+          const _Footer(),
+          SizedBox(height: MediaQuery.of(context).padding.bottom + 16),
+        ],
       ),
     );
   }
 }
+
+// ─── Email display field ──────────────────────────────────────────────────────
 
 class _EmailDisplayField extends StatelessWidget {
   final String email;
@@ -504,7 +398,11 @@ class _EmailDisplayField extends StatelessWidget {
   }
 }
 
+// ─── Info text ────────────────────────────────────────────────────────────────
+
 class _InfoText extends StatelessWidget {
+  const _InfoText();
+
   @override
   Widget build(BuildContext context) {
     final locale = AppLocalizations.of(context)!;
@@ -537,241 +435,144 @@ class _InfoText extends StatelessWidget {
   }
 }
 
-class _StepsRow extends HookWidget {
+// ─── Steps row (static, no stagger animation) ────────────────────────────────
+
+class _StepsRow extends StatelessWidget {
   const _StepsRow();
 
   @override
   Widget build(BuildContext context) {
     final locale = AppLocalizations.of(context)!;
 
-    final _steps = [
+    final steps = [
       (Icons.inbox_rounded, locale.emailVerificationStepCheckInbox),
       (Icons.touch_app_rounded, locale.emailVerificationStepClickLink),
       (Icons.verified_rounded, locale.emailVerificationStepVerified),
     ];
-    final ctrl = useAnimationController(
-      duration: const Duration(milliseconds: 900),
-    );
-    useEffect(() {
-      Future.delayed(const Duration(milliseconds: 700), ctrl.forward);
-      return null;
-    }, const []);
 
     return Row(
-      children: List.generate(_steps.length * 2 - 1, (i) {
+      children: List.generate(steps.length * 2 - 1, (i) {
         if (i.isOdd) {
-          return Expanded(
-              child: _Connector(ctrl: ctrl, delay: 0.2 + (i ~/ 2) * 0.25));
+          return const Expanded(
+            child: Padding(
+              padding: EdgeInsets.only(bottom: 20),
+              child: Divider(color: _Tokens.inputBorder, thickness: 1),
+            ),
+          );
         }
         final idx = i ~/ 2;
+        final isLast = idx == steps.length - 1;
         return _Step(
-          icon: _steps[idx].$1,
-          label: _steps[idx].$2,
-          index: idx,
-          ctrl: ctrl,
+          icon: steps[idx].$1,
+          label: steps[idx].$2,
+          isLast: isLast,
         );
       }),
     );
   }
 }
 
-class _Step extends HookWidget {
+class _Step extends StatelessWidget {
   final IconData icon;
   final String label;
-  final int index;
-  final AnimationController ctrl;
+  final bool isLast;
 
   const _Step({
     required this.icon,
     required this.label,
-    required this.index,
-    required this.ctrl,
+    required this.isLast,
   });
 
   @override
   Widget build(BuildContext context) {
-    final d = index * 0.22;
-    final e = (d + 0.4).clamp(0.0, 1.0);
-    final scale = useAnimation(
-      CurvedAnimation(
-        parent: ctrl,
-        curve: Interval(d, e, curve: Curves.elasticOut),
-      ),
-    );
-    final fade = useAnimation(
-      Tween<double>(begin: 0, end: 1).animate(
-        CurvedAnimation(
-            parent: ctrl, curve: Interval(d, e, curve: Curves.easeOut)),
-      ),
-    );
-
-    final isLast = index == 2;
-
-    return FadeTransition(
-      opacity: AlwaysStoppedAnimation(fade),
-      child: Transform.scale(
-        scale: 0.5 + scale * 0.5,
-        child: Column(
-          children: [
-            Container(
-              width: 46,
-              height: 46,
-              decoration: BoxDecoration(
-                gradient: isLast
-                    ? const LinearGradient(
-                        colors: [Color(0xFF22C55E), Color(0xFF15803D)],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      )
-                    : null,
-                color: isLast ? null : _Tokens.inputBg,
-                borderRadius: BorderRadius.circular(13),
-                border: Border.all(
-                  color: isLast
-                      ? const Color(0xFF22C55E).withOpacity(0.4)
-                      : _Tokens.inputBorder,
-                ),
-                boxShadow: isLast
-                    ? [
-                        BoxShadow(
-                          color: const Color(0xFF22C55E).withOpacity(0.3),
-                          blurRadius: 12,
-                          offset: const Offset(0, 4),
-                        ),
-                      ]
-                    : null,
-              ),
-              child: Icon(
-                icon,
-                size: 20,
-                color: isLast ? Colors.white : _Tokens.textSecondary,
-              ),
+    return Column(
+      children: [
+        Container(
+          width: 46,
+          height: 46,
+          decoration: BoxDecoration(
+            gradient: isLast
+                ? const LinearGradient(
+                    colors: [Color(0xFF22C55E), Color(0xFF15803D)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  )
+                : null,
+            color: isLast ? null : _Tokens.inputBg,
+            borderRadius: BorderRadius.circular(13),
+            border: Border.all(
+              color: isLast
+                  ? const Color(0xFF22C55E).withOpacity(0.4)
+                  : _Tokens.inputBorder,
             ),
-            const SizedBox(height: 6),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 11,
-                color: isLast ? const Color(0xFF4ADE80) : _Tokens.textSecondary,
-                fontWeight: isLast ? FontWeight.w600 : FontWeight.w500,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _Connector extends HookWidget {
-  final AnimationController ctrl;
-  final double delay;
-  const _Connector({required this.ctrl, required this.delay});
-
-  @override
-  Widget build(BuildContext context) {
-    final p = useAnimation(
-      Tween<double>(begin: 0, end: 1).animate(
-        CurvedAnimation(
-          parent: ctrl,
-          curve:
-              Interval(delay, (delay + 0.3).clamp(0, 1), curve: Curves.easeOut),
-        ),
-      ),
-    );
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 20),
-      child: Align(
-        alignment: Alignment.centerLeft,
-        child: FractionallySizedBox(
-          widthFactor: p,
-          child: Container(
-            height: 1,
-            color: _Tokens.inputBorder,
+            boxShadow: isLast
+                ? [
+                    BoxShadow(
+                      color: const Color(0xFF22C55E).withOpacity(0.3),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
+                    ),
+                  ]
+                : null,
+          ),
+          child: Icon(
+            icon,
+            size: 20,
+            color: isLast ? Colors.white : _Tokens.textSecondary,
           ),
         ),
-      ),
+        const SizedBox(height: 6),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 11,
+            color: isLast ? const Color(0xFF4ADE80) : _Tokens.textSecondary,
+            fontWeight: isLast ? FontWeight.w600 : FontWeight.w500,
+          ),
+        ),
+      ],
     );
   }
 }
 
-class _ContinueButton extends HookConsumerWidget {
+// ─── Continue button (no shim animation) ─────────────────────────────────────
+
+class _ContinueButton extends StatelessWidget {
   final VoidCallback onTap;
   const _ContinueButton({required this.onTap});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final isPressed = useState(false);
+  Widget build(BuildContext context) {
     final locale = AppLocalizations.of(context)!;
-
-    final shimCtrl = useAnimationController(
-      duration: const Duration(milliseconds: 1800),
-    )..repeat();
-    final shimAnim = useAnimation(shimCtrl);
+    debugPrint('Continue button building');
 
     return GestureDetector(
-      onTapDown: (_) => isPressed.value = true,
-      onTapUp: (_) {
-        isPressed.value = false;
-        onTap();
-      },
-      onTapCancel: () => isPressed.value = false,
-      child: AnimatedScale(
-        scale: isPressed.value ? 0.97 : 1.0,
-        duration: const Duration(milliseconds: 120),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 150),
-          height: 58,
-          decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              colors: [_Tokens.btnLeft, _Tokens.btnRight],
-              begin: Alignment.centerLeft,
-              end: Alignment.centerRight,
-            ),
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: const Color(0xFF6B3FD4).withOpacity(
-                  isPressed.value ? 0.2 : 0.45,
-                ),
-                blurRadius: isPressed.value ? 10 : 24,
-                offset: const Offset(0, 8),
-              ),
-            ],
+      onTap: onTap,
+      child: Container(
+        height: 58,
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [_Tokens.btnLeft, _Tokens.btnRight],
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
           ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(16),
-            child: Stack(
-              children: [
-                Positioned.fill(
-                  child: Transform.translate(
-                    offset: Offset((shimAnim * 2 - 0.5) * 420, 0),
-                    child: Container(
-                      width: 50,
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [
-                            Colors.white.withOpacity(0),
-                            Colors.white.withOpacity(0.1),
-                            Colors.white.withOpacity(0),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                Center(
-                  child: Text(
-                    locale.emailVerificationGoToLogin,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 17,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 0.2,
-                    ),
-                  ),
-                ),
-              ],
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFF6B3FD4).withOpacity(0.45),
+              blurRadius: 24,
+              offset: const Offset(0, 8),
+            ),
+          ],
+        ),
+        child: Center(
+          child: Text(
+            locale.emailVerificationGoToLogin,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 17,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 0.2,
             ),
           ),
         ),
@@ -779,6 +580,8 @@ class _ContinueButton extends HookConsumerWidget {
     );
   }
 }
+
+// ─── Or divider ───────────────────────────────────────────────────────────────
 
 class _OrDivider extends StatelessWidget {
   const _OrDivider();
@@ -789,22 +592,23 @@ class _OrDivider extends StatelessWidget {
 
     return Row(
       children: [
-        Expanded(child: Divider(color: _Tokens.inputBorder, thickness: 1)),
+        const Expanded(
+            child: Divider(color: _Tokens.inputBorder, thickness: 1)),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 14),
           child: Text(
             locale.emailVerificationOrContinueWith,
-            style: const TextStyle(
-              fontSize: 12,
-              color: _Tokens.textMuted,
-            ),
+            style: const TextStyle(fontSize: 12, color: _Tokens.textMuted),
           ),
         ),
-        Expanded(child: Divider(color: _Tokens.inputBorder, thickness: 1)),
+        const Expanded(
+            child: Divider(color: _Tokens.inputBorder, thickness: 1)),
       ],
     );
   }
 }
+
+// ─── Resend row (countdown only, no animation) ───────────────────────────────
 
 class _ResendRow extends HookConsumerWidget {
   const _ResendRow();
@@ -813,15 +617,17 @@ class _ResendRow extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final cooldown = useState(30);
     final hasSent = useState(false);
-    final isPressed = useState(false);
     final locale = AppLocalizations.of(context)!;
 
     useEffect(() {
-      final s = Stream.periodic(const Duration(seconds: 1));
-      final sub = s.listen((_) {
-        if (cooldown.value > 0) cooldown.value--;
+      StreamSubscription? sub;
+      sub = Stream.periodic(const Duration(seconds: 1)).listen((_) {
+        if (cooldown.value > 0) {
+          cooldown.value--;
+          if (cooldown.value == 0) sub?.cancel();
+        }
       });
-      return sub.cancel;
+      return () => sub?.cancel();
     }, const []);
 
     final canResend = cooldown.value == 0 && !hasSent.value;
@@ -831,58 +637,48 @@ class _ResendRow extends HookConsumerWidget {
       children: [
         Text(
           locale.emailVerificationDidNotReceive,
-          style: const TextStyle(
-            fontSize: 13,
-            color: _Tokens.textSecondary,
-          ),
+          style: const TextStyle(fontSize: 13, color: _Tokens.textSecondary),
         ),
         GestureDetector(
-          onTapDown: canResend ? (_) => isPressed.value = true : null,
-          onTapUp: canResend
-              ? (_) {
-                  isPressed.value = false;
+          onTap: canResend
+              ? () {
                   hasSent.value = true;
                   cooldown.value = 30;
                 }
               : null,
-          onTapCancel: () => isPressed.value = false,
-          child: AnimatedScale(
-            scale: isPressed.value ? 0.93 : 1.0,
-            duration: const Duration(milliseconds: 100),
-            child: hasSent.value
-                ? Text(
-                    locale.emailVerificationResent,
-                    style: const TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
-                      color: Color(0xFF4ADE80),
-                    ),
-                  )
-                : cooldown.value > 0
-                    ? _CountdownChip(seconds: cooldown.value)
-                    : Text(
-                        locale.emailVerificationResend,
-                        style: const TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w700,
-                          color: Color(0xFFE31E24),
-                        ),
+          child: hasSent.value
+              ? Text(
+                  locale.emailVerificationResent,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFF4ADE80),
+                  ),
+                )
+              : cooldown.value > 0
+                  ? _CountdownChip(seconds: cooldown.value)
+                  : Text(
+                      locale.emailVerificationResend,
+                      style: const TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xFFE31E24),
                       ),
-          ),
+                    ),
         ),
       ],
     );
   }
 }
 
-class _CountdownChip extends HookWidget {
+// ─── Countdown chip ───────────────────────────────────────────────────────────
+
+class _CountdownChip extends StatelessWidget {
   final int seconds;
   const _CountdownChip({required this.seconds});
 
   @override
   Widget build(BuildContext context) {
-    final progress = seconds / 30.0;
-
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -890,7 +686,7 @@ class _CountdownChip extends HookWidget {
           width: 14,
           height: 14,
           child: CustomPaint(
-            painter: _RingPainter(progress: progress),
+            painter: _RingPainter(progress: seconds / 30.0),
           ),
         ),
         const SizedBox(width: 5),
@@ -934,6 +730,8 @@ class _RingPainter extends CustomPainter {
   bool shouldRepaint(_RingPainter old) => old.progress != progress;
 }
 
+// ─── Footer ───────────────────────────────────────────────────────────────────
+
 class _Footer extends StatelessWidget {
   const _Footer();
 
@@ -946,10 +744,7 @@ class _Footer extends StatelessWidget {
       children: [
         Text(
           locale.emailVerificationNeedHelp,
-          style: const TextStyle(
-            fontSize: 13,
-            color: _Tokens.textSecondary,
-          ),
+          style: const TextStyle(fontSize: 13, color: _Tokens.textSecondary),
         ),
         Text(
           locale.emailVerificationContactSupport,
@@ -960,50 +755,6 @@ class _Footer extends StatelessWidget {
           ),
         ),
       ],
-    );
-  }
-}
-
-class _StaggerFade extends HookWidget {
-  final AnimationController ctrl;
-  final double start;
-  final double end;
-  final Offset slideFrom;
-  final Widget child;
-
-  const _StaggerFade({
-    required this.ctrl,
-    required this.start,
-    required this.end,
-    this.slideFrom = const Offset(0, 0.12),
-    required this.child,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final fade = useAnimation(
-      Tween<double>(begin: 0, end: 1).animate(
-        CurvedAnimation(
-          parent: ctrl,
-          curve: Interval(start, end, curve: Curves.easeOut),
-        ),
-      ),
-    );
-    final slide = useAnimation(
-      Tween<Offset>(begin: slideFrom, end: Offset.zero).animate(
-        CurvedAnimation(
-          parent: ctrl,
-          curve: Interval(start, end, curve: Curves.easeOutCubic),
-        ),
-      ),
-    );
-
-    return FadeTransition(
-      opacity: AlwaysStoppedAnimation(fade),
-      child: SlideTransition(
-        position: AlwaysStoppedAnimation(slide),
-        child: child,
-      ),
     );
   }
 }

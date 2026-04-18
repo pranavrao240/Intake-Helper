@@ -10,6 +10,7 @@ import 'package:intake_helper/l10n/app_localizations.dart';
 
 import 'package:intake_helper/api/api_service.dart';
 import 'package:intake_helper/router.dart';
+import 'package:intake_helper/components/toast/toast.dart';
 
 class LoginPage extends HookConsumerWidget {
   const LoginPage({super.key});
@@ -27,13 +28,25 @@ class LoginPage extends HookConsumerWidget {
       final value = next.value;
       if (value == null) return;
 
+      if (value.errorMessage != null &&
+          value.errorMessage!.isNotEmpty &&
+          previous?.value?.errorMessage != value.errorMessage) {
+        debugPrint('Error: ${value.errorMessage}');
+        showToast(value.errorMessage!, context, 2);
+      }
+
       if (value.redirect != null) {
-        context.goNamed(value.redirect!);
+        ref.read(apiServiceProvider.notifier).clearState();
+        if (context.mounted) {
+          errorMessage.value = '';
+
+          context.goNamed(value.redirect!);
+        }
       }
     });
 
     Future<void> handleSignIn() async {
-      errorMessage.value = '';
+      ref.read(apiServiceProvider.notifier).clearState();
 
       final form = formKey.currentState;
       if (form == null || !form.validate()) {
@@ -49,17 +62,23 @@ class LoginPage extends HookConsumerWidget {
               passwordController.text.trim(),
             );
 
-        isLoading.value = false;
+        if (context.mounted) {
+          isLoading.value = false;
+        }
 
         if (success) {
           final prefs = await SharedPreferences.getInstance();
           await prefs.setString('user_email', emailController.text.trim());
         } else {
-          errorMessage.value = locale.loginPageInvalidCredentials;
+          if (context.mounted) {
+            errorMessage.value = locale.loginPageInvalidCredentials;
+          }
         }
       } catch (_) {
-        isLoading.value = false;
-        errorMessage.value = locale.loginPageGenericError;
+        if (context.mounted) {
+          isLoading.value = false;
+          errorMessage.value = locale.loginPageGenericError;
+        }
       }
     }
 

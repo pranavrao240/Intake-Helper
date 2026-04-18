@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:intake_helper/Providers/save_meal_provider.dart';
 import 'package:intake_helper/api/api_service.dart';
+import 'package:intake_helper/components/toast/toast.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
 class NutritionHeroSection extends HookConsumerWidget {
@@ -22,6 +24,11 @@ class NutritionHeroSection extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isLiked = useState(isSaved);
+    final saveMealState = ref.watch(saveMealProvider);
+    final savedMealId = saveMealState.value != null
+        ? ref.read(saveMealProvider.notifier).getSavedMealId(id)
+        : null;
+
     return SizedBox(
       height: MediaQuery.of(context).size.height * 0.42,
       width: double.infinity,
@@ -71,10 +78,25 @@ class NutritionHeroSection extends HookConsumerWidget {
                 ),
                 _GlassButton(
                   onTap: () async {
-                    isLiked.value = !isLiked.value;
-                    await ref
-                        .read(apiServiceProvider.notifier)
-                        .updateSavedNutritions(id);
+                    if (!isLiked.value) {
+                      await ref
+                          .read(saveMealProvider.notifier)
+                          .postSavedMeals(nutritionId: id);
+                      isLiked.value = true;
+                      showToast('Meal saved successfully', context, 1);
+                    } else {
+                      if (savedMealId != null) {
+                        await ref
+                            .read(saveMealProvider.notifier)
+                            .unSaveMeal(savedMealId: savedMealId);
+                        isLiked.value = false;
+                        showToast('Meal unsaved successfully', context, 1);
+                      } else {
+                        // Handle case where savedMealId is null
+                        showToast('Failed to unsave meal: meal not found',
+                            context, 2);
+                      }
+                    }
                   },
                   child: Icon(
                     isLiked.value ? Icons.favorite : Icons.favorite_border,
