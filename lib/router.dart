@@ -6,6 +6,7 @@ import 'package:intake_helper/pages/auth/reset%20password/reset_password_page.da
 import 'package:intake_helper/pages/notifications/notifications_page.dart';
 import 'package:intake_helper/pages/on%20boarding/onboarding_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:intake_helper/analytics_service.dart';
 
 import '../main.dart';
 import 'pages/home page/HomePage.dart';
@@ -102,10 +103,39 @@ final protectedRoutes = [
 final GoRouter appRouter = GoRouter(
   navigatorKey: navigatorKey,
   initialLocation: RouteConstants.login.path,
+  // Add deep linking support
+  debugLogDiagnostics: true,
+  observers: [AnalyticsRouterObserver()],
   redirect: (context, state) async {
     final isLoggedIn = await isUserLoggedIn();
     final onboardingDone = await hasSeenOnboarding();
-    final path = state.uri.path;
+    final uri = state.uri;
+    final path = uri.path;
+
+    // Handle custom URI scheme (intakehelper://)
+    if (uri.hasScheme && uri.scheme == 'intakehelper') {
+      // For deep links, extract the path and handle it
+      final deepLinkPath = path.isEmpty ? '/login' : path;
+
+      if (!isLoggedIn && protectedRoutes.contains(deepLinkPath)) {
+        return RouteConstants.login.path;
+      }
+
+      if (isLoggedIn &&
+          !onboardingDone &&
+          deepLinkPath != RouteConstants.onboarding.path) {
+        return RouteConstants.onboarding.path;
+      }
+
+      if (isLoggedIn &&
+          onboardingDone &&
+          publicRoutes.contains(deepLinkPath) &&
+          deepLinkPath != RouteConstants.emailVerification.path) {
+        return RouteConstants.home.path;
+      }
+
+      return null;
+    }
 
     if (!isLoggedIn && protectedRoutes.contains(path)) {
       return RouteConstants.login.path;

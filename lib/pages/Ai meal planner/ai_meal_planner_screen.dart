@@ -221,13 +221,61 @@ class AiMealPlannerScreen extends HookConsumerWidget {
       isGenerating.value = true;
       promptController.clear();
 
-      final openAiService = await ref.read(openAiProvider.notifier);
-      await openAiService.postOpenAiResponse(prompt: text);
+      try {
+        final openAiService = await ref.read(openAiProvider.notifier);
+        await openAiService.postOpenAiResponse(prompt: text);
+      } catch (e) {
+        // Handle API call errors
+        ref.read(chatMessagesProvider.notifier).addMessage(
+            ChatMessage(locale.aiMealPlannerSorryMessage, MessageType.ai));
+        isGenerating.value = false;
+        return;
+      }
 
       final openAiState = ref.read(openAiProvider);
+      print('OpenAI State: $openAiState');
+
+      // Check if there's an error message
+      final errorMessage = openAiState.value?.errorMessage;
+      if (errorMessage != null) {
+        print('OpenAI Error: $errorMessage');
+        ref
+            .read(chatMessagesProvider.notifier)
+            .addMessage(ChatMessage('Error: $errorMessage', MessageType.ai));
+        isGenerating.value = false;
+        return;
+      }
+
       final aiText = openAiState.maybeWhen(
-        orElse: () => locale.aiMealPlannerSorryMessage,
-        data: (data) => data.openAiModel!.output.first.content.first.text,
+        orElse: () {
+          print('Using fallback message - state might be loading or error');
+          return locale.aiMealPlannerSorryMessage;
+        },
+        data: (data) {
+          print('Processing OpenAI data...');
+          // Check for null values and provide fallback
+          if (data.openAiModel == null) {
+            print('OpenAI model is null');
+            return locale.aiMealPlannerSorryMessage;
+          }
+
+          final output = data.openAiModel!.output;
+          if (output.isEmpty) {
+            return locale.aiMealPlannerSorryMessage;
+          }
+
+          final content = output.first.content;
+          if (content.isEmpty) {
+            return locale.aiMealPlannerSorryMessage;
+          }
+
+          final text = content.first.text;
+          if (text.isEmpty) {
+            return locale.aiMealPlannerSorryMessage;
+          }
+
+          return text;
+        },
       );
 
       ref

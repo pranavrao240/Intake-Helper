@@ -149,8 +149,7 @@ class ApiService extends AsyncNotifier<ApiState> {
 
         debugPrint('model: $model');
 
-        final currentState = state.value ?? ApiState(null);
-        state = AsyncValue.data(currentState.copyWith(
+        state = AsyncValue.data(ApiState(null).copyWith(
             // Don't save token until email is verified
             message: 'Email Sent for verification',
             register: model,
@@ -202,13 +201,29 @@ class ApiService extends AsyncNotifier<ApiState> {
 
         final currentState = state.value ?? ApiState(null);
 
-        state = AsyncValue.data(
-          currentState.copyWith(
-            token: model.data.token,
-            message: model.message,
-            redirect: RouteConstants.home.name,
-          ),
-        );
+        // Check if email is verified
+        if (model.data.emailVerified == true) {
+          state = AsyncValue.data(
+            currentState.copyWith(
+              token: model.data.token,
+              message: model.message,
+              redirect: RouteConstants.home.name,
+            ),
+          );
+        } else {
+          // Store user email for verification page
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setString('user_email', model.data.email ?? '');
+
+          // Email not verified, redirect to verification page
+          state = AsyncValue.data(
+            currentState.copyWith(
+              token: model.data.token,
+              errorMessage: 'Please verify your email before continuing',
+              redirect: RouteConstants.emailVerification.name,
+            ),
+          );
+        }
 
         return true;
       } else {
@@ -348,6 +363,36 @@ class ApiService extends AsyncNotifier<ApiState> {
       state = AsyncValue.data(state.value!.copyWith(
         errorMessage: 'Email verification failed',
       ));
+    }
+    return false;
+  }
+
+  Future<bool> checkEmailVerificationStatus() async {
+    try {
+      final preferences = await SharedPreferences.getInstance();
+      final token = preferences.getString('token');
+
+      if (token == null || token.isEmpty) {
+        return false;
+      }
+
+      final res = await client.get(
+        _url(Config.profileAPI),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (res.statusCode == 200) {
+        final responseData = jsonDecode(res.body);
+        final userData = responseData['data'];
+        final emailVerified = userData['emailVerified'] ?? false;
+
+        return emailVerified;
+      }
+    } catch (e) {
+      log.i('Error checking email verification status: $e');
     }
     return false;
   }
@@ -557,31 +602,46 @@ class ApiService extends AsyncNotifier<ApiState> {
     }
   }
 
-  Future<List<Nutrition>> getNutritions() async {
-    if (state.value?.nutritions != null) {
-      return state.value!.nutritions!;
-    }
-
+  Future<List<Nutrition>> getNutritions({
+    int page = 1,
+    int limit = 15,
+    bool reset = false,
+  }) async {
     try {
-      final res = await client.get(_url(Config.nutritionAPI));
+      final uri = _url(Config.nutritionListAPI).replace(
+        queryParameters: {
+          'page': page.toString(),
+          'limit': limit.toString(),
+        },
+      );
+
+      print('Requesting: $uri');
+      final res = await client.get(uri);
+
+      print('Status: ${res.statusCode}');
 
       if (res.statusCode == 200) {
         final responseData = NutritionResponse.fromJson(json.decode(res.body));
+        final newData = responseData.data;
+        print('Parsed ${newData.length} items');
 
-        final data = responseData.data;
+        // Get existing data
+        final existingData = state.value?.nutritions ?? [];
+
+        // Append new data (for pagination)
+        final allData = page == 1 ? newData : [...existingData, ...newData];
 
         state = AsyncValue.data(state.value!.copyWith(
-          nutritions: data,
+          nutritions: allData,
         ));
 
-        return data;
+        return newData;
       } else {
-        debugPrint("API request failed with status: ${res.statusCode}");
+        debugPrint('API failed: ${res.statusCode}');
         return [];
       }
     } catch (e, stackTrace) {
-      debugPrint("Nutrition error: $e");
-      debugPrint("Stack trace: $stackTrace");
+      debugPrint('Nutrition error: $e\n$stackTrace');
       return [];
     }
   }

@@ -47,80 +47,85 @@ class TodoDateSelector extends HookWidget {
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: weekDays.map((item) {
-          final isSelected = selectedDate.value.day == item.date.day;
-          return GestureDetector(
-            onTap: () {
-              selectedDate.value = item.date;
-              onDateChanged(item.date);
-            },
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 300),
-              width: 48,
-              padding: const EdgeInsets.symmetric(vertical: 12),
-              decoration: BoxDecoration(
-                color: isSelected
-                    ? const Color(0xFF6D28D9)
-                    : Colors.white.withOpacity(0.05),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          spacing: 6,
+          children: weekDays.map((item) {
+            final isSelected = selectedDate.value.day == item.date.day;
+            return GestureDetector(
+              onTap: () {
+                selectedDate.value = item.date;
+                onDateChanged(item.date);
+              },
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 300),
+                width: 58,
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                decoration: BoxDecoration(
                   color: isSelected
-                      ? Colors.transparent
-                      : Colors.white.withOpacity(0.1),
+                      ? const Color(0xFF6D28D9)
+                      : Colors.white.withValues(alpha: 0.05),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: isSelected
+                        ? Colors.transparent
+                        : Colors.white.withValues(alpha: 0.1),
+                  ),
+                  boxShadow: isSelected
+                      ? [
+                          BoxShadow(
+                            color: const Color.fromARGB(255, 84, 71, 137)
+                                .withOpacity(0.4),
+                            blurRadius: 16,
+                            offset: const Offset(0, 4),
+                          ),
+                        ]
+                      : [],
                 ),
-                boxShadow: isSelected
-                    ? [
-                        BoxShadow(
-                          color: const Color(0xFFDC2626).withOpacity(0.4),
-                          blurRadius: 16,
-                          offset: const Offset(0, 4),
-                        ),
-                      ]
-                    : [],
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    item.day,
-                    style: TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w900,
-                      color: isSelected
-                          ? Colors.white
-                          : Colors.white.withOpacity(0.4),
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    '${item.date.day}',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w900,
-                      color: isSelected
-                          ? Colors.white
-                          : Colors.white.withOpacity(0.9),
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  if (item.isToday)
-                    Container(
-                      width: 5,
-                      height: 5,
-                      decoration: BoxDecoration(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      item.day,
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w900,
                         color: isSelected
-                            ? Colors.white.withOpacity(0.8)
-                            : const Color(0xFFDC2626),
-                        shape: BoxShape.circle,
+                            ? Colors.white
+                            : Colors.white.withOpacity(0.4),
                       ),
                     ),
-                ],
+                    const SizedBox(height: 6),
+                    Text(
+                      '${item.date.day}',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w900,
+                        color: isSelected
+                            ? Colors.white
+                            : Colors.white.withOpacity(0.9),
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    if (item.isToday)
+                      Container(
+                        width: 5,
+                        height: 5,
+                        decoration: BoxDecoration(
+                          color: isSelected
+                              ? Colors.white.withValues(alpha: 0.8)
+                              : const Color(0xFF8B5CF6),
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                  ],
+                ),
               ),
-            ),
-          );
-        }).toList(),
+            );
+          }).toList(),
+        ),
       ),
     );
   }

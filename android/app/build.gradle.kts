@@ -90,9 +90,9 @@ android {
 
         targetSdk = flutter.targetSdkVersion
 
-        versionCode = 4               // increment integer each release
+        versionCode = 5               // increment integer each release
 
-        versionName = "1.0.3"
+        versionName = "1.0.4"
 
         manifestPlaceholders["appAuthRedirectScheme"] = "intakehelper"
 

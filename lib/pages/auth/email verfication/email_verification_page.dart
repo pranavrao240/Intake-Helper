@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intake_helper/router.dart';
 import 'package:intake_helper/l10n/app_localizations.dart';
+import 'package:intake_helper/api/api_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class _Tokens {
@@ -287,24 +288,8 @@ class _BottomCard extends StatelessWidget {
           const SizedBox(height: 28),
           const _StepsRow(),
           const SizedBox(height: 28),
-          _ContinueButton(
-            onTap: () async {
-              debugPrint('Continue button clicked');
-              try {
-                final preferences = await SharedPreferences.getInstance();
-                debugPrint('SharedPreferences instance created');
-                await preferences.remove('token');
-                debugPrint('Token removed successfully');
-                if (context.mounted) {
-                  debugPrint('Context mounted, navigating to login');
-                  context.go(RouteConstants.login.path);
-                } else {
-                  debugPrint('Context not mounted');
-                }
-              } catch (e) {
-                debugPrint('Error in continue button: $e');
-              }
-            },
+          _ConfirmVerificationButton(
+            email: email,
           ),
           const SizedBox(height: 16),
           const _OrDivider(),
@@ -535,6 +520,54 @@ class _Step extends StatelessWidget {
   }
 }
 
+// ─── Confirm verification button
+
+class _ConfirmVerificationButton extends StatelessWidget {
+  final String email;
+  const _ConfirmVerificationButton({required this.email});
+
+  @override
+  Widget build(BuildContext context) {
+    final locale = AppLocalizations.of(context)!;
+
+    return GestureDetector(
+      onTap: () {
+        // Navigate back to login after verification
+        context.go('/login');
+      },
+      child: Container(
+        height: 58,
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [_Tokens.btnLeft, _Tokens.btnRight],
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
+          ),
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFF6B3FD4).withValues(alpha: 0.45),
+              blurRadius: 24,
+              offset: const Offset(0, 8),
+            ),
+          ],
+        ),
+        child: Center(
+          child: Text(
+            locale.emailVerificationVerifyNow,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 17,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 0.2,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 // ─── Continue button (no shim animation) ─────────────────────────────────────
 
 class _ContinueButton extends StatelessWidget {
@@ -559,7 +592,7 @@ class _ContinueButton extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFF6B3FD4).withOpacity(0.45),
+              color: const Color(0xFF6B3FD4).withValues(alpha: 0.45),
               blurRadius: 24,
               offset: const Offset(0, 8),
             ),

@@ -14,6 +14,7 @@ import 'package:intake_helper/theme/app_theme.dart';
 import 'package:intake_helper/utility/fcm_services.dart';
 import 'package:intake_helper/utility/local_notiifcations.dart';
 import 'package:intake_helper/utility/notification.dart';
+import 'package:intake_helper/analytics_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
@@ -23,6 +24,8 @@ final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(fileName: ".env");
+  await AnalyticsService.init();
   await Firebase.initializeApp();
 
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
@@ -32,7 +35,6 @@ void main() async {
     badge: true,
     sound: true,
   );
-  await dotenv.load(fileName: ".env");
 
   await Supabase.initialize(
     url: 'https://vmhkcoenltymspivkagd.supabase.co',
@@ -111,10 +113,12 @@ class AppWrapper extends ConsumerStatefulWidget {
   ConsumerState<AppWrapper> createState() => _AppWrapperState();
 }
 
-class _AppWrapperState extends ConsumerState<AppWrapper> {
+class _AppWrapperState extends ConsumerState<AppWrapper>
+    with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     updateActivity();
     FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
       final notification = message.notification;
@@ -135,14 +139,39 @@ class _AppWrapperState extends ConsumerState<AppWrapper> {
     updateActivity();
   }
 
-  Future<void> updateActivity() async {
-    final notificationService = ref.read(mealNotificationProvider.notifier);
-    await notificationService.updateLastActive();
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+
+    switch (state) {
+      case AppLifecycleState.paused:
+        // Stop session recording when app goes to background
+        AnalyticsService.stopSessionRecording();
+        break;
+      case AppLifecycleState.resumed:
+        // Restart session recording when app comes to foreground
+        AnalyticsService.startSessionRecording();
+        break;
+      case AppLifecycleState.detached:
+        // Stop session recording when app is completely closed
+        AnalyticsService.stopSessionRecording();
+        break;
+      default:
+        break;
+    }
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    // Stop session recording when widget is disposed
+    AnalyticsService.stopSessionRecording();
     super.dispose();
+  }
+
+  Future<void> updateActivity() async {
+    final notificationService = ref.read(mealNotificationProvider.notifier);
+    await notificationService.updateLastActive();
   }
 
   @override

@@ -17,12 +17,18 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:math' as math;
 import 'package:intake_helper/l10n/app_localizations.dart';
+import 'package:intake_helper/analytics_service.dart';
 
 class Homepage extends HookConsumerWidget {
   const Homepage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // Start session recording when homepage is accessed
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      AnalyticsService.startSessionRecording();
+    });
+
     final api = ref.read(apiServiceProvider.notifier);
     final locale = AppLocalizations.of(context)!;
 

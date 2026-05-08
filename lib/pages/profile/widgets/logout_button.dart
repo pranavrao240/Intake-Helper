@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intake_helper/router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:intake_helper/analytics_service.dart';
 
 class LogoutButton extends HookConsumerWidget {
   const LogoutButton({super.key});
@@ -15,6 +16,9 @@ class LogoutButton extends HookConsumerWidget {
         width: double.infinity,
         child: ElevatedButton.icon(
           onPressed: () async {
+            // Stop session recording when user logs out
+            AnalyticsService.stopSessionRecording();
+
             final preferences = await SharedPreferences.getInstance();
             await preferences.remove('token');
 

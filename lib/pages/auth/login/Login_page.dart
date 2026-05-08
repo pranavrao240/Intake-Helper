@@ -11,12 +11,18 @@ import 'package:intake_helper/l10n/app_localizations.dart';
 import 'package:intake_helper/api/api_service.dart';
 import 'package:intake_helper/router.dart';
 import 'package:intake_helper/components/toast/toast.dart';
+import 'package:intake_helper/analytics_service.dart';
 
 class LoginPage extends HookConsumerWidget {
   const LoginPage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // Track screen view manually as backup
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      AnalyticsService.trackScreenView('Login');
+    });
+
     final formKey = useMemoized(() => GlobalKey<FormState>());
     final emailController = useTextEditingController();
     final passwordController = useTextEditingController();
@@ -24,7 +30,8 @@ class LoginPage extends HookConsumerWidget {
     final errorMessage = useState('');
     final locale = AppLocalizations.of(context)!;
 
-    ref.listen<AsyncValue<ApiState>>(apiServiceProvider, (previous, next) {
+    ref.listen<AsyncValue<ApiState>>(apiServiceProvider,
+        (previous, next) async {
       final value = next.value;
       if (value == null) return;
 
@@ -34,13 +41,27 @@ class LoginPage extends HookConsumerWidget {
         debugPrint('Error: ${value.errorMessage}');
         showToast(value.errorMessage!, context, 2);
       }
+      if (value.message != null &&
+          value.message!.isNotEmpty &&
+          previous?.value?.message != value.message) {
+        debugPrint('Message: ${value.message}');
+        showToast(value.message!, context, 1);
+      }
 
       if (value.redirect != null) {
         ref.read(apiServiceProvider.notifier).clearState();
         if (context.mounted) {
           errorMessage.value = '';
 
-          context.goNamed(value.redirect!);
+          if (value.redirect == RouteConstants.emailVerification.name) {
+            // Get email from shared preferences for verification page
+            final prefs = await SharedPreferences.getInstance();
+            final userEmail =
+                prefs.getString('user_email') ?? emailController.text.trim();
+            context.go('/email-verification?email=$userEmail');
+          } else {
+            context.goNamed(value.redirect!);
+          }
         }
       }
     });
@@ -69,6 +90,15 @@ class LoginPage extends HookConsumerWidget {
         if (success) {
           final prefs = await SharedPreferences.getInstance();
           await prefs.setString('user_email', emailController.text.trim());
+
+          // Identify user in analytics
+          AnalyticsService.identifyUser(
+            emailController.text.trim(),
+            traits: {'plan': 'premium'},
+          );
+
+          // Start session recording for authenticated user
+          AnalyticsService.startSessionRecording();
         } else {
           if (context.mounted) {
             errorMessage.value = locale.loginPageInvalidCredentials;

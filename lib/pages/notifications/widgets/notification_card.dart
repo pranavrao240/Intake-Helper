@@ -69,7 +69,12 @@ class NotificationCard extends HookConsumerWidget {
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 200),
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.9),
+                  gradient: LinearGradient(
+                    colors: [
+                      Color(0xFF4338CA), // indigo-700
+                      Color(0xFF6D28D9), // violet-700
+                    ],
+                  ),
                   borderRadius: BorderRadius.circular(24),
                   border: Border.all(
                     color: notification.isRead

@@ -30,37 +30,64 @@ class NutritionScreen extends HookConsumerWidget {
     final isLoading = useState(true);
     final isLoadingMore = useState(false);
     final error = useState<String?>(null);
-    final visibleCount = useState(_pageSize);
+    final currentPage = useState(1);
+    final hasMorePages = useState(true);
 
-    // Initial data load
-    useEffect(() {
-      api.getNutritions().then((value) {
-        nutritions.value = value;
-        isLoading.value = false;
-      }).catchError((e) {
+    Future<void> loadInitialData() async {
+      try {
+        error.value = null;
+        isLoading.value = true;
+        currentPage.value = 1;
+        hasMorePages.value = true;
+
+        final data =
+            await api.getNutritions(page: 1, limit: _pageSize, reset: true);
+
+        nutritions.value = data;
+
+        print('nutrition value: ${nutritions.value}');
+
+        hasMorePages.value = data.length >= _pageSize;
+      } catch (e) {
         error.value = e.toString();
+      } finally {
         isLoading.value = false;
-      });
-      return null;
-    }, []);
-
-    // Reset pagination when search query changes
-    useEffect(() {
-      visibleCount.value = _pageSize;
-      return null;
-    }, [searchQuery.value]);
-
-    final filtered = _filterData(nutritions.value, searchQuery.value);
-    final visible = filtered.take(visibleCount.value).toList();
-    final hasMore = visibleCount.value < filtered.length;
-    final remaining = filtered.length - visibleCount.value;
+      }
+    }
 
     Future<void> loadMore() async {
-      isLoadingMore.value = true;
-      await Future.delayed(const Duration(milliseconds: 400));
-      visibleCount.value += _pageSize;
-      isLoadingMore.value = false;
+      if (isLoadingMore.value || !hasMorePages.value) return;
+
+      try {
+        isLoadingMore.value = true;
+        currentPage.value++;
+
+        final newData = await api.getNutritions(
+          page: currentPage.value,
+          limit: _pageSize,
+        );
+
+        // ADD THIS
+        nutritions.value = [...nutritions.value, ...newData];
+
+        if (newData.length < _pageSize) {
+          hasMorePages.value = false;
+        }
+      } catch (e) {
+        error.value = e.toString();
+        currentPage.value--;
+      } finally {
+        isLoadingMore.value = false;
+      }
     }
+
+    useEffect(() {
+      Future.microtask(() => loadInitialData()); // ✅ safe async call
+      print("loadInitialData called");
+      return null;
+    }, const []); // ✅ use const [] for stability
+
+    final hasMore = hasMorePages.value && searchQuery.value.isEmpty;
 
     return Scaffold(
       backgroundColor: const Color(0xFF0A0A0A),
@@ -116,7 +143,7 @@ class NutritionScreen extends HookConsumerWidget {
             )
 
           // ── Empty ──
-          else if (filtered.isEmpty)
+          else if (nutritions.value.isEmpty)
             SliverFillRemaining(
               child: Center(
                 child: Column(
@@ -145,7 +172,7 @@ class NutritionScreen extends HookConsumerWidget {
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
                 child: Text(
-                  'Showing ${visible.length} of ${filtered.length} results',
+                  'Showing ${nutritions.value.length} results',
                   style: TextStyle(
                     color: Colors.white.withValues(alpha: 0.3),
                     fontSize: 12,
@@ -166,8 +193,9 @@ class NutritionScreen extends HookConsumerWidget {
                   childAspectRatio: 1.65,
                 ),
                 delegate: SliverChildBuilderDelegate(
-                  (context, index) => NutritionItemCard(item: visible[index]),
-                  childCount: visible.length,
+                  (context, index) =>
+                      NutritionItemCard(item: nutritions.value[index]),
+                  childCount: nutritions.value.length,
                 ),
               ),
             ),
@@ -178,12 +206,10 @@ class NutritionScreen extends HookConsumerWidget {
                 padding: const EdgeInsets.fromLTRB(16, 20, 16, 100),
                 child: hasMore
                     ? _LoadMoreButton(
-                        remaining: remaining,
-                        pageSize: _pageSize,
                         isLoading: isLoadingMore.value,
                         onTap: loadMore,
                       )
-                    : _EndIndicator(total: filtered.length),
+                    : _EndIndicator(total: nutritions.value.length),
               ),
             ),
           ],
@@ -195,22 +221,16 @@ class NutritionScreen extends HookConsumerWidget {
 }
 
 class _LoadMoreButton extends StatelessWidget {
-  final int remaining;
-  final int pageSize;
   final bool isLoading;
   final VoidCallback onTap;
 
   const _LoadMoreButton({
-    required this.remaining,
-    required this.pageSize,
     required this.isLoading,
     required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    final loadCount = remaining.clamp(0, pageSize);
-
     return GestureDetector(
       onTap: isLoading ? null : onTap,
       child: AnimatedContainer(
@@ -239,38 +259,21 @@ class _LoadMoreButton extends StatelessWidget {
                   ),
                 ),
               )
-            : Row(
+            : const Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(
+                  Icon(
                     Icons.expand_more_rounded,
                     color: Color(0xFF3B82F6),
                     size: 20,
                   ),
-                  const SizedBox(width: 8),
+                  SizedBox(width: 8),
                   Text(
-                    'Load $loadCount more',
-                    style: const TextStyle(
+                    'Load more',
+                    style: TextStyle(
                       color: Color(0xFF3B82F6),
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF3B82F6).withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Text(
-                      '$remaining left',
-                      style: TextStyle(
-                        color: const Color(0xFF3B82F6).withValues(alpha: 0.8),
-                        fontSize: 11,
-                        fontWeight: FontWeight.w700,
-                      ),
                     ),
                   ),
                 ],
