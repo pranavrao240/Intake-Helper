@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
@@ -103,7 +102,6 @@ class PasswordInputCard extends HookConsumerWidget {
             isLoading: state.isSubmitting,
             onTap: () async {
               final prefs = await SharedPreferences.getInstance();
-              print("Submit button tapped ${passwordController.text}");
               await ref.read(apiServiceProvider.notifier).resetPassword(
                   prefs.getString('emailVerificationToken') ?? '',
                   passwordController.text);

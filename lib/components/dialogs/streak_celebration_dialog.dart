@@ -131,8 +131,8 @@ class StreakCelebrationDialog extends HookConsumerWidget {
                         child: SizedBox(
                           width: 160,
                           height: 200,
-                          child: Image.asset(
-                            'lib/assets/videos/$avatar.gif',
+                          child: Image.network(
+                            'https://pmxylbawxioitqbyntvi.supabase.co/storage/v1/object/public/meals/videos/$avatar.gif',
                             fit: BoxFit.cover,
                             errorBuilder: (context, error, stackTrace) {
                               return Container(

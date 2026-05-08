@@ -266,7 +266,6 @@ class SaveMealService extends AsyncNotifier<SavedMealState> {
 
     try {
       if (response.statusCode == 200) {
-        print('Check saved meal response: ${response.data['isSaved']}');
         state = AsyncValue.data(
           state.value!.copyWith(
             success: true,

@@ -13,14 +13,6 @@ class NutritionScreen extends HookConsumerWidget {
 
   static const int _pageSize = 15;
 
-  List<Nutrition> _filterData(List<Nutrition> data, String query) {
-    if (query.isEmpty) return data;
-    return data
-        .where((item) =>
-            item.dishName?.toLowerCase().contains(query.toLowerCase()) ?? false)
-        .toList();
-  }
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final api = ref.read(apiServiceProvider.notifier);
@@ -32,21 +24,23 @@ class NutritionScreen extends HookConsumerWidget {
     final error = useState<String?>(null);
     final currentPage = useState(1);
     final hasMorePages = useState(true);
+    // Track in-flight search to cancel stale results
+    final searchVersion = useRef(0);
 
-    Future<void> loadInitialData() async {
+    Future<void> loadInitialData({bool forceRefresh = false}) async {
+      final hasCachedData = nutritions.value.isNotEmpty && !forceRefresh;
       try {
         error.value = null;
         isLoading.value = true;
-        currentPage.value = 1;
-        hasMorePages.value = true;
-
-        final data =
-            await api.getNutritions(page: 1, limit: _pageSize, reset: true);
-
-        nutritions.value = data;
-
-        print('nutrition value: ${nutritions.value}');
-
+        if (!hasCachedData) {
+          currentPage.value = 1;
+          hasMorePages.value = true;
+        }
+        final data = await api.getNutritions(
+            page: 1, limit: _pageSize, reset: !hasCachedData);
+        if (!hasCachedData || data.isNotEmpty) {
+          nutritions.value = data;
+        }
         hasMorePages.value = data.length >= _pageSize;
       } catch (e) {
         error.value = e.toString();
@@ -57,22 +51,15 @@ class NutritionScreen extends HookConsumerWidget {
 
     Future<void> loadMore() async {
       if (isLoadingMore.value || !hasMorePages.value) return;
-
       try {
         isLoadingMore.value = true;
         currentPage.value++;
-
         final newData = await api.getNutritions(
           page: currentPage.value,
           limit: _pageSize,
         );
-
-        // ADD THIS
         nutritions.value = [...nutritions.value, ...newData];
-
-        if (newData.length < _pageSize) {
-          hasMorePages.value = false;
-        }
+        if (newData.length < _pageSize) hasMorePages.value = false;
       } catch (e) {
         error.value = e.toString();
         currentPage.value--;
@@ -81,139 +68,187 @@ class NutritionScreen extends HookConsumerWidget {
       }
     }
 
-    useEffect(() {
-      Future.microtask(() => loadInitialData()); // ✅ safe async call
-      print("loadInitialData called");
-      return null;
-    }, const []); // ✅ use const [] for stability
+    Future<void> searchNutritions(String query) async {
+      if (query.isEmpty) {
+        await loadInitialData(forceRefresh: true);
+        return;
+      }
 
-    final hasMore = hasMorePages.value && searchQuery.value.isEmpty;
+      searchVersion.value++;
+      final myVersion = searchVersion.value;
+
+      try {
+        error.value = null;
+        isLoading.value = true;
+
+        final data = await api.getNutritions(
+          page: 1,
+          limit: _pageSize,
+          search: query,
+        );
+
+        if (searchVersion.value != myVersion) return;
+
+        nutritions.value = data;
+        currentPage.value = 1;
+        hasMorePages.value = data.length >= _pageSize;
+      } catch (e) {
+        if (searchVersion.value == myVersion) error.value = e.toString();
+      } finally {
+        if (searchVersion.value == myVersion) isLoading.value = false;
+      }
+    }
+
+    useEffect(() {
+      Future.microtask(() => loadInitialData());
+      return null;
+    }, const []);
+
+    useEffect(() {
+      bool cancelled = false;
+      Future.delayed(const Duration(milliseconds: 400), () {
+        if (!cancelled) {
+          if (searchQuery.value.isEmpty) {
+            loadInitialData(forceRefresh: true);
+          } else {
+            searchNutritions(searchQuery.value);
+          }
+        }
+      });
+      return () => cancelled = true;
+    }, [searchQuery.value]);
+
+    final hasMore = hasMorePages.value;
+    final displayedNutritions = nutritions.value;
 
     return Scaffold(
       backgroundColor: const Color(0xFF0A0A0A),
-      body: CustomScrollView(
-        slivers: [
-          // ── Hero header with overlapping search bar ──
-          SliverToBoxAdapter(
-            child: Stack(
-              clipBehavior: Clip.none,
-              children: [
-                const NutritionListHeader(),
-                Positioned(
-                  bottom: -24,
-                  left: 20,
-                  right: 20,
-                  child: NutritionSearchBar(
-                    controller: searchController,
-                    onChanged: (v) => searchQuery.value = v,
+      body: RefreshIndicator(
+        onRefresh: () => loadInitialData(forceRefresh: true),
+        child: CustomScrollView(
+          slivers: [
+            SliverToBoxAdapter(
+              child: Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  const NutritionListHeader(),
+                  Positioned(
+                    bottom: -24,
+                    left: 20,
+                    right: 20,
+                    child: ValueListenableBuilder<TextEditingValue>(
+                      valueListenable: searchController,
+                      builder: (context, value, child) {
+                        return NutritionSearchBar(
+                          controller: searchController,
+                          onChanged: (v) => searchQuery.value = v,
+                          onClear: () {
+                            searchController.clear();
+                            searchQuery.value = '';
+                          },
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SliverToBoxAdapter(child: SizedBox(height: 44)),
+            if (isLoading.value)
+              const SliverFillRemaining(
+                child: Center(
+                  child: CircularProgressIndicator(color: Color(0xFF3B82F6)),
+                ),
+              )
+            else if (error.value != null)
+              SliverFillRemaining(
+                child: Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.error_outline,
+                          color: Colors.white.withValues(alpha: 0.3), size: 48),
+                      const SizedBox(height: 12),
+                      Text('Failed to load nutrition data',
+                          style: TextStyle(
+                              color: Colors.white.withValues(alpha: 0.5),
+                              fontSize: 14)),
+                      const SizedBox(height: 16),
+                      ElevatedButton(
+                        onPressed: () => loadInitialData(forceRefresh: true),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF3B82F6),
+                          foregroundColor: Colors.white,
+                        ),
+                        child: const Text('Retry'),
+                      ),
+                    ],
                   ),
                 ),
-              ],
-            ),
-          ),
-
-          const SliverToBoxAdapter(child: SizedBox(height: 44)),
-
-          if (isLoading.value)
-            const SliverFillRemaining(
-              child: Center(
-                child: CircularProgressIndicator(color: Color(0xFF3B82F6)),
-              ),
-            )
-
-          // ── Error ──
-          else if (error.value != null)
-            SliverFillRemaining(
-              child: Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.error_outline,
-                        color: Colors.white.withValues(alpha: 0.3), size: 48),
-                    const SizedBox(height: 12),
-                    Text(
-                      'Failed to load nutrition data',
-                      style: TextStyle(
-                          color: Colors.white.withValues(alpha: 0.5),
-                          fontSize: 14),
-                    ),
-                  ],
+              )
+            else if (displayedNutritions.isEmpty)
+              SliverFillRemaining(
+                child: Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.search_off,
+                          color: Colors.white.withValues(alpha: 0.2), size: 48),
+                      const SizedBox(height: 12),
+                      Text(
+                        searchQuery.value.isEmpty
+                            ? 'No nutrition data found'
+                            : 'No results for "${searchQuery.value}"',
+                        style: TextStyle(
+                            color: Colors.white.withValues(alpha: 0.4),
+                            fontSize: 14),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            )
-
-          // ── Empty ──
-          else if (nutritions.value.isEmpty)
-            SliverFillRemaining(
-              child: Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.search_off,
-                        color: Colors.white.withValues(alpha: 0.2), size: 48),
-                    const SizedBox(height: 12),
-                    Text(
-                      searchQuery.value.isEmpty
-                          ? 'No nutrition data found'
-                          : 'No results for "${searchQuery.value}"',
-                      style: TextStyle(
-                          color: Colors.white.withValues(alpha: 0.4),
-                          fontSize: 14),
+              )
+            else ...[
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
+                  child: Text(
+                    'Showing ${displayedNutritions.length} results',
+                    style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.3),
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
                     ),
-                  ],
-                ),
-              ),
-            )
-
-          // ── Results ──
-          else ...[
-            // Results count label
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
-                child: Text(
-                  'Showing ${nutritions.value.length} results',
-                  style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.3),
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ),
-            ),
-
-            // Card grid
-            SliverPadding(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
-              sliver: SliverGrid(
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 1,
-                  mainAxisSpacing: 14,
-                  crossAxisSpacing: 14,
-                  childAspectRatio: 1.65,
-                ),
-                delegate: SliverChildBuilderDelegate(
-                  (context, index) =>
-                      NutritionItemCard(item: nutritions.value[index]),
-                  childCount: nutritions.value.length,
+              SliverPadding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+                sliver: SliverGrid(
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 1,
+                    mainAxisSpacing: 14,
+                    crossAxisSpacing: 14,
+                    childAspectRatio: 1.65,
+                  ),
+                  delegate: SliverChildBuilderDelegate(
+                    (context, index) =>
+                        NutritionItemCard(item: displayedNutritions[index]),
+                    childCount: displayedNutritions.length,
+                  ),
                 ),
               ),
-            ),
-
-            // Load more / end indicator
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 20, 16, 100),
-                child: hasMore
-                    ? _LoadMoreButton(
-                        isLoading: isLoadingMore.value,
-                        onTap: loadMore,
-                      )
-                    : _EndIndicator(total: nutritions.value.length),
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 20, 16, 100),
+                  child: hasMore
+                      ? _LoadMoreButton(
+                          isLoading: isLoadingMore.value, onTap: loadMore)
+                      : _EndIndicator(total: displayedNutritions.length),
+                ),
               ),
-            ),
+            ],
           ],
-        ],
+        ),
       ),
       bottomNavigationBar: BottomNavbar(),
     );

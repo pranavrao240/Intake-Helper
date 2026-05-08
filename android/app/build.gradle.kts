@@ -92,7 +92,7 @@ android {
 
         versionCode = 5               // increment integer each release
 
-        versionName = "1.0.4"
+        versionName = "1.0.5"
 
         manifestPlaceholders["appAuthRedirectScheme"] = "intakehelper"
 
@@ -124,9 +124,14 @@ android {
 
             signingConfig = signingConfigs.getByName("release")
 
-            // isMinifyEnabled = true
+            isMinifyEnabled = true
 
-            // isShrinkResources = true
+            isShrinkResources = true
+
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
 
         }
 
@@ -141,6 +146,7 @@ flutter {
     source = "../.."
 
 }
+
 
 
 

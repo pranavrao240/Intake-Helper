@@ -73,7 +73,6 @@ class AiMealPlannerScreen extends HookConsumerWidget {
         final urlMatch = RegExp(r'\!\[.*?\]\((.*?)\)').firstMatch(line);
         if (urlMatch != null) {
           mealImage = urlMatch.group(1) ?? '';
-          print('mealimage : $mealImage');
         }
         isReadingImage = false;
         continue;
@@ -211,7 +210,6 @@ class AiMealPlannerScreen extends HookConsumerWidget {
 
     Future<void> sendMessage() async {
       final text = promptController.text.trim();
-      print('User message: $text');
       if (text.isEmpty) return;
 
       ref
@@ -233,12 +231,10 @@ class AiMealPlannerScreen extends HookConsumerWidget {
       }
 
       final openAiState = ref.read(openAiProvider);
-      print('OpenAI State: $openAiState');
 
       // Check if there's an error message
       final errorMessage = openAiState.value?.errorMessage;
       if (errorMessage != null) {
-        print('OpenAI Error: $errorMessage');
         ref
             .read(chatMessagesProvider.notifier)
             .addMessage(ChatMessage('Error: $errorMessage', MessageType.ai));

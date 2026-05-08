@@ -3,7 +3,8 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-const String imagePath = 'lib/assets/characters';
+const String imagePath =
+    'https://pmxylbawxioitqbyntvi.supabase.co/storage/v1/object/public/meals/characters';
 const Map<String, String> _avatarList = {
   'male1': '$imagePath/male1.png',
   'male2': '$imagePath/male2.png',
@@ -114,12 +115,21 @@ class AvatarModal extends HookConsumerWidget {
                                 : null,
                           ),
                           child: ClipOval(
-                            child: Image.asset(
+                            child: Image.network(
                               avatar,
                               width: 64,
                               height: 64,
                               fit: BoxFit.cover,
                               alignment: Alignment.topLeft,
+                              errorBuilder: (context, error, stackTrace) {
+                                return Container(
+                                  width: 64,
+                                  height: 64,
+                                  color: Colors.grey,
+                                  child: const Icon(Icons.person,
+                                      color: Colors.white),
+                                );
+                              },
                             ),
                           ),
                         ),

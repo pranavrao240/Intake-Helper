@@ -141,9 +141,6 @@ class ApiService extends AsyncNotifier<ApiState> {
         }),
       );
 
-      print('res.statusCode: ${res.statusCode}');
-      print('res.body: ${res.body}');
-
       if (res.statusCode == 200 || res.statusCode == 201) {
         final model = LoginResponseModel.fromJson(jsonDecode(res.body));
 
@@ -164,7 +161,6 @@ class ApiService extends AsyncNotifier<ApiState> {
         ));
       }
     } catch (e) {
-      print('Registration error: $e');
       final currentState = state.value ?? ApiState(null);
       state = AsyncValue.data(currentState.copyWith(
         errorMessage: e.toString(),
@@ -498,7 +494,6 @@ class ApiService extends AsyncNotifier<ApiState> {
 
       if (response.statusCode == 200) {
         final profileModel = ProfileData.fromJson(response.data['data']);
-        print('Profile updated: $profileModel');
         state = AsyncValue.data(
           state.value!.copyWith(
               profileData: profileModel,
@@ -586,7 +581,6 @@ class ApiService extends AsyncNotifier<ApiState> {
 
         await getTodo();
       } else {
-        print('Failed to update status');
         state = AsyncValue.data(
           state.value!.copyWith(message: "Failed to update status"),
         );
@@ -606,24 +600,22 @@ class ApiService extends AsyncNotifier<ApiState> {
     int page = 1,
     int limit = 15,
     bool reset = false,
+    String? search,
   }) async {
     try {
       final uri = _url(Config.nutritionListAPI).replace(
         queryParameters: {
           'page': page.toString(),
           'limit': limit.toString(),
+          if (search != null) 'search': search,
         },
       );
 
-      print('Requesting: $uri');
       final res = await client.get(uri);
-
-      print('Status: ${res.statusCode}');
 
       if (res.statusCode == 200) {
         final responseData = NutritionResponse.fromJson(json.decode(res.body));
         final newData = responseData.data;
-        print('Parsed ${newData.length} items');
 
         // Get existing data
         final existingData = state.value?.nutritions ?? [];
@@ -693,8 +685,6 @@ class ApiService extends AsyncNotifier<ApiState> {
   }) async {
     final preferences = await SharedPreferences.getInstance();
     final token = preferences.getString('token');
-
-    print("Meal image: $mealImage");
 
     try {
       final response =
@@ -995,8 +985,6 @@ class ApiService extends AsyncNotifier<ApiState> {
     final res = await client.delete(_url(Config.resetStreakAPI), headers: {
       'Authorization': 'Bearer $token',
     });
-
-    print(res.body);
 
     try {
       if (res.statusCode == 200) {

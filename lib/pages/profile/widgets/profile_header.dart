@@ -60,7 +60,7 @@ class ProfileHeader extends HookConsumerWidget {
                 ),
                 child: ClipOval(
                   child: selectedAvatar.isNotEmpty
-                      ? Image.asset(
+                      ? Image.network(
                           selectedAvatar,
                           fit: BoxFit.cover,
                           alignment: Alignment.topCenter,

@@ -33,8 +33,6 @@ class NutritionDetailScreen extends HookConsumerWidget {
     final savedMealState = ref.watch(saveMealProvider);
     final isLiked = useState<bool>(savedMealState.value?.isSaved ?? false);
 
-    print('isLiked: ${isLiked.value}');
-
     Future<void> checkSavedMeal() async {
       await ref.read(saveMealProvider.notifier).checkSavedMeal(nutritionId: id);
     }

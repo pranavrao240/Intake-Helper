@@ -4,11 +4,13 @@ import 'package:lucide_icons/lucide_icons.dart';
 class NutritionSearchBar extends StatelessWidget {
   final TextEditingController controller;
   final ValueChanged<String> onChanged;
+  final VoidCallback? onClear;
 
   const NutritionSearchBar({
     super.key,
     required this.controller,
     required this.onChanged,
+    this.onClear,
   });
 
   @override
@@ -48,6 +50,7 @@ class NutritionSearchBar extends StatelessWidget {
               decoration: InputDecoration(
                 fillColor: Colors.transparent,
                 hintText: 'Search meals or nutrients...',
+                focusedBorder: InputBorder.none,
                 hintStyle: TextStyle(
                   color: Colors.white.withOpacity(0.28),
                   fontSize: 14,
@@ -63,6 +66,7 @@ class NutritionSearchBar extends StatelessWidget {
               onTap: () {
                 controller.clear();
                 onChanged('');
+                onClear?.call();
               },
               child: Container(
                 width: 20,

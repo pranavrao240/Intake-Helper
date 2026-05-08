@@ -198,55 +198,44 @@ class Homepage extends HookConsumerWidget {
 
     return Scaffold(
       backgroundColor: Colors.black,
-      body: isLoading.value
-          ? const Center(child: CircularProgressIndicator())
-          : error.value != null
-              ? Center(
-                  child: Text(error.value!,
-                      style: const TextStyle(color: Colors.red)))
-              : SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      Stack(
-                        clipBehavior: Clip.none,
-                        children: [
-                          buildHeroSection(
-                              context,
-                              macros.value,
-                              targets.value ?? {},
-                              proteinPercent,
-                              profile?.fullName,
-                              ref),
-                          Positioned(
-                            bottom: -250,
-                            left: 0,
-                            right: 0,
-                            child: MacrosCard(
-                              macros: macros.value,
-                              targets: targets.value,
-                              onTargetSaved: (newTargets) {
-                                targets.value = newTargets;
-                              },
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 280),
-                      buildQuickActions(context, targets.value, (newTargets) {
-                        targets.value = newTargets;
-                        saveTargetsLocal(newTargets);
-                      }),
-                      const SizedBox(height: 24),
-                      buildScheduledMeals(
-                          context, todoData.value, completedTasks.value),
-                      const SizedBox(height: 24),
-                      buildSavedMeals(context, ref),
-                      const SizedBox(height: 24),
-                      buildWeeklyChart(ref: ref, chartData: chartData),
-                      const SizedBox(height: 40),
-                    ],
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            if (isLoading.value) LinearProgressIndicator(minHeight: 2),
+            Stack(
+              clipBehavior: Clip.none,
+              children: [
+                buildHeroSection(context, macros.value, targets.value ?? {},
+                    proteinPercent, profile?.fullName, ref),
+                Positioned(
+                  bottom: -250,
+                  left: 0,
+                  right: 0,
+                  child: MacrosCard(
+                    macros: macros.value,
+                    targets: targets.value,
+                    onTargetSaved: (newTargets) {
+                      targets.value = newTargets;
+                    },
                   ),
                 ),
+              ],
+            ),
+            const SizedBox(height: 280),
+            buildQuickActions(context, targets.value, (newTargets) {
+              targets.value = newTargets;
+              saveTargetsLocal(newTargets);
+            }),
+            const SizedBox(height: 24),
+            buildScheduledMeals(context, todoData.value, completedTasks.value),
+            const SizedBox(height: 24),
+            buildSavedMeals(context, ref),
+            const SizedBox(height: 24),
+            buildWeeklyChart(ref: ref, chartData: chartData),
+            const SizedBox(height: 40),
+          ],
+        ),
+      ),
       bottomNavigationBar: BottomNavbar(),
     );
   }
