@@ -90,7 +90,7 @@ android {
 
         targetSdk = flutter.targetSdkVersion
 
-        versionCode = 5               // increment integer each release
+        versionCode = 6               // increment integer each release
 
         versionName = "1.0.5"
 
@@ -124,14 +124,9 @@ android {
 
             signingConfig = signingConfigs.getByName("release")
 
-            isMinifyEnabled = true
+            isMinifyEnabled = false
 
-            isShrinkResources = true
-
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
+            isShrinkResources = false
 
         }
 
@@ -145,6 +140,14 @@ flutter {
 
     source = "../.."
 
+}
+
+// Disable deferred components to avoid Play Core dependency issues
+android {
+    defaultConfig {
+        // Disable deferred components
+        manifestPlaceholders["deferredComponentsMode"] = "disable"
+    }
 }
 
 
