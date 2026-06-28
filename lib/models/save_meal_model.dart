@@ -23,23 +23,25 @@ abstract class NutritionModel with _$NutritionModel {
   const factory NutritionModel({
     @JsonKey(name: '_id') required String id,
     required String selected,
-    required String dishName,
-    required String dishImage,
-    required int calories,
-    required int protein,
-    required int fats,
-    required int carbohydrates,
-    required int sodium,
-    required int calcium,
-    required double iron,
-    required String quantityRequired,
+    @JsonKey(name: 'DishName') required String dishName,
+    @JsonKey(name: 'DishImage') required String dishImage,
+    @JsonKey(name: 'Calories') required double calories,
+    @JsonKey(name: 'Protein') required double protein,
+    @JsonKey(name: 'Carbohydrates') required double carbohydrates,
+    @JsonKey(name: 'Fat') required double fat,
+    @JsonKey(name: 'Fiber') required double fiber,
+    @JsonKey(name: 'Sodium') required double sodium,
+    @JsonKey(name: 'Iron') required double iron,
+    @JsonKey(name: 'Calcium') required double calcium,
+    @JsonKey(name: 'Sugar') required double sugar,
+    @JsonKey(name: 'QuantityRequired') required String quantityRequired,
     required String type,
     required String time,
-    required List<dynamic> day,
+    @Default([]) List<dynamic> day,
   }) = _NutritionModel;
 
   factory NutritionModel.fromJson(Map<String, dynamic> json) =>
-      _$NutritionModelFromJson(_mapNutritionJsonKeys(json));
+      _$NutritionModelFromJson(json);
 }
 
 @freezed
@@ -53,20 +55,4 @@ abstract class PaginationModel with _$PaginationModel {
 
   factory PaginationModel.fromJson(Map<String, dynamic> json) =>
       _$PaginationModelFromJson(json);
-}
-
-Map<String, dynamic> _mapNutritionJsonKeys(Map<String, dynamic> json) {
-  return {
-    ...json,
-    'dishName': json['DishName'],
-    'dishImage': json['DishImage'],
-    'calories': json['Calories'],
-    'protein': json['Protein'],
-    'fats': json['Fats'],
-    'carbohydrates': json['Carbohydrates'],
-    'sodium': json['Sodium'],
-    'calcium': json['Calcium'],
-    'iron': json['Iron'],
-    'quantityRequired': json['QuantityRequired'],
-  };
 }

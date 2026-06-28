@@ -83,19 +83,12 @@ android {
 
 
     defaultConfig {
-
         applicationId = "com.pranavrao.intake_helper"
-
         minSdk = flutter.minSdkVersion
-
         targetSdk = flutter.targetSdkVersion
-
-        versionCode = 6               // increment integer each release
-
-        versionName = "1.0.5"
-
+        versionCode = 10               // increment integer each release
+        versionName = "1.0.10"
         manifestPlaceholders["appAuthRedirectScheme"] = "intakehelper"
-
     }
 
 

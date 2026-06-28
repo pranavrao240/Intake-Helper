@@ -470,15 +470,29 @@ mixin _$NutritionModel {
   @JsonKey(name: '_id')
   String get id;
   String get selected;
+  @JsonKey(name: 'DishName')
   String get dishName;
+  @JsonKey(name: 'DishImage')
   String get dishImage;
-  int get calories;
-  int get protein;
-  int get fats;
-  int get carbohydrates;
-  int get sodium;
-  int get calcium;
+  @JsonKey(name: 'Calories')
+  double get calories;
+  @JsonKey(name: 'Protein')
+  double get protein;
+  @JsonKey(name: 'Carbohydrates')
+  double get carbohydrates;
+  @JsonKey(name: 'Fat')
+  double get fat;
+  @JsonKey(name: 'Fiber')
+  double get fiber;
+  @JsonKey(name: 'Sodium')
+  double get sodium;
+  @JsonKey(name: 'Iron')
   double get iron;
+  @JsonKey(name: 'Calcium')
+  double get calcium;
+  @JsonKey(name: 'Sugar')
+  double get sugar;
+  @JsonKey(name: 'QuantityRequired')
   String get quantityRequired;
   String get type;
   String get time;
@@ -510,12 +524,14 @@ mixin _$NutritionModel {
             (identical(other.calories, calories) ||
                 other.calories == calories) &&
             (identical(other.protein, protein) || other.protein == protein) &&
-            (identical(other.fats, fats) || other.fats == fats) &&
             (identical(other.carbohydrates, carbohydrates) ||
                 other.carbohydrates == carbohydrates) &&
+            (identical(other.fat, fat) || other.fat == fat) &&
+            (identical(other.fiber, fiber) || other.fiber == fiber) &&
             (identical(other.sodium, sodium) || other.sodium == sodium) &&
-            (identical(other.calcium, calcium) || other.calcium == calcium) &&
             (identical(other.iron, iron) || other.iron == iron) &&
+            (identical(other.calcium, calcium) || other.calcium == calcium) &&
+            (identical(other.sugar, sugar) || other.sugar == sugar) &&
             (identical(other.quantityRequired, quantityRequired) ||
                 other.quantityRequired == quantityRequired) &&
             (identical(other.type, type) || other.type == type) &&
@@ -533,11 +549,13 @@ mixin _$NutritionModel {
       dishImage,
       calories,
       protein,
-      fats,
       carbohydrates,
+      fat,
+      fiber,
       sodium,
-      calcium,
       iron,
+      calcium,
+      sugar,
       quantityRequired,
       type,
       time,
@@ -545,7 +563,7 @@ mixin _$NutritionModel {
 
   @override
   String toString() {
-    return 'NutritionModel(id: $id, selected: $selected, dishName: $dishName, dishImage: $dishImage, calories: $calories, protein: $protein, fats: $fats, carbohydrates: $carbohydrates, sodium: $sodium, calcium: $calcium, iron: $iron, quantityRequired: $quantityRequired, type: $type, time: $time, day: $day)';
+    return 'NutritionModel(id: $id, selected: $selected, dishName: $dishName, dishImage: $dishImage, calories: $calories, protein: $protein, carbohydrates: $carbohydrates, fat: $fat, fiber: $fiber, sodium: $sodium, iron: $iron, calcium: $calcium, sugar: $sugar, quantityRequired: $quantityRequired, type: $type, time: $time, day: $day)';
   }
 }
 
@@ -558,16 +576,18 @@ abstract mixin class $NutritionModelCopyWith<$Res> {
   $Res call(
       {@JsonKey(name: '_id') String id,
       String selected,
-      String dishName,
-      String dishImage,
-      int calories,
-      int protein,
-      int fats,
-      int carbohydrates,
-      int sodium,
-      int calcium,
-      double iron,
-      String quantityRequired,
+      @JsonKey(name: 'DishName') String dishName,
+      @JsonKey(name: 'DishImage') String dishImage,
+      @JsonKey(name: 'Calories') double calories,
+      @JsonKey(name: 'Protein') double protein,
+      @JsonKey(name: 'Carbohydrates') double carbohydrates,
+      @JsonKey(name: 'Fat') double fat,
+      @JsonKey(name: 'Fiber') double fiber,
+      @JsonKey(name: 'Sodium') double sodium,
+      @JsonKey(name: 'Iron') double iron,
+      @JsonKey(name: 'Calcium') double calcium,
+      @JsonKey(name: 'Sugar') double sugar,
+      @JsonKey(name: 'QuantityRequired') String quantityRequired,
       String type,
       String time,
       List<dynamic> day});
@@ -592,11 +612,13 @@ class _$NutritionModelCopyWithImpl<$Res>
     Object? dishImage = null,
     Object? calories = null,
     Object? protein = null,
-    Object? fats = null,
     Object? carbohydrates = null,
+    Object? fat = null,
+    Object? fiber = null,
     Object? sodium = null,
-    Object? calcium = null,
     Object? iron = null,
+    Object? calcium = null,
+    Object? sugar = null,
     Object? quantityRequired = null,
     Object? type = null,
     Object? time = null,
@@ -622,30 +644,38 @@ class _$NutritionModelCopyWithImpl<$Res>
       calories: null == calories
           ? _self.calories
           : calories // ignore: cast_nullable_to_non_nullable
-              as int,
+              as double,
       protein: null == protein
           ? _self.protein
           : protein // ignore: cast_nullable_to_non_nullable
-              as int,
-      fats: null == fats
-          ? _self.fats
-          : fats // ignore: cast_nullable_to_non_nullable
-              as int,
+              as double,
       carbohydrates: null == carbohydrates
           ? _self.carbohydrates
           : carbohydrates // ignore: cast_nullable_to_non_nullable
-              as int,
+              as double,
+      fat: null == fat
+          ? _self.fat
+          : fat // ignore: cast_nullable_to_non_nullable
+              as double,
+      fiber: null == fiber
+          ? _self.fiber
+          : fiber // ignore: cast_nullable_to_non_nullable
+              as double,
       sodium: null == sodium
           ? _self.sodium
           : sodium // ignore: cast_nullable_to_non_nullable
-              as int,
-      calcium: null == calcium
-          ? _self.calcium
-          : calcium // ignore: cast_nullable_to_non_nullable
-              as int,
+              as double,
       iron: null == iron
           ? _self.iron
           : iron // ignore: cast_nullable_to_non_nullable
+              as double,
+      calcium: null == calcium
+          ? _self.calcium
+          : calcium // ignore: cast_nullable_to_non_nullable
+              as double,
+      sugar: null == sugar
+          ? _self.sugar
+          : sugar // ignore: cast_nullable_to_non_nullable
               as double,
       quantityRequired: null == quantityRequired
           ? _self.quantityRequired
@@ -763,16 +793,18 @@ extension NutritionModelPatterns on NutritionModel {
     TResult Function(
             @JsonKey(name: '_id') String id,
             String selected,
-            String dishName,
-            String dishImage,
-            int calories,
-            int protein,
-            int fats,
-            int carbohydrates,
-            int sodium,
-            int calcium,
-            double iron,
-            String quantityRequired,
+            @JsonKey(name: 'DishName') String dishName,
+            @JsonKey(name: 'DishImage') String dishImage,
+            @JsonKey(name: 'Calories') double calories,
+            @JsonKey(name: 'Protein') double protein,
+            @JsonKey(name: 'Carbohydrates') double carbohydrates,
+            @JsonKey(name: 'Fat') double fat,
+            @JsonKey(name: 'Fiber') double fiber,
+            @JsonKey(name: 'Sodium') double sodium,
+            @JsonKey(name: 'Iron') double iron,
+            @JsonKey(name: 'Calcium') double calcium,
+            @JsonKey(name: 'Sugar') double sugar,
+            @JsonKey(name: 'QuantityRequired') String quantityRequired,
             String type,
             String time,
             List<dynamic> day)?
@@ -789,11 +821,13 @@ extension NutritionModelPatterns on NutritionModel {
             _that.dishImage,
             _that.calories,
             _that.protein,
-            _that.fats,
             _that.carbohydrates,
+            _that.fat,
+            _that.fiber,
             _that.sodium,
-            _that.calcium,
             _that.iron,
+            _that.calcium,
+            _that.sugar,
             _that.quantityRequired,
             _that.type,
             _that.time,
@@ -821,16 +855,18 @@ extension NutritionModelPatterns on NutritionModel {
     TResult Function(
             @JsonKey(name: '_id') String id,
             String selected,
-            String dishName,
-            String dishImage,
-            int calories,
-            int protein,
-            int fats,
-            int carbohydrates,
-            int sodium,
-            int calcium,
-            double iron,
-            String quantityRequired,
+            @JsonKey(name: 'DishName') String dishName,
+            @JsonKey(name: 'DishImage') String dishImage,
+            @JsonKey(name: 'Calories') double calories,
+            @JsonKey(name: 'Protein') double protein,
+            @JsonKey(name: 'Carbohydrates') double carbohydrates,
+            @JsonKey(name: 'Fat') double fat,
+            @JsonKey(name: 'Fiber') double fiber,
+            @JsonKey(name: 'Sodium') double sodium,
+            @JsonKey(name: 'Iron') double iron,
+            @JsonKey(name: 'Calcium') double calcium,
+            @JsonKey(name: 'Sugar') double sugar,
+            @JsonKey(name: 'QuantityRequired') String quantityRequired,
             String type,
             String time,
             List<dynamic> day)
@@ -846,11 +882,13 @@ extension NutritionModelPatterns on NutritionModel {
             _that.dishImage,
             _that.calories,
             _that.protein,
-            _that.fats,
             _that.carbohydrates,
+            _that.fat,
+            _that.fiber,
             _that.sodium,
-            _that.calcium,
             _that.iron,
+            _that.calcium,
+            _that.sugar,
             _that.quantityRequired,
             _that.type,
             _that.time,
@@ -877,16 +915,18 @@ extension NutritionModelPatterns on NutritionModel {
     TResult? Function(
             @JsonKey(name: '_id') String id,
             String selected,
-            String dishName,
-            String dishImage,
-            int calories,
-            int protein,
-            int fats,
-            int carbohydrates,
-            int sodium,
-            int calcium,
-            double iron,
-            String quantityRequired,
+            @JsonKey(name: 'DishName') String dishName,
+            @JsonKey(name: 'DishImage') String dishImage,
+            @JsonKey(name: 'Calories') double calories,
+            @JsonKey(name: 'Protein') double protein,
+            @JsonKey(name: 'Carbohydrates') double carbohydrates,
+            @JsonKey(name: 'Fat') double fat,
+            @JsonKey(name: 'Fiber') double fiber,
+            @JsonKey(name: 'Sodium') double sodium,
+            @JsonKey(name: 'Iron') double iron,
+            @JsonKey(name: 'Calcium') double calcium,
+            @JsonKey(name: 'Sugar') double sugar,
+            @JsonKey(name: 'QuantityRequired') String quantityRequired,
             String type,
             String time,
             List<dynamic> day)?
@@ -902,11 +942,13 @@ extension NutritionModelPatterns on NutritionModel {
             _that.dishImage,
             _that.calories,
             _that.protein,
-            _that.fats,
             _that.carbohydrates,
+            _that.fat,
+            _that.fiber,
             _that.sodium,
-            _that.calcium,
             _that.iron,
+            _that.calcium,
+            _that.sugar,
             _that.quantityRequired,
             _that.type,
             _that.time,
@@ -923,19 +965,21 @@ class _NutritionModel implements NutritionModel {
   const _NutritionModel(
       {@JsonKey(name: '_id') required this.id,
       required this.selected,
-      required this.dishName,
-      required this.dishImage,
-      required this.calories,
-      required this.protein,
-      required this.fats,
-      required this.carbohydrates,
-      required this.sodium,
-      required this.calcium,
-      required this.iron,
-      required this.quantityRequired,
+      @JsonKey(name: 'DishName') required this.dishName,
+      @JsonKey(name: 'DishImage') required this.dishImage,
+      @JsonKey(name: 'Calories') required this.calories,
+      @JsonKey(name: 'Protein') required this.protein,
+      @JsonKey(name: 'Carbohydrates') required this.carbohydrates,
+      @JsonKey(name: 'Fat') required this.fat,
+      @JsonKey(name: 'Fiber') required this.fiber,
+      @JsonKey(name: 'Sodium') required this.sodium,
+      @JsonKey(name: 'Iron') required this.iron,
+      @JsonKey(name: 'Calcium') required this.calcium,
+      @JsonKey(name: 'Sugar') required this.sugar,
+      @JsonKey(name: 'QuantityRequired') required this.quantityRequired,
       required this.type,
       required this.time,
-      required final List<dynamic> day})
+      final List<dynamic> day = const []})
       : _day = day;
   factory _NutritionModel.fromJson(Map<String, dynamic> json) =>
       _$NutritionModelFromJson(json);
@@ -946,24 +990,40 @@ class _NutritionModel implements NutritionModel {
   @override
   final String selected;
   @override
+  @JsonKey(name: 'DishName')
   final String dishName;
   @override
+  @JsonKey(name: 'DishImage')
   final String dishImage;
   @override
-  final int calories;
+  @JsonKey(name: 'Calories')
+  final double calories;
   @override
-  final int protein;
+  @JsonKey(name: 'Protein')
+  final double protein;
   @override
-  final int fats;
+  @JsonKey(name: 'Carbohydrates')
+  final double carbohydrates;
   @override
-  final int carbohydrates;
+  @JsonKey(name: 'Fat')
+  final double fat;
   @override
-  final int sodium;
+  @JsonKey(name: 'Fiber')
+  final double fiber;
   @override
-  final int calcium;
+  @JsonKey(name: 'Sodium')
+  final double sodium;
   @override
+  @JsonKey(name: 'Iron')
   final double iron;
   @override
+  @JsonKey(name: 'Calcium')
+  final double calcium;
+  @override
+  @JsonKey(name: 'Sugar')
+  final double sugar;
+  @override
+  @JsonKey(name: 'QuantityRequired')
   final String quantityRequired;
   @override
   final String type;
@@ -971,6 +1031,7 @@ class _NutritionModel implements NutritionModel {
   final String time;
   final List<dynamic> _day;
   @override
+  @JsonKey()
   List<dynamic> get day {
     if (_day is EqualUnmodifiableListView) return _day;
     // ignore: implicit_dynamic_type
@@ -1007,12 +1068,14 @@ class _NutritionModel implements NutritionModel {
             (identical(other.calories, calories) ||
                 other.calories == calories) &&
             (identical(other.protein, protein) || other.protein == protein) &&
-            (identical(other.fats, fats) || other.fats == fats) &&
             (identical(other.carbohydrates, carbohydrates) ||
                 other.carbohydrates == carbohydrates) &&
+            (identical(other.fat, fat) || other.fat == fat) &&
+            (identical(other.fiber, fiber) || other.fiber == fiber) &&
             (identical(other.sodium, sodium) || other.sodium == sodium) &&
-            (identical(other.calcium, calcium) || other.calcium == calcium) &&
             (identical(other.iron, iron) || other.iron == iron) &&
+            (identical(other.calcium, calcium) || other.calcium == calcium) &&
+            (identical(other.sugar, sugar) || other.sugar == sugar) &&
             (identical(other.quantityRequired, quantityRequired) ||
                 other.quantityRequired == quantityRequired) &&
             (identical(other.type, type) || other.type == type) &&
@@ -1030,11 +1093,13 @@ class _NutritionModel implements NutritionModel {
       dishImage,
       calories,
       protein,
-      fats,
       carbohydrates,
+      fat,
+      fiber,
       sodium,
-      calcium,
       iron,
+      calcium,
+      sugar,
       quantityRequired,
       type,
       time,
@@ -1042,7 +1107,7 @@ class _NutritionModel implements NutritionModel {
 
   @override
   String toString() {
-    return 'NutritionModel(id: $id, selected: $selected, dishName: $dishName, dishImage: $dishImage, calories: $calories, protein: $protein, fats: $fats, carbohydrates: $carbohydrates, sodium: $sodium, calcium: $calcium, iron: $iron, quantityRequired: $quantityRequired, type: $type, time: $time, day: $day)';
+    return 'NutritionModel(id: $id, selected: $selected, dishName: $dishName, dishImage: $dishImage, calories: $calories, protein: $protein, carbohydrates: $carbohydrates, fat: $fat, fiber: $fiber, sodium: $sodium, iron: $iron, calcium: $calcium, sugar: $sugar, quantityRequired: $quantityRequired, type: $type, time: $time, day: $day)';
   }
 }
 
@@ -1057,16 +1122,18 @@ abstract mixin class _$NutritionModelCopyWith<$Res>
   $Res call(
       {@JsonKey(name: '_id') String id,
       String selected,
-      String dishName,
-      String dishImage,
-      int calories,
-      int protein,
-      int fats,
-      int carbohydrates,
-      int sodium,
-      int calcium,
-      double iron,
-      String quantityRequired,
+      @JsonKey(name: 'DishName') String dishName,
+      @JsonKey(name: 'DishImage') String dishImage,
+      @JsonKey(name: 'Calories') double calories,
+      @JsonKey(name: 'Protein') double protein,
+      @JsonKey(name: 'Carbohydrates') double carbohydrates,
+      @JsonKey(name: 'Fat') double fat,
+      @JsonKey(name: 'Fiber') double fiber,
+      @JsonKey(name: 'Sodium') double sodium,
+      @JsonKey(name: 'Iron') double iron,
+      @JsonKey(name: 'Calcium') double calcium,
+      @JsonKey(name: 'Sugar') double sugar,
+      @JsonKey(name: 'QuantityRequired') String quantityRequired,
       String type,
       String time,
       List<dynamic> day});
@@ -1091,11 +1158,13 @@ class __$NutritionModelCopyWithImpl<$Res>
     Object? dishImage = null,
     Object? calories = null,
     Object? protein = null,
-    Object? fats = null,
     Object? carbohydrates = null,
+    Object? fat = null,
+    Object? fiber = null,
     Object? sodium = null,
-    Object? calcium = null,
     Object? iron = null,
+    Object? calcium = null,
+    Object? sugar = null,
     Object? quantityRequired = null,
     Object? type = null,
     Object? time = null,
@@ -1121,30 +1190,38 @@ class __$NutritionModelCopyWithImpl<$Res>
       calories: null == calories
           ? _self.calories
           : calories // ignore: cast_nullable_to_non_nullable
-              as int,
+              as double,
       protein: null == protein
           ? _self.protein
           : protein // ignore: cast_nullable_to_non_nullable
-              as int,
-      fats: null == fats
-          ? _self.fats
-          : fats // ignore: cast_nullable_to_non_nullable
-              as int,
+              as double,
       carbohydrates: null == carbohydrates
           ? _self.carbohydrates
           : carbohydrates // ignore: cast_nullable_to_non_nullable
-              as int,
+              as double,
+      fat: null == fat
+          ? _self.fat
+          : fat // ignore: cast_nullable_to_non_nullable
+              as double,
+      fiber: null == fiber
+          ? _self.fiber
+          : fiber // ignore: cast_nullable_to_non_nullable
+              as double,
       sodium: null == sodium
           ? _self.sodium
           : sodium // ignore: cast_nullable_to_non_nullable
-              as int,
-      calcium: null == calcium
-          ? _self.calcium
-          : calcium // ignore: cast_nullable_to_non_nullable
-              as int,
+              as double,
       iron: null == iron
           ? _self.iron
           : iron // ignore: cast_nullable_to_non_nullable
+              as double,
+      calcium: null == calcium
+          ? _self.calcium
+          : calcium // ignore: cast_nullable_to_non_nullable
+              as double,
+      sugar: null == sugar
+          ? _self.sugar
+          : sugar // ignore: cast_nullable_to_non_nullable
               as double,
       quantityRequired: null == quantityRequired
           ? _self.quantityRequired
