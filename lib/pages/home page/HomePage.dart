@@ -226,6 +226,7 @@ class Homepage extends HookConsumerWidget {
               targets.value = newTargets;
               saveTargetsLocal(newTargets);
             }),
+           
             const SizedBox(height: 24),
             buildScheduledMeals(context, todoData.value, completedTasks.value),
             const SizedBox(height: 24),

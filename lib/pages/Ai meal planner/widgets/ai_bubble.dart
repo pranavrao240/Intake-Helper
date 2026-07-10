@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intake_helper/l10n/app_localizations.dart';
+import 'package:intake_helper/theme/app_theme.dart';
 
 String? _extractImageUrl(String text) {
   final match = RegExp(r'!\\[.*?\\]\\((.*?)\\)').firstMatch(text);
@@ -118,7 +119,7 @@ Widget aiBubble(
                       color: const Color(0xFF222222),
                       child: const Center(
                         child: CircularProgressIndicator(
-                          color: Color(0xFF00E599),
+                          color: AppTheme.primaryBlue,
                           strokeWidth: 2,
                         ),
                       ),
@@ -166,7 +167,7 @@ Widget aiBubble(
             ),
             _ActionIcon(
               icon: Icons.bookmark_border,
-              color: const Color(0xFF00E599),
+              color: AppTheme.primaryBlue,
               onTap: () => onSave(text),
             ),
           ],
@@ -212,15 +213,14 @@ class _FormattedMeal extends StatelessWidget {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             decoration: BoxDecoration(
-              color: const Color(0xFF00E599).withOpacity(0.12),
+              color: AppTheme.primaryBlue.withOpacity(0.12),
               borderRadius: BorderRadius.circular(20),
-              border:
-                  Border.all(color: const Color(0xFF00E599).withOpacity(0.3)),
+              border: Border.all(color: AppTheme.primaryBlue.withOpacity(0.3)),
             ),
             child: Text(
               s.value,
               style: const TextStyle(
-                color: Color(0xFF00E599),
+                color: AppTheme.primaryBlue,
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
               ),
@@ -265,12 +265,12 @@ class _FormattedMeal extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(icon, size: 13, color: const Color(0xFF00E599)),
+              Icon(icon, size: 13, color: AppTheme.primaryBlue),
               const SizedBox(width: 5),
               Text(
                 label.toUpperCase(),
                 style: const TextStyle(
-                  color: Color(0xFF00E599),
+                  color: AppTheme.primaryBlue,
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
                   letterSpacing: 0.8,
@@ -307,12 +307,12 @@ class _FormattedMeal extends StatelessWidget {
       children: [
         Row(
           children: [
-            const Icon(Icons.bar_chart, size: 13, color: Color(0xFF00E599)),
+            const Icon(Icons.bar_chart, size: 13, color: AppTheme.primaryBlue),
             const SizedBox(width: 5),
             Text(
               locale.aiBubbleNutritionCaps,
               style: const TextStyle(
-                color: Color(0xFF00E599),
+                color: AppTheme.primaryBlue,
                 fontSize: 11,
                 fontWeight: FontWeight.w700,
                 letterSpacing: 0.8,
@@ -363,7 +363,7 @@ class _NutrientChip extends StatelessWidget {
           Text(
             value,
             style: const TextStyle(
-              color: Color(0xFF00E599),
+              color: AppTheme.primaryBlue,
               fontSize: 13,
               fontWeight: FontWeight.bold,
             ),

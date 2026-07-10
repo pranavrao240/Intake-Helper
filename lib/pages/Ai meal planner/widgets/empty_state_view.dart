@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intake_helper/l10n/app_localizations.dart';
+import 'package:intake_helper/theme/app_theme.dart';
 
 class EmptyStateView extends HookConsumerWidget {
   const EmptyStateView({super.key});
@@ -24,7 +25,7 @@ class EmptyStateView extends HookConsumerWidget {
                     shape: BoxShape.circle,
                     gradient: RadialGradient(
                       colors: [
-                        const Color(0xFF00E599).withOpacity(0.25),
+                        AppTheme.primaryBlue.withOpacity(0.25),
                         Colors.transparent,
                       ],
                     ),
@@ -41,7 +42,7 @@ class EmptyStateView extends HookConsumerWidget {
                 fontSize: 13,
                 fontWeight: FontWeight.w700,
                 letterSpacing: 3,
-                color: Color(0xFF00E599),
+                color: AppTheme.primaryBlue,
               ),
             ),
             const SizedBox(height: 8),

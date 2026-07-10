@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:intake_helper/Providers/openAi_provider.dart';
+import 'package:intake_helper/Providers/groq_provider.dart';
 import 'package:intake_helper/api/api_service.dart';
 import 'package:intake_helper/l10n/app_localizations.dart';
+import 'package:intake_helper/models/groq/api_model.dart';
 import 'package:intake_helper/pages/Ai%20meal%20planner/widgets/chat_input_bar.dart';
 import 'package:intake_helper/pages/Ai%20meal%20planner/widgets/empty_state_view.dart';
 import 'package:intake_helper/pages/Ai%20meal%20planner/widgets/meal_info.dart';
@@ -14,6 +15,7 @@ import 'package:intake_helper/pages/Ai%20meal%20planner/widgets/ai_bubble.dart';
 import 'package:intake_helper/pages/Ai%20meal%20planner/widgets/user_bubble.dart';
 import 'package:intake_helper/router.dart';
 import 'package:intake_helper/utils/message_type.dart';
+import 'package:intake_helper/theme/app_theme.dart';
 import 'package:intake_helper/widgets/top_bar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -57,7 +59,9 @@ class AiMealPlannerScreen extends HookConsumerWidget {
       }
     }
 
-    for (final raw in response.split('\n')) {
+    final cleanResponse =
+        response.replaceAll(RegExp(r'<think>[\s\S]*?<\/think>'), '').trim();
+    for (final raw in cleanResponse.split('\n')) {
       final line = raw.trim();
       if (line.isEmpty) continue;
 
@@ -178,14 +182,16 @@ class AiMealPlannerScreen extends HookConsumerWidget {
       final preferences = await SharedPreferences.getInstance();
 
       for (final meal in selected) {
-        await ApiService()
+        await ref
+            .read(apiServiceProvider.notifier)
             .addNutrition(
-                name: meal.name,
-                protein: meal.protein,
-                carbs: meal.carbs,
-                calories: meal.calories,
-                quantity: meal.quantity,
-                mealImage: meal.mealImage)
+              name: meal.name,
+              protein: meal.protein,
+              carbs: meal.carbs,
+              calories: meal.calories,
+              quantity: meal.quantity,
+              mealImage: meal.mealImage,
+            )
             .then((_) async {
           final addedId = preferences.getString('addedId');
           if (addedId != null && context.mounted) {
@@ -202,7 +208,7 @@ class AiMealPlannerScreen extends HookConsumerWidget {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(locale.aiMealPlannerMealsSaved(selected.length)),
-            backgroundColor: const Color(0xFF00E599),
+            backgroundColor: AppTheme.primaryBlue,
           ),
         );
       }
@@ -220,8 +226,8 @@ class AiMealPlannerScreen extends HookConsumerWidget {
       promptController.clear();
 
       try {
-        final openAiService = await ref.read(openAiProvider.notifier);
-        await openAiService.postOpenAiResponse(prompt: text);
+        final groqService = await ref.read(groqProvider.notifier);
+        await groqService.postGroqResponse(prompt: text);
       } catch (e) {
         // Handle API call errors
         ref.read(chatMessagesProvider.notifier).addMessage(
@@ -230,10 +236,10 @@ class AiMealPlannerScreen extends HookConsumerWidget {
         return;
       }
 
-      final openAiState = ref.read(openAiProvider);
+      final groqState = ref.read(groqProvider);
 
       // Check if there's an error message
-      final errorMessage = openAiState.value?.errorMessage;
+      final errorMessage = groqState.value?.errorMessage;
       if (errorMessage != null) {
         ref
             .read(chatMessagesProvider.notifier)
@@ -242,35 +248,22 @@ class AiMealPlannerScreen extends HookConsumerWidget {
         return;
       }
 
-      final aiText = openAiState.maybeWhen(
+      final aiText = groqState.maybeWhen(
         orElse: () {
-          print('Using fallback message - state might be loading or error');
           return locale.aiMealPlannerSorryMessage;
         },
         data: (data) {
-          print('Processing OpenAI data...');
           // Check for null values and provide fallback
-          if (data.openAiModel == null) {
-            print('OpenAI model is null');
+          if (data.groqModel == null) {
             return locale.aiMealPlannerSorryMessage;
           }
 
-          final output = data.openAiModel!.output;
-          if (output.isEmpty) {
+          final assistantMessage = data.groqModel!.assistantMessage;
+          if (assistantMessage.isEmpty) {
             return locale.aiMealPlannerSorryMessage;
           }
 
-          final content = output.first.content;
-          if (content.isEmpty) {
-            return locale.aiMealPlannerSorryMessage;
-          }
-
-          final text = content.first.text;
-          if (text.isEmpty) {
-            return locale.aiMealPlannerSorryMessage;
-          }
-
-          return text;
+          return assistantMessage;
         },
       );
 
@@ -287,7 +280,7 @@ class AiMealPlannerScreen extends HookConsumerWidget {
       appBar: customAppbar(title: locale.aiMealPlannerTitle, context),
       body: Stack(
         children: [
-          // Top-right green glow
+          // Top-right violet glow
           Positioned(
             top: -160,
             right: -160,
@@ -296,10 +289,10 @@ class AiMealPlannerScreen extends HookConsumerWidget {
               height: 500,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: const Color(0xFF00E599).withOpacity(0.10),
+                color: const Color(0xFF6D28D9).withOpacity(0.10),
                 boxShadow: [
                   BoxShadow(
-                    color: const Color(0xFF00E599).withOpacity(0.10),
+                    color: const Color(0xFF6D28D9).withOpacity(0.10),
                     blurRadius: 120,
                     spreadRadius: 120,
                   ),
@@ -362,15 +355,13 @@ class AiMealPlannerScreen extends HookConsumerWidget {
                       ),
               ),
               if (isGenerating.value) const TypingIndicator(),
-              Positioned(
-                child: Padding(
-                  padding: EdgeInsets.only(
-                    bottom: isKeyboardOpen.value ? bottomInsets : 0,
-                  ),
-                  child: ChatInputBar(
-                    controller: promptController,
-                    onSend: sendMessage,
-                  ),
+              Padding(
+                padding: EdgeInsets.only(
+                  bottom: isKeyboardOpen.value ? bottomInsets : 0,
+                ),
+                child: ChatInputBar(
+                  controller: promptController,
+                  onSend: sendMessage,
                 ),
               ),
             ],

@@ -54,46 +54,45 @@ Widget buildQuickActions(BuildContext context, Map<String, double>? targets,
         // AI Plan & Scan Buttons
         Row(
           children: [
-            // Expanded(
-            //   child: OutlinedButton(
-            //     onPressed: () {
-            //       context.push(RouteConstants.aiMealPlanner.path);
-            //     },
-            //     style: OutlinedButton.styleFrom(
-            //       backgroundColor: const Color(0xFF18181B),
-            //       side: const BorderSide(color: Color(0xFF3B82F6)),
-            //       padding: const EdgeInsets.symmetric(vertical: 12),
-            //       shape: RoundedRectangleBorder(
-            //         borderRadius: BorderRadius.circular(16),
-            //       ),
-            //     ),
-            //     child: Row(
-            //       mainAxisAlignment: MainAxisAlignment.center,
-            //       children: [
-            //         const Text(
-            //           '✨',
-            //           style: TextStyle(fontSize: 16),
-            //         ),
-            //         const SizedBox(width: 6),
-            //         Text(
-            //           locale.quickActionsAiPlan,
-            //           style: const TextStyle(
-            //             color: Color(0xFF60A5FA),
-            //             fontSize: 14,
-            //             fontWeight: FontWeight.w600,
-            //           ),
-            //         ),
-            //       ],
-            //     ),
-            //   ),
-            // ),
+            Expanded(
+              child: OutlinedButton(
+                onPressed: () {
+                  context.push(RouteConstants.aiMealPlanner.path);
+                },
+                style: OutlinedButton.styleFrom(
+                  backgroundColor: const Color(0xFF18181B),
+                  side: const BorderSide(color: Color(0xFF3B82F6)),
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text(
+                      '✨',
+                      style: TextStyle(fontSize: 16),
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      locale.quickActionsAiPlan,
+                      style: const TextStyle(
+                        color: Color(0xFF60A5FA),
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
             // const SizedBox(width: 16),
             // Expanded(
             //   child: OutlinedButton(
             //     onPressed: () async {
             //       final prefs = await SharedPreferences.getInstance();
             //       final avatar = prefs.getString('avatar');
-            //       //TODO: Add Scan functionality
             //       showDialog(
             //         context: context,
             //         builder: (context) => StreakCelebrationDialog(

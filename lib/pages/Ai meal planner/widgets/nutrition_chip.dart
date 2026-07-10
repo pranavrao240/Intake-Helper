@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:intake_helper/theme/app_theme.dart';
 
 class NutritionChip extends HookConsumerWidget {
   final String label;
@@ -30,7 +31,7 @@ class NutritionChip extends HookConsumerWidget {
             TextSpan(
               text: value,
               style: const TextStyle(
-                color: Color(0xFF00E599),
+                color: AppTheme.primaryBlue,
                 fontSize: 13,
                 fontWeight: FontWeight.bold,
               ),

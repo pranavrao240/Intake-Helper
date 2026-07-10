@@ -677,12 +677,15 @@ class ApiService extends AsyncNotifier<ApiState> {
 
   Future<void> addNutrition({
     required String name,
-    required String mealImage,
+    String? mealImage,
     double? protein,
     double? carbs,
     double? calories,
     String? quantity,
   }) async {
+    final effectiveImage = (mealImage == null || mealImage.trim().isEmpty)
+        ? 'https://plakarestaurant.ca/wp-content/themes/twentytwentythree-child/img/food-placeholder.png'
+        : mealImage.trim();
     final preferences = await SharedPreferences.getInstance();
     final token = preferences.getString('token');
 
@@ -697,7 +700,7 @@ class ApiService extends AsyncNotifier<ApiState> {
               ),
               data: {
             "DishName": name,
-            "DishImage": mealImage,
+            "DishImage": effectiveImage,
             "Protein": protein,
             "Carbohydrates": carbs,
             "Calories": calories,
@@ -712,7 +715,7 @@ class ApiService extends AsyncNotifier<ApiState> {
         message: "Nutrition added successfully",
         isLoading: false,
         nutrition: nutrition,
-        redirect: RouteConstants.mealDetails.path,
+        redirect: "",
         addedId: response.data['data']['_id'],
       ));
     } catch (e) {

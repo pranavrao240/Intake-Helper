@@ -37,6 +37,8 @@ class Config {
 
   //OpenAI Apis
   static const String getOpenAiResponse = "https://api.openai.com/v1/responses";
+  static const String getGroqResponse =
+      "https://api.groq.com/openai/v1/responses";
 
   static const String verifyEmailAPI = "api/verify-email";
 

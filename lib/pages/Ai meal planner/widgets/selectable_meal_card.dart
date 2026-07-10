@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intake_helper/pages/Ai%20meal%20planner/widgets/meal_info.dart';
+import 'package:intake_helper/theme/app_theme.dart';
 import 'nutrition_chip.dart';
 import 'package:intake_helper/l10n/app_localizations.dart';
 
@@ -29,12 +30,12 @@ class SelectableMealCard extends HookConsumerWidget {
           color: const Color(0xFF2D2D2D),
           borderRadius: BorderRadius.circular(14),
           border: isSelected
-              ? Border.all(color: const Color(0xFF00E599), width: 2)
+              ? Border.all(color: AppTheme.primaryBlue, width: 2)
               : Border.all(color: Colors.white12),
           boxShadow: isSelected
               ? [
                   BoxShadow(
-                    color: const Color(0xFF00E599).withOpacity(0.15),
+                    color: AppTheme.primaryBlue.withOpacity(0.15),
                     blurRadius: 12,
                     spreadRadius: 2,
                   ),
@@ -101,7 +102,7 @@ class SelectableMealCard extends HookConsumerWidget {
               child: Icon(
                 isSelected ? Icons.check_circle : Icons.circle_outlined,
                 key: ValueKey(isSelected),
-                color: isSelected ? const Color(0xFF00E599) : Colors.grey,
+                color: isSelected ? AppTheme.primaryBlue : Colors.grey,
                 size: 22,
               ),
             ),

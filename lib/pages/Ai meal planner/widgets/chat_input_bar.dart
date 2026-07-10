@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:intake_helper/l10n/app_localizations.dart';
+import 'package:intake_helper/theme/app_theme.dart';
 
 class ChatInputBar extends StatelessWidget {
   final TextEditingController controller;
@@ -27,12 +28,12 @@ class ChatInputBar extends StatelessWidget {
                   color: Colors.transparent,
                   borderRadius: BorderRadius.circular(32),
                   border: Border.all(
-                    color: const Color(0xFF00E599).withValues(alpha: 0.35),
+                    color: AppTheme.primaryBlue.withValues(alpha: 0.35),
                     width: 1.4,
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xFF00E599).withValues(alpha: 0.08),
+                      color: AppTheme.primaryBlue.withValues(alpha: 0.08),
                       blurRadius: 16,
                       spreadRadius: 2,
                     ),
@@ -47,7 +48,7 @@ class ChatInputBar extends StatelessWidget {
                     fontSize: 15,
                     fontWeight: FontWeight.w400,
                   ),
-                  cursorColor: const Color(0xFF00E599),
+                  cursorColor: AppTheme.primaryBlue,
                   maxLines: 1,
                   textInputAction: TextInputAction.send,
                   onSubmitted: (_) => onSend(),
@@ -97,13 +98,13 @@ class _SendButton extends StatelessWidget {
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           gradient: const LinearGradient(
-            colors: [Color(0xFF00FFAA), Color(0xFF00C896)],
+            colors: [Color(0xFF8B5CF6), AppTheme.primaryBlue],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFF00FFAA).withValues(alpha: 0.4),
+              color: AppTheme.primaryBlue.withValues(alpha: 0.4),
               blurRadius: 4,
               offset: const Offset(0, 2),
             ),
