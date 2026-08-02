@@ -144,6 +144,10 @@ class ApiService extends AsyncNotifier<ApiState> {
       if (res.statusCode == 200 || res.statusCode == 201) {
         final model = LoginResponseModel.fromJson(jsonDecode(res.body));
 
+        // Save email to SharedPreferences so it's persisted for verification page
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('user_email', email);
+
         debugPrint('model: $model');
 
         state = AsyncValue.data(ApiState(null).copyWith(

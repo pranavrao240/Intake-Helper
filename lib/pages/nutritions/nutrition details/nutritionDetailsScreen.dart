@@ -18,6 +18,7 @@ import 'package:intake_helper/pages/nutritions/nutrition%20details/widgets/nutri
 import 'package:intake_helper/utility/notification.dart';
 import 'package:intl/intl.dart';
 import 'package:intake_helper/l10n/app_localizations.dart';
+import 'package:intake_helper/services/onboarding_tutorial_service.dart';
 
 class NutritionDetailScreen extends HookConsumerWidget {
   final String id;
@@ -46,6 +47,34 @@ class NutritionDetailScreen extends HookConsumerWidget {
 
     // ── Data ──
     final details = ref.watch(NutritionDetailsProvider(id));
+    final detailsValue = details.value;
+
+    useEffect(() {
+      if (detailsValue != null) {
+        Future.microtask(() async {
+          final step = await OnboardingTutorialService.getStep();
+          if (step == 'nutritionDetails' && context.mounted) {
+            OnboardingTutorialService.showNutritionDetailsTutorial(
+              context,
+              onAddMeal: () {
+                if (selectedTypes.value.isEmpty) {
+                  selectedTypes.value = ['Breakfast'];
+                }
+                _handleAddMeal(
+                  context: context,
+                  ref: ref,
+                  model: detailsValue,
+                  selectedTypes: selectedTypes,
+                  showTypeError: showTypeError,
+                  dishName: detailsValue.dishName ?? 'Dish',
+                );
+              },
+            );
+          }
+        });
+      }
+      return null;
+    }, [detailsValue]);
 
     return Scaffold(
       backgroundColor: const Color(0xFF0A0A0A),
@@ -92,6 +121,7 @@ class NutritionDetailScreen extends HookConsumerWidget {
           slivers: [
             SliverToBoxAdapter(
               child: NutritionHeroSection(
+                  favoriteKey: OnboardingTutorialService.detailsFavoriteKey,
                   dishName:
                       model.dishName ?? locale.nutritionDetailsUnknownDish,
                   isSaved: isLiked.value,
@@ -119,9 +149,12 @@ class NutritionDetailScreen extends HookConsumerWidget {
                     IngredientsCard(ingredients: ingredients),
                     const SizedBox(height: 16),
                   ],
-                  _MealTypeSelector(
-                    selectedTypes: selectedTypes,
-                    showTypeError: showTypeError,
+                  Container(
+                    key: OnboardingTutorialService.detailsMealTypeKey,
+                    child: _MealTypeSelector(
+                      selectedTypes: selectedTypes,
+                      showTypeError: showTypeError,
+                    ),
                   ),
                   const SizedBox(height: 16),
                   GoalInsightCard(
@@ -136,6 +169,8 @@ class NutritionDetailScreen extends HookConsumerWidget {
           ],
         ),
         NutritionBottomBar(
+          portionKey: OnboardingTutorialService.detailsQuantityKey,
+          addMealKey: OnboardingTutorialService.detailsAddMealKey,
           portion: portion.value,
           onDecrement: () {
             if (portion.value > 1) portion.value--;
@@ -331,6 +366,19 @@ class _TimeDayPickerDialog extends HookConsumerWidget {
     final selectedDays = useState<Set<String>>({});
     final locale = AppLocalizations.of(context)!;
 
+    useEffect(() {
+      Future.microtask(() async {
+        final step = await OnboardingTutorialService.getStep();
+        if (step == 'scheduleDialog' && context.mounted) {
+          await Future.delayed(const Duration(milliseconds: 300));
+          if (context.mounted) {
+            OnboardingTutorialService.showScheduleDialogTutorial(context);
+          }
+        }
+      });
+      return null;
+    }, const []);
+
     return AlertDialog(
       backgroundColor: const Color(0xFF18181B),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
@@ -343,39 +391,42 @@ class _TimeDayPickerDialog extends HookConsumerWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          GestureDetector(
-            onTap: () async {
-              final picked = await showTimePicker(
-                context: context,
-                initialTime: selectedTime.value,
-                builder: (ctx, child) =>
-                    Theme(data: ThemeData.dark(), child: child!),
-              );
-              if (picked != null) selectedTime.value = picked;
-            },
-            child: Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-              decoration: BoxDecoration(
-                color: const Color(0xFFEF4444).withOpacity(0.1),
-                borderRadius: BorderRadius.circular(14),
-                border:
-                    Border.all(color: const Color(0xFFEF4444).withOpacity(0.3)),
-              ),
-              child: Row(
-                children: [
-                  const Icon(Icons.access_time,
-                      color: Color(0xFFEF4444), size: 16),
-                  const SizedBox(width: 8),
-                  Text(
-                    selectedTime.value.format(context),
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 15,
-                      fontWeight: FontWeight.w700,
+          Container(
+            key: OnboardingTutorialService.dialogTimeKey,
+            child: GestureDetector(
+              onTap: () async {
+                final picked = await showTimePicker(
+                  context: context,
+                  initialTime: selectedTime.value,
+                  builder: (ctx, child) =>
+                      Theme(data: ThemeData.dark(), child: child!),
+                );
+                if (picked != null) selectedTime.value = picked;
+              },
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFEF4444).withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(14),
+                  border:
+                      Border.all(color: const Color(0xFFEF4444).withOpacity(0.3)),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.access_time,
+                        color: Color(0xFFEF4444), size: 16),
+                    const SizedBox(width: 8),
+                    Text(
+                      selectedTime.value.format(context),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
@@ -390,47 +441,50 @@ class _TimeDayPickerDialog extends HookConsumerWidget {
             ),
           ),
           const SizedBox(height: 10),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: _days.map((day) {
-              final isSelected = selectedDays.value.contains(day);
-              return GestureDetector(
-                onTap: () {
-                  final updated = Set<String>.from(selectedDays.value);
-                  isSelected ? updated.remove(day) : updated.add(day);
-                  selectedDays.value = updated;
-                },
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 150),
-                  width: 38,
-                  height: 38,
-                  decoration: BoxDecoration(
-                    color: isSelected
-                        ? const Color(0xFFEF4444)
-                        : Colors.white.withValues(alpha: 0.06),
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(
+          Container(
+            key: OnboardingTutorialService.dialogDaysKey,
+            child: Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: _days.map((day) {
+                final isSelected = selectedDays.value.contains(day);
+                return GestureDetector(
+                  onTap: () {
+                    final updated = Set<String>.from(selectedDays.value);
+                    isSelected ? updated.remove(day) : updated.add(day);
+                    selectedDays.value = updated;
+                  },
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 150),
+                    width: 38,
+                    height: 38,
+                    decoration: BoxDecoration(
                       color: isSelected
                           ? const Color(0xFFEF4444)
-                          : Colors.white.withValues(alpha: 0.1),
-                    ),
-                  ),
-                  child: Center(
-                    child: Text(
-                      day,
-                      style: TextStyle(
+                          : Colors.white.withValues(alpha: 0.06),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(
                         color: isSelected
-                            ? Colors.white
-                            : Colors.white.withValues(alpha: 0.5),
-                        fontSize: 10,
-                        fontWeight: FontWeight.w800,
+                            ? const Color(0xFFEF4444)
+                            : Colors.white.withValues(alpha: 0.1),
+                      ),
+                    ),
+                    child: Center(
+                      child: Text(
+                        day,
+                        style: TextStyle(
+                          color: isSelected
+                              ? Colors.white
+                              : Colors.white.withValues(alpha: 0.5),
+                          fontSize: 10,
+                          fontWeight: FontWeight.w800,
+                        ),
                       ),
                     ),
                   ),
-                ),
-              );
-            }).toList(),
+                );
+              }).toList(),
+            ),
           ),
         ],
       ),
@@ -440,35 +494,38 @@ class _TimeDayPickerDialog extends HookConsumerWidget {
           child: Text(locale.scheduleMealDialogCancel,
               style: TextStyle(color: Colors.white.withValues(alpha: 0.5))),
         ),
-        TextButton(
-          onPressed: () async {
-            if (selectedDays.value.isEmpty) {
-              showToast(locale.nutritionDetailsSelectDay, context, 2);
-              return;
-            }
+        Container(
+          key: OnboardingTutorialService.dialogAddKey,
+          child: TextButton(
+            onPressed: () async {
+              if (selectedDays.value.isEmpty) {
+                showToast(locale.nutritionDetailsSelectDay, context, 2);
+                return;
+              }
 
-            onConfirm(selectedTime.value, selectedDays.value.toList());
+              onConfirm(selectedTime.value, selectedDays.value.toList());
 
-            ref.read(mealNotificationProvider.notifier).createNotification(
-                  title: locale.notificationMealTimeTitle,
-                  message: locale.notificationMealTimeBody(dishName),
-                  priority: NotificationPriority.high.name,
-                  type: NotificationType.mealReminder.apiValue,
-                );
+              ref.read(mealNotificationProvider.notifier).createNotification(
+                    title: locale.notificationMealTimeTitle,
+                    message: locale.notificationMealTimeBody(dishName),
+                    priority: NotificationPriority.high.name,
+                    type: NotificationType.mealReminder.apiValue,
+                  );
 
-            await CustomNotification().showScheduleNotification(
-              1,
-              locale.notificationMealTimeTitle,
-              locale.notificationMealTimeBody(dishName),
-              selectedTime.value.hour,
-              selectedTime.value.minute,
-            );
+              await CustomNotification().showScheduleNotification(
+                1,
+                locale.notificationMealTimeTitle,
+                locale.notificationMealTimeBody(dishName),
+                selectedTime.value.hour,
+                selectedTime.value.minute,
+              );
 
-            if (context.mounted) context.pop();
-          },
-          child: Text(locale.scheduleMealDialogAdd,
-              style: const TextStyle(
-                  color: Color(0xFFEF4444), fontWeight: FontWeight.w800)),
+              if (context.mounted) context.pop();
+            },
+            child: Text(locale.scheduleMealDialogAdd,
+                style: const TextStyle(
+                    color: Color(0xFFEF4444), fontWeight: FontWeight.w800)),
+          ),
         ),
       ],
     );

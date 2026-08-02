@@ -54,11 +54,18 @@ class LoginPage extends HookConsumerWidget {
           errorMessage.value = '';
 
           if (value.redirect == RouteConstants.emailVerification.name) {
-            // Get email from shared preferences for verification page
-            final prefs = await SharedPreferences.getInstance();
-            final userEmail =
-                prefs.getString('user_email') ?? emailController.text.trim();
-            context.go('/email-verification?email=$userEmail');
+            final emailInput = emailController.text.trim();
+            final userEmail = emailInput.isNotEmpty
+                ? emailInput
+                : (await SharedPreferences.getInstance())
+                        .getString('user_email') ??
+                    '';
+            if (emailInput.isNotEmpty) {
+              final prefs = await SharedPreferences.getInstance();
+              await prefs.setString('user_email', emailInput);
+            }
+            context.go(
+                '/email-verification?email=${Uri.encodeComponent(userEmail)}');
           } else {
             context.goNamed(value.redirect!);
           }

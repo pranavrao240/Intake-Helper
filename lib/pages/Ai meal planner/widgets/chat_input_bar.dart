@@ -6,11 +6,15 @@ import 'package:intake_helper/theme/app_theme.dart';
 class ChatInputBar extends StatelessWidget {
   final TextEditingController controller;
   final VoidCallback onSend;
+  final Key? inputKey;
+  final Key? sendKey;
 
   const ChatInputBar({
     super.key,
     required this.controller,
     required this.onSend,
+    this.inputKey,
+    this.sendKey,
   });
 
   @override
@@ -23,6 +27,7 @@ class ChatInputBar extends StatelessWidget {
           children: [
             Expanded(
               child: Container(
+                key: inputKey,
                 height: 52,
                 decoration: BoxDecoration(
                   color: Colors.transparent,
@@ -74,7 +79,10 @@ class ChatInputBar extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 10),
-            _SendButton(onSend: onSend),
+            Container(
+              key: sendKey,
+              child: _SendButton(onSend: onSend),
+            ),
           ],
         ),
       ),

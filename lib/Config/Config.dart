@@ -3,7 +3,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 class Config {
   final String firebaseProjectId = dotenv.get('PROJECT_ID');
   static const String baseUrl = "https://intake-helper-app-api.vercel.app";
-  // static const String baseUrl = "http://192.168.0.104:3000";
+  // static const String baseUrl = "http://192.168.0.101:3000";
   // static const String baseUrl = "http://10.218.70.240:3000";
   static const String nutritionAPI = "api/nutrition/import";
   static const String nutritionListAPI = "api/nutrition";
@@ -39,6 +39,8 @@ class Config {
   static const String getOpenAiResponse = "https://api.openai.com/v1/responses";
   static const String getGroqResponse =
       "https://api.groq.com/openai/v1/responses";
+
+  static const String aiMealSuggestionHistory = "/api/meal-suggestions/history";
 
   static const String verifyEmailAPI = "api/verify-email";
 

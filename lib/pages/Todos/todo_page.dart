@@ -19,6 +19,7 @@ import 'package:intake_helper/router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intake_helper/components/dialogs/streak_celebration_dialog.dart';
 import 'package:intake_helper/l10n/app_localizations.dart';
+import 'package:intake_helper/services/onboarding_tutorial_service.dart';
 
 class TodoPage extends HookConsumerWidget {
   const TodoPage({super.key});
@@ -157,6 +158,22 @@ class TodoPage extends HookConsumerWidget {
       return null;
     }, []);
 
+    useEffect(() {
+      Future.microtask(() async {
+        final step = await OnboardingTutorialService.getStep();
+        if (step == 'todo' && context.mounted) {
+          OnboardingTutorialService.showTodoTutorial(context);
+        } else if (step == 'todoAfterAdd' && context.mounted) {
+          // Add a short delay to ensure list is loaded
+          await Future.delayed(const Duration(milliseconds: 500));
+          if (context.mounted) {
+            OnboardingTutorialService.showTodoAfterAddTutorial(context);
+          }
+        }
+      });
+      return null;
+    }, [refreshKey.value]);
+
     // ─── Streak celebration ──────────────────────────────────────────────────
     final currentStreak = streakState.value?.streak?.data.currentStreak ?? 0;
 
@@ -288,6 +305,7 @@ class TodoPage extends HookConsumerWidget {
                         sliver: SliverList(
                           delegate: SliverChildBuilderDelegate(
                             (context, index) => Padding(
+                              key: index == 0 ? OnboardingTutorialService.todoAddedMealKey : null,
                               padding: const EdgeInsets.only(bottom: 12),
                               child: buildMealCard(filteredMeals[index]),
                             ),
@@ -349,6 +367,7 @@ class TodoPage extends HookConsumerWidget {
         ],
       ),
       floatingActionButton: TodoFAB(
+        key: OnboardingTutorialService.todoFabKey,
         onPressed: () => context.go(RouteConstants.nutrition.path),
       ),
       bottomNavigationBar: BottomNavbar(),

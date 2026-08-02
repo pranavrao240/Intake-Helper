@@ -5,7 +5,7 @@ import 'package:intake_helper/l10n/app_localizations.dart';
 import 'package:intake_helper/pages/home page/widgets/macros_card.dart';
 
 Widget buildQuickActions(BuildContext context, Map<String, double>? targets,
-    ValueChanged<Map<String, double>> onTargetSaved) {
+    ValueChanged<Map<String, double>> onTargetSaved, {Key? aiPlanKey}) {
   final locale = AppLocalizations.of(context)!;
   return Padding(
     padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -56,6 +56,7 @@ Widget buildQuickActions(BuildContext context, Map<String, double>? targets,
           children: [
             Expanded(
               child: OutlinedButton(
+                key: aiPlanKey,
                 onPressed: () {
                   context.push(RouteConstants.aiMealPlanner.path);
                 },

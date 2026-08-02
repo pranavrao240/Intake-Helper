@@ -78,6 +78,7 @@ Widget aiBubble(
   String text,
   BuildContext context, {
   required void Function(String) onSave,
+  required VoidCallback onShare,
 }) {
   final imageUrl = _extractImageUrl(text);
   final cleaned = _cleanText(text);
@@ -154,16 +155,8 @@ Widget aiBubble(
               },
             ),
             _ActionIcon(
-              icon: Icons.thumb_up_alt_outlined,
-              onTap: () => ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(locale.aiBubbleThanksForFeedback)),
-              ),
-            ),
-            _ActionIcon(
-              icon: Icons.thumb_down_alt_outlined,
-              onTap: () => ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(locale.aiBubbleThanksForFeedback)),
-              ),
+              icon: Icons.share_outlined,
+              onTap: onShare,
             ),
             _ActionIcon(
               icon: Icons.bookmark_border,

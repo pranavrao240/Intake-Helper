@@ -38,6 +38,8 @@ class NutritionBottomBar extends StatelessWidget {
   final VoidCallback onDecrement;
   final VoidCallback onIncrement;
   final VoidCallback onAddMeal;
+  final Key? portionKey;
+  final Key? addMealKey;
 
   const NutritionBottomBar({
     super.key,
@@ -45,6 +47,8 @@ class NutritionBottomBar extends StatelessWidget {
     required this.onDecrement,
     required this.onIncrement,
     required this.onAddMeal,
+    this.portionKey,
+    this.addMealKey,
   });
 
   @override
@@ -70,28 +74,31 @@ class NutritionBottomBar extends StatelessWidget {
         child: Row(
           children: [
             // Portion +/- controls
-            Row(
-              children: [
-                _PortionButton(
-                  icon: LucideIcons.minus,
-                  onTap: onDecrement,
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
-                  child: Text(
-                    '$portion',
-                    style: const TextStyle(
-                      color: Colors.black,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w900,
+            Container(
+              key: portionKey,
+              child: Row(
+                children: [
+                  _PortionButton(
+                    icon: LucideIcons.minus,
+                    onTap: onDecrement,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    child: Text(
+                      '$portion',
+                      style: const TextStyle(
+                        color: Colors.black,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w900,
+                      ),
                     ),
                   ),
-                ),
-                _PortionButton(
-                  icon: LucideIcons.plus,
-                  onTap: onIncrement,
-                ),
-              ],
+                  _PortionButton(
+                    icon: LucideIcons.plus,
+                    onTap: onIncrement,
+                  ),
+                ],
+              ),
             ),
 
             // Divider
@@ -120,6 +127,7 @@ class NutritionBottomBar extends StatelessWidget {
             GestureDetector(
               onTap: onAddMeal,
               child: Container(
+                key: addMealKey,
                 width: 40,
                 height: 40,
                 decoration: const BoxDecoration(

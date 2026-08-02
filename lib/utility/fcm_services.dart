@@ -27,33 +27,55 @@ class FCMService {
   /// PUBLIC INIT
   /// --------------------
   Future<void> init() async {
-    await _requestPermission();
-    await _initFCMToken();
-    _setupListeners();
+    try {
+      await _requestPermission();
+      await _initFCMToken();
+      _setupListeners();
+    } catch (e, stackTrace) {
+      log.e('❌ Failed to initialize FCM: $e', error: e, stackTrace: stackTrace);
+    }
   }
 
   /// --------------------
   /// Permission
   /// --------------------
   Future<void> _requestPermission() async {
-    final settings = await _messaging.requestPermission();
-    log.i('🔔 Permission Status: ${settings.authorizationStatus}');
+    try {
+      final settings = await _messaging.requestPermission();
+      log.i('🔔 Permission Status: ${settings.authorizationStatus}');
+    } catch (e, stackTrace) {
+      log.e('❌ Failed to request FCM permission: $e', error: e, stackTrace: stackTrace);
+      rethrow;
+    }
   }
 
   /// --------------------
   /// FCM Token Handling
   /// --------------------
   Future<void> _initFCMToken() async {
-    final fcmToken = await _messaging.getToken();
+    try {
+      final fcmToken = await _messaging.getToken();
 
-    if (fcmToken != null) {
-      await sendTokenIfChanged(fcmToken);
+      if (fcmToken != null) {
+        await sendTokenIfChanged(fcmToken);
+      }
+    } catch (e, stackTrace) {
+      log.e('❌ Failed to get FCM token: $e', error: e, stackTrace: stackTrace);
     }
 
     // Listen for refreshed fcm_token
-    FirebaseMessaging.instance.onTokenRefresh.listen((newToken) async {
-      await sendTokenIfChanged(newToken);
-    });
+    try {
+      FirebaseMessaging.instance.onTokenRefresh.listen(
+        (newToken) async {
+          await sendTokenIfChanged(newToken);
+        },
+        onError: (err) {
+          log.e('❌ FCM token refresh error: $err');
+        },
+      );
+    } catch (e, stackTrace) {
+      log.e('❌ Failed to listen to FCM token refresh: $e', error: e, stackTrace: stackTrace);
+    }
   }
 
   Future<void> sendTokenIfChanged(String newToken) async {
@@ -110,36 +132,44 @@ class FCMService {
   }
 
   void _setupListeners() {
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
-      log.i('📩 Foreground message: ${message.notification?.title}');
+    try {
+      FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
+        log.i('📩 Foreground message: ${message.notification?.title}');
 
-      await showForegroundNotification(
-        title: message.notification?.title ?? '',
-        body: message.notification?.body ?? '',
-        payload: message.data['route'] as String? ?? 'data-entry',
-      );
-    });
+        await showForegroundNotification(
+          title: message.notification?.title ?? '',
+          body: message.notification?.body ?? '',
+          payload: message.data['route'] as String? ?? 'data-entry',
+        );
+      });
 
-    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) async {
-      log.i('➡️ Notification Clicked');
-      final route =
-          message.data['route'] as String? ?? RouteConstants.home.name;
+      FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) async {
+        log.i('➡️ Notification Clicked');
+        final route =
+            message.data['route'] as String? ?? RouteConstants.home.name;
 
-      await appRouter.pushNamed(route);
-    });
+        await appRouter.pushNamed(route);
+      });
+    } catch (e, stackTrace) {
+      log.e('❌ Failed to set up FCM message listeners: $e', error: e, stackTrace: stackTrace);
+    }
   }
 
   Future<void> checkInitialMessage() async {
-    final initialMessage = await FirebaseMessaging.instance.getInitialMessage();
+    try {
+      final initialMessage = await FirebaseMessaging.instance.getInitialMessage();
 
-    if (initialMessage != null) {
-      log.i('🚀 App opened via notification (terminated)');
-      await appRouter.pushNamed(RouteConstants.home.name);
+      if (initialMessage != null) {
+        log.i('🚀 App opened via notification (terminated)');
+        await appRouter.pushNamed(RouteConstants.home.name);
+      }
+    } catch (e, stackTrace) {
+      log.e('❌ Failed to get initial message: $e', error: e, stackTrace: stackTrace);
     }
   }
 
   Future<void> sendFirebaseMessage() async {
-    final response = await dio.post(
+    await dio.post(
       Config.firebaseMessagingAPI,
       options: Options(
         headers: {

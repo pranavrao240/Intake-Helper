@@ -44,7 +44,12 @@ class RegisterPage extends HookConsumerWidget {
 
       if (value.redirect != null) {
         if (context.mounted) {
-          context.goNamed(value.redirect!, extra: emailController.text.trim());
+          final registeredEmail = emailController.text.trim();
+          if (value.redirect == RouteConstants.emailVerification.name) {
+            context.go('/email-verification?email=${Uri.encodeComponent(registeredEmail)}', extra: registeredEmail);
+          } else {
+            context.goNamed(value.redirect!, extra: registeredEmail);
+          }
         }
       }
     });
