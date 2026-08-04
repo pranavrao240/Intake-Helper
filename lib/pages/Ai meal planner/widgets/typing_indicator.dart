@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:intake_helper/theme/app_theme.dart';
 
 /// Three animated green dots shown while the AI is generating a response.
 class TypingIndicator extends HookConsumerWidget {
@@ -51,7 +52,7 @@ class TypingIndicator extends HookConsumerWidget {
                           width: 7,
                           height: 7,
                           decoration: const BoxDecoration(
-                            color: Color(0xFF00E599),
+                            color: AppTheme.primaryBlue,
                             shape: BoxShape.circle,
                           ),
                         ),

@@ -15,6 +15,7 @@ import 'package:intake_helper/pages/home%20page/widgets/schedule_meal_card.dart'
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:intake_helper/services/onboarding_tutorial_service.dart';
 import 'dart:math' as math;
 import 'package:intake_helper/l10n/app_localizations.dart';
 import 'package:intake_helper/analytics_service.dart';
@@ -177,6 +178,11 @@ class Homepage extends HookConsumerWidget {
         if (savedTargets != null) {
           targets.value = savedTargets;
         }
+
+        // Show tutorial if appropriate
+        if (context.mounted) {
+          OnboardingTutorialService.showHomeTutorial(context);
+        }
       });
       return null;
     }, []);
@@ -211,21 +217,30 @@ class Homepage extends HookConsumerWidget {
                   bottom: -250,
                   left: 0,
                   right: 0,
-                  child: MacrosCard(
-                    macros: macros.value,
-                    targets: targets.value,
-                    onTargetSaved: (newTargets) {
-                      targets.value = newTargets;
-                    },
+                  child: Container(
+                    key: OnboardingTutorialService.homeMacrosKey,
+                    child: MacrosCard(
+                      macros: macros.value,
+                      targets: targets.value,
+                      onTargetSaved: (newTargets) {
+                        targets.value = newTargets;
+                      },
+                    ),
                   ),
                 ),
               ],
             ),
             const SizedBox(height: 280),
-            buildQuickActions(context, targets.value, (newTargets) {
-              targets.value = newTargets;
-              saveTargetsLocal(newTargets);
-            }),
+            buildQuickActions(
+              context,
+              targets.value,
+              (newTargets) {
+                targets.value = newTargets;
+                saveTargetsLocal(newTargets);
+              },
+              aiPlanKey: OnboardingTutorialService.homeAiPlannerKey,
+            ),
+           
             const SizedBox(height: 24),
             buildScheduledMeals(context, todoData.value, completedTasks.value),
             const SizedBox(height: 24),

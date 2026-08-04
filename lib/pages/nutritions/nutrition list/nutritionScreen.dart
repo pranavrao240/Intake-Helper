@@ -7,6 +7,7 @@ import 'package:intake_helper/models/nutrition_model.dart';
 import 'package:intake_helper/pages/nutritions/nutrition%20list/widgets/nutrition_item_card.dart';
 import 'package:intake_helper/pages/nutritions/nutrition%20list/widgets/nutrition_list_header.dart';
 import 'package:intake_helper/pages/nutritions/nutrition%20list/widgets/nutrition_search_bar.dart';
+import 'package:intake_helper/services/onboarding_tutorial_service.dart';
 
 class NutritionScreen extends HookConsumerWidget {
   const NutritionScreen({super.key});
@@ -103,6 +104,17 @@ class NutritionScreen extends HookConsumerWidget {
       Future.microtask(() => loadInitialData());
       return null;
     }, const []);
+
+    useEffect(() {
+      Future.microtask(() async {
+        final step = await OnboardingTutorialService.getStep();
+        if (step == 'nutritionList' && context.mounted) {
+          final firstMealId = nutritions.value.isNotEmpty ? nutritions.value[0].id : null;
+          OnboardingTutorialService.showNutritionListTutorial(context, firstMealId);
+        }
+      });
+      return null;
+    }, [nutritions.value]);
 
     useEffect(() {
       bool cancelled = false;
@@ -232,7 +244,10 @@ class NutritionScreen extends HookConsumerWidget {
                   ),
                   delegate: SliverChildBuilderDelegate(
                     (context, index) =>
-                        NutritionItemCard(item: displayedNutritions[index]),
+                        NutritionItemCard(
+                          key: index == 0 ? OnboardingTutorialService.nutritionFirstMealKey : null,
+                          item: displayedNutritions[index],
+                        ),
                     childCount: displayedNutritions.length,
                   ),
                 ),

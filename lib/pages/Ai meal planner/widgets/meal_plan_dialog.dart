@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:intake_helper/theme/app_theme.dart';
 import 'package:intake_helper/pages/Ai%20meal%20planner/widgets/meal_info.dart';
 import 'selectable_meal_card.dart';
 import 'package:intake_helper/l10n/app_localizations.dart';
@@ -13,6 +14,7 @@ class MealPlanDialog extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final selected = useState<Set<MealInfo>>({});
+
     final locale = AppLocalizations.of(context)!;
 
     void toggleMeal(MealInfo meal) {
@@ -87,10 +89,10 @@ class MealPlanDialog extends HookConsumerWidget {
                       ? null
                       : () => Navigator.pop(context, selected.value.toList()),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF00E599),
+                    backgroundColor: AppTheme.primaryBlue,
                     foregroundColor: Colors.black,
                     disabledBackgroundColor:
-                        const Color(0xFF00E599).withOpacity(0.3),
+                        AppTheme.primaryBlue.withOpacity(0.3),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),

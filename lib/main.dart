@@ -7,7 +7,6 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intake_helper/Providers/locale_provider.dart';
 import 'package:intake_helper/Providers/meal_notifications_provider.dart';
-import 'package:intake_helper/Providers/notifications_provider.dart';
 import 'package:intake_helper/l10n/app_localizations.dart';
 import 'package:intake_helper/router.dart';
 import 'package:intake_helper/theme/app_theme.dart';
@@ -28,13 +27,17 @@ void main() async {
   await AnalyticsService.init();
   await Firebase.initializeApp();
 
-  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+  try {
+    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
-  await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
-    alert: true,
-    badge: true,
-    sound: true,
-  );
+    await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
+      alert: true,
+      badge: true,
+      sound: true,
+    );
+  } catch (e) {
+    debugPrint('⚠️ Error configuring foreground notification options: $e');
+  }
 
   await Supabase.initialize(
     url: 'https://vmhkcoenltymspivkagd.supabase.co',
@@ -120,17 +123,21 @@ class _AppWrapperState extends ConsumerState<AppWrapper>
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     updateActivity();
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
-      final notification = message.notification;
+    try {
+      FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
+        final notification = message.notification;
 
-      if (notification != null) {
-        await showForegroundNotification(
-          title: notification.title ?? '',
-          body: notification.body ?? '',
-          payload: message.data['route'] as String? ?? RouteConstants.home.name,
-        );
-      }
-    });
+        if (notification != null) {
+          await showForegroundNotification(
+            title: notification.title ?? '',
+            body: notification.body ?? '',
+            payload: message.data['route'] as String? ?? RouteConstants.home.name,
+          );
+        }
+      });
+    } catch (e) {
+      debugPrint('⚠️ Error listening to foreground messages: $e');
+    }
   }
 
   @override
@@ -180,5 +187,9 @@ class _AppWrapperState extends ConsumerState<AppWrapper>
 
 /// Background notification handler
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  await Firebase.initializeApp();
+  try {
+    await Firebase.initializeApp();
+  } catch (e) {
+    debugPrint('⚠️ Error initializing Firebase in background handler: $e');
+  }
 }

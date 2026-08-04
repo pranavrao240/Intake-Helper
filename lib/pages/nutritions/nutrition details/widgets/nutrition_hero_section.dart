@@ -3,7 +3,6 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intake_helper/Providers/save_meal_provider.dart';
-import 'package:intake_helper/api/api_service.dart';
 import 'package:intake_helper/components/toast/toast.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
@@ -12,6 +11,7 @@ class NutritionHeroSection extends HookConsumerWidget {
   final String? imageUrl;
   final bool isSaved;
   final String id;
+  final Key? favoriteKey;
 
   const NutritionHeroSection({
     super.key,
@@ -19,6 +19,7 @@ class NutritionHeroSection extends HookConsumerWidget {
     required this.isSaved,
     required this.id,
     this.imageUrl,
+    this.favoriteKey,
   });
 
   @override
@@ -76,32 +77,41 @@ class NutritionHeroSection extends HookConsumerWidget {
                   child: const Icon(LucideIcons.arrowLeft,
                       color: Colors.white, size: 18),
                 ),
-                _GlassButton(
-                  onTap: () async {
-                    if (!isLiked.value) {
-                      await ref
-                          .read(saveMealProvider.notifier)
-                          .postSavedMeals(nutritionId: id);
-                      isLiked.value = true;
-                      showToast('Meal saved successfully', context, 1);
-                    } else {
-                      if (savedMealId != null) {
+                Container(
+                  key: favoriteKey,
+                  child: _GlassButton(
+                    onTap: () async {
+                      if (!isLiked.value) {
                         await ref
                             .read(saveMealProvider.notifier)
-                            .unSaveMeal(savedMealId: savedMealId);
-                        isLiked.value = false;
-                        showToast('Meal unsaved successfully', context, 1);
+                            .postSavedMeals(nutritionId: id);
+                        isLiked.value = true;
+                        if (context.mounted) {
+                          showToast('Meal saved successfully', context, 1);
+                        }
                       } else {
-                        // Handle case where savedMealId is null
-                        showToast('Failed to unsave meal: meal not found',
-                            context, 2);
+                        if (savedMealId != null) {
+                          await ref
+                              .read(saveMealProvider.notifier)
+                              .unSaveMeal(savedMealId: savedMealId);
+                          isLiked.value = false;
+                          if (context.mounted) {
+                            showToast('Meal unsaved successfully', context, 1);
+                          }
+                        } else {
+                          // Handle case where savedMealId is null
+                          if (context.mounted) {
+                            showToast('Failed to unsave meal: meal not found',
+                                context, 2);
+                          }
+                        }
                       }
-                    }
-                  },
-                  child: Icon(
-                    isLiked.value ? Icons.favorite : Icons.favorite_border,
-                    color: Color(0xFFEF4444),
-                    size: 18,
+                    },
+                    child: Icon(
+                      isLiked.value ? Icons.favorite : Icons.favorite_border,
+                      color: Color(0xFFEF4444),
+                      size: 18,
+                    ),
                   ),
                 ),
               ],

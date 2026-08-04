@@ -4,16 +4,16 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 const String imagePath =
-    'https://pmxylbawxioitqbyntvi.supabase.co/storage/v1/object/public/meals/characters';
+    'https://hvyysrqhvdopspysfthd.supabase.co/storage/v1/object/public/intakehelperassets/avatars';
 const Map<String, String> _avatarList = {
-  'male1': '$imagePath/male1.png',
-  'male2': '$imagePath/male2.png',
-  'male3': '$imagePath/male3.png',
-  'male4': '$imagePath/male4.png',
-  'female1': '$imagePath/female1.png',
-  'female2': '$imagePath/female2.png',
-  'female3': '$imagePath/female3.png',
-  'female4': '$imagePath/female4.png',
+  'male1': '$imagePath/male1.jpeg',
+  'male2': '$imagePath/male2.jpeg',
+  'male3': '$imagePath/male3.jpeg',
+  'male4': '$imagePath/male4.jpeg',
+  'female1': '$imagePath/female1.jpeg',
+  'female2': '$imagePath/female2.jpeg',
+  'female3': '$imagePath/female3.jpeg',
+  'female4': '$imagePath/female4.jpeg',
 };
 
 class AvatarModal extends HookConsumerWidget {

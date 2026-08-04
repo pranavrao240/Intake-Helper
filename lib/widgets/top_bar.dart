@@ -15,7 +15,7 @@ PreferredSizeWidget customAppbar(BuildContext context,
       style: TextStyle(
         fontWeight: FontWeight.bold,
         fontSize: 22,
-        color: Color(0xFF00FFAA),
+        color: Colors.white,
       ),
     ),
     elevation: 4,

@@ -76,6 +76,13 @@ Future<bool> isUserLoggedIn() async {
       return false;
     }
 
+    final expired = await isTokenExpired();
+    if (expired) {
+      await preferences.remove('token');
+      await preferences.remove('token_expiry');
+      return false;
+    }
+
     return true;
   } on Exception {
     return false;
@@ -235,4 +242,8 @@ final GoRouter appRouter = GoRouter(
 Future<void> saveAuthData(String token, {int expiresIn = 2592000}) async {
   final prefs = await SharedPreferences.getInstance();
   await prefs.setString('token', token);
+  await prefs.setInt(
+    'token_expiry',
+    DateTime.now().millisecondsSinceEpoch + (expiresIn * 1000),
+  );
 }

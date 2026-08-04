@@ -144,6 +144,10 @@ class ApiService extends AsyncNotifier<ApiState> {
       if (res.statusCode == 200 || res.statusCode == 201) {
         final model = LoginResponseModel.fromJson(jsonDecode(res.body));
 
+        // Save email to SharedPreferences so it's persisted for verification page
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('user_email', email);
+
         debugPrint('model: $model');
 
         state = AsyncValue.data(ApiState(null).copyWith(
@@ -183,9 +187,8 @@ class ApiService extends AsyncNotifier<ApiState> {
       if (res.statusCode == 200) {
         final model = LoginResponseModel.fromJson(jsonDecode(res.body));
 
+        await saveAuthData(model.data.token!);
         final preferences = await SharedPreferences.getInstance();
-
-        preferences.setString('token', model.data.token!);
         preferences.setString('userId', model.data.id ?? '');
 
         // Trigger backend sync of FCM token after logging in
@@ -333,7 +336,7 @@ class ApiService extends AsyncNotifier<ApiState> {
         final model = LoginResponseModel.fromJson(jsonDecode(res.body));
 
         final preferences = await SharedPreferences.getInstance();
-        preferences.setString('token', model.data.token!);
+        await saveAuthData(model.data.token!);
         preferences.setString('userId', model.data.id ?? '');
 
         // Trigger backend sync of FCM token after verification
@@ -677,12 +680,15 @@ class ApiService extends AsyncNotifier<ApiState> {
 
   Future<void> addNutrition({
     required String name,
-    required String mealImage,
+    String? mealImage,
     double? protein,
     double? carbs,
     double? calories,
     String? quantity,
   }) async {
+    final effectiveImage = (mealImage == null || mealImage.trim().isEmpty)
+        ? 'https://plakarestaurant.ca/wp-content/themes/twentytwentythree-child/img/food-placeholder.png'
+        : mealImage.trim();
     final preferences = await SharedPreferences.getInstance();
     final token = preferences.getString('token');
 
@@ -697,7 +703,7 @@ class ApiService extends AsyncNotifier<ApiState> {
               ),
               data: {
             "DishName": name,
-            "DishImage": mealImage,
+            "DishImage": effectiveImage,
             "Protein": protein,
             "Carbohydrates": carbs,
             "Calories": calories,
@@ -712,7 +718,7 @@ class ApiService extends AsyncNotifier<ApiState> {
         message: "Nutrition added successfully",
         isLoading: false,
         nutrition: nutrition,
-        redirect: RouteConstants.mealDetails.path,
+        redirect: "",
         addedId: response.data['data']['_id'],
       ));
     } catch (e) {
@@ -757,6 +763,9 @@ class ApiService extends AsyncNotifier<ApiState> {
       }
 
       if (res.statusCode == 401) {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.remove('token');
+        await prefs.remove('token_expiry');
         state = AsyncValue.data(state.value!.copyWith(
           token: null,
         ));
@@ -813,6 +822,9 @@ class ApiService extends AsyncNotifier<ApiState> {
     }
 
     if (res.statusCode == 401) {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove('token');
+      await prefs.remove('token_expiry');
       state = AsyncValue.data(state.value!.copyWith(
         token: null,
       ));
@@ -839,6 +851,9 @@ class ApiService extends AsyncNotifier<ApiState> {
       if (res.statusCode == 200) return true;
 
       if (res.statusCode == 401) {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.remove('token');
+        await prefs.remove('token_expiry');
         state = AsyncValue.data(state.value!.copyWith(
           token: null,
         ));
