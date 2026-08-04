@@ -187,9 +187,8 @@ class ApiService extends AsyncNotifier<ApiState> {
       if (res.statusCode == 200) {
         final model = LoginResponseModel.fromJson(jsonDecode(res.body));
 
+        await saveAuthData(model.data.token!);
         final preferences = await SharedPreferences.getInstance();
-
-        preferences.setString('token', model.data.token!);
         preferences.setString('userId', model.data.id ?? '');
 
         // Trigger backend sync of FCM token after logging in
@@ -337,7 +336,7 @@ class ApiService extends AsyncNotifier<ApiState> {
         final model = LoginResponseModel.fromJson(jsonDecode(res.body));
 
         final preferences = await SharedPreferences.getInstance();
-        preferences.setString('token', model.data.token!);
+        await saveAuthData(model.data.token!);
         preferences.setString('userId', model.data.id ?? '');
 
         // Trigger backend sync of FCM token after verification
@@ -764,6 +763,9 @@ class ApiService extends AsyncNotifier<ApiState> {
       }
 
       if (res.statusCode == 401) {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.remove('token');
+        await prefs.remove('token_expiry');
         state = AsyncValue.data(state.value!.copyWith(
           token: null,
         ));
@@ -820,6 +822,9 @@ class ApiService extends AsyncNotifier<ApiState> {
     }
 
     if (res.statusCode == 401) {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove('token');
+      await prefs.remove('token_expiry');
       state = AsyncValue.data(state.value!.copyWith(
         token: null,
       ));
@@ -846,6 +851,9 @@ class ApiService extends AsyncNotifier<ApiState> {
       if (res.statusCode == 200) return true;
 
       if (res.statusCode == 401) {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.remove('token');
+        await prefs.remove('token_expiry');
         state = AsyncValue.data(state.value!.copyWith(
           token: null,
         ));
